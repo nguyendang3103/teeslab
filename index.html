@@ -1168,14 +1168,14 @@
         </div>
         <div class="brand-info">
           <div class="brand-title">TEE'S LAB</div>
-          <button class="hdr-phone-chip" id="hdrPhoneChip" title="Change phone profile">✨ Detecting...</button>
+          <button class="hdr-phone-chip" id="hdrPhoneChip" title="Change phone profile">Detecting...</button>
         </div>
       </div>
 
       <div class="topbar-actions">
         <input type="file" id="fileInput" accept="image/*" hidden />
         <button class="btn-pill btn-ghost" id="btnUpload" title="Add a photo" aria-label="Add a photo">➕ Photo</button>
-        <button class="btn-pill btn-primary" id="btnExport" title="Save edited photo" aria-label="Save edited photo">⬇️ Save</button>
+        <button class="btn-pill btn-primary" id="btnExport" title="Save edited photo to your library" aria-label="Save edited photo">⬇️ Save</button>
       </div>
     </header>
 
@@ -1421,17 +1421,22 @@
      ========================================================================== */
 
   const PHONE_PROFILES = [
-    { id: 'auto-detect', name: 'Automatic', icon: '✨', deSharpen: 0.14, warmthOffset: 0, tintOffset: 0, satScale: 0.96, blueTame: 0.08, greenTame: 0.08, highlightRecover: 0.10, shadowLift: 0.04, contrastSoften: 0.06 },
-    { id: 'iphone-18', name: 'iPhone 16–18 Pro', icon: '🍎', deSharpen: 0.26, warmthOffset: -5, tintOffset: 2, satScale: 0.93, blueTame: 0.08, greenTame: 0.06, highlightRecover: 0.18, shadowLift: 0.07, contrastSoften: 0.12 },
-    { id: 'iphone-hdr', name: 'iPhone 12–15', icon: '📱', deSharpen: 0.22, warmthOffset: -4, tintOffset: 2, satScale: 0.94, blueTame: 0.06, greenTame: 0.05, highlightRecover: 0.15, shadowLift: 0.06, contrastSoften: 0.10 },
-    { id: 'iphone-classic', name: 'iPhone X / 11 / SE', icon: '🍏', deSharpen: 0.10, warmthOffset: -2, tintOffset: 1, satScale: 0.97, blueTame: 0.04, greenTame: 0.03, highlightRecover: 0.10, shadowLift: 0.04, contrastSoften: 0.05 },
-    { id: 'samsung-vivid', name: 'Samsung S23–S26 / Z', icon: '🌌', deSharpen: 0.22, warmthOffset: 3, tintOffset: -2, satScale: 0.85, blueTame: 0.28, greenTame: 0.26, highlightRecover: 0.14, shadowLift: 0.08, contrastSoften: 0.14 },
-    { id: 'xiaomi-leica', name: 'Xiaomi 13–17 Leica', icon: '🔴', deSharpen: 0.12, warmthOffset: 1, tintOffset: 0, satScale: 0.95, blueTame: 0.05, greenTame: 0.06, highlightRecover: 0.08, shadowLift: 0.14, contrastSoften: 0.08 },
-    { id: 'pixel-hdr', name: 'Pixel 8–11 Pro', icon: '📸', deSharpen: 0.20, warmthOffset: 6, tintOffset: -1, satScale: 0.94, blueTame: 0.12, greenTame: 0.08, highlightRecover: 0.12, shadowLift: 0.10, contrastSoften: 0.16 },
-    { id: 'oppo-vivo', name: 'OPPO X8–9 / Vivo X200–300', icon: '🎨', deSharpen: 0.16, warmthOffset: 2, tintOffset: -2, satScale: 0.90, blueTame: 0.16, greenTame: 0.16, highlightRecover: 0.18, shadowLift: 0.04, contrastSoften: 0.08 },
-    { id: 'sony-honor', name: 'Sony Xperia / Honor', icon: '💠', deSharpen: 0.08, warmthOffset: 2, tintOffset: 0, satScale: 0.97, blueTame: 0.05, greenTame: 0.05, highlightRecover: 0.08, shadowLift: 0.05, contrastSoften: 0.04 },
-    { id: 'neutral-raw', name: 'Camera / RAW', icon: '🎞️', deSharpen: 0.02, warmthOffset: 0, tintOffset: 0, satScale: 1.0, blueTame: 0, greenTame: 0, highlightRecover: 0.02, shadowLift: 0, contrastSoften: 0 }
+    { id: 'auto-detect', name: 'Automatic', deSharpen: 0.14, warmthOffset: 0, tintOffset: 0, satScale: 0.96, blueTame: 0.08, greenTame: 0.08, highlightRecover: 0.10, shadowLift: 0.04, contrastSoften: 0.06 },
+    { id: 'iphone', name: 'iPhone', deSharpen: 0.20, warmthOffset: -4, tintOffset: 2, satScale: 0.94, blueTame: 0.06, greenTame: 0.05, highlightRecover: 0.15, shadowLift: 0.06, contrastSoften: 0.10 },
+    { id: 'samsung-vivid', name: 'Samsung Galaxy', deSharpen: 0.22, warmthOffset: 3, tintOffset: -2, satScale: 0.85, blueTame: 0.28, greenTame: 0.26, highlightRecover: 0.14, shadowLift: 0.08, contrastSoften: 0.14 },
+    { id: 'xiaomi-leica', name: 'Xiaomi', deSharpen: 0.12, warmthOffset: 1, tintOffset: 0, satScale: 0.95, blueTame: 0.05, greenTame: 0.06, highlightRecover: 0.08, shadowLift: 0.14, contrastSoften: 0.08 },
+    { id: 'pixel-hdr', name: 'Google Pixel', deSharpen: 0.20, warmthOffset: 6, tintOffset: -1, satScale: 0.94, blueTame: 0.12, greenTame: 0.08, highlightRecover: 0.12, shadowLift: 0.10, contrastSoften: 0.16 },
+    { id: 'oppo-vivo', name: 'OPPO / Vivo / OnePlus', deSharpen: 0.16, warmthOffset: 2, tintOffset: -2, satScale: 0.90, blueTame: 0.16, greenTame: 0.16, highlightRecover: 0.18, shadowLift: 0.04, contrastSoften: 0.08 },
+    { id: 'other-phone', name: 'Other phone', deSharpen: 0.08, warmthOffset: 2, tintOffset: 0, satScale: 0.97, blueTame: 0.05, greenTame: 0.05, highlightRecover: 0.08, shadowLift: 0.05, contrastSoften: 0.04 },
+    { id: 'neutral-raw', name: 'Digital camera / RAW', deSharpen: 0.02, warmthOffset: 0, tintOffset: 0, satScale: 1.0, blueTame: 0, greenTame: 0, highlightRecover: 0.02, shadowLift: 0, contrastSoften: 0 }
   ];
+  const LEGACY_PHONE_PROFILE_IDS = {
+    'iphone-18': 'iphone',
+    'iphone-hdr': 'iphone',
+    'iphone-classic': 'iphone',
+    'sony-honor': 'other-phone'
+  };
+  const normalizePhoneProfileId = id => LEGACY_PHONE_PROFILE_IDS[id] || id;
 
   const CAMERA_BODIES = [
     { id: 'rollie-35', name: 'Rollie 35 S', meta: 'Warm nostalgia', blackLift: 0.035, contrast: 1.04, highlightRolloff: 0.18, bodyWarmth: 4, bodyTint: 0 },
@@ -1509,29 +1514,8 @@
      ========================================================================== */
 
   const DEVICE_MODEL_MAP = [
-    // iPhone 18 Series (2026)
-    { match: /iphone\s*19,1/i, name: 'iPhone 18 Pro', profile: 'iphone-18' },
-    { match: /iphone\s*19,2/i, name: 'iPhone 18 Pro Max', profile: 'iphone-18' },
-    { match: /iphone\s*19,3/i, name: 'iPhone 18', profile: 'iphone-18' },
-    { match: /iphone\s*19,4/i, name: 'iPhone 18 Air / Plus', profile: 'iphone-18' },
-    // iPhone 17 Series (2025)
-    { match: /iphone\s*18,1/i, name: 'iPhone 17 Pro', profile: 'iphone-18' },
-    { match: /iphone\s*18,2/i, name: 'iPhone 17 Pro Max', profile: 'iphone-18' },
-    { match: /iphone\s*18,3/i, name: 'iPhone 17', profile: 'iphone-18' },
-    { match: /iphone\s*18,4/i, name: 'iPhone 17 Air / Plus', profile: 'iphone-18' },
-    // iPhone 16 Series
-    { match: /iphone\s*17,1/i, name: 'iPhone 16 Pro', profile: 'iphone-18' },
-    { match: /iphone\s*17,2/i, name: 'iPhone 16 Pro Max', profile: 'iphone-18' },
-    { match: /iphone\s*17,3/i, name: 'iPhone 16', profile: 'iphone-18' },
-    { match: /iphone\s*17,4/i, name: 'iPhone 16 Plus', profile: 'iphone-18' },
-    { match: /iphone\s*(16|17|18)/i, name: null, profile: 'iphone-18' },
-    // iPhone 12 - 15 Series
-    { match: /iphone\s*16,1/i, name: 'iPhone 15 Pro', profile: 'iphone-hdr' },
-    { match: /iphone\s*16,2/i, name: 'iPhone 15 Pro Max', profile: 'iphone-hdr' },
-    { match: /iphone\s*15,2/i, name: 'iPhone 14 Pro', profile: 'iphone-hdr' },
-    { match: /iphone\s*15,3/i, name: 'iPhone 14 Pro Max', profile: 'iphone-hdr' },
-    { match: /iphone\s*(12|13|14|15)/i, name: null, profile: 'iphone-hdr' },
-    { match: /iphone\s*(x|xs|xr|11|8|7|se)/i, name: null, profile: 'iphone-classic' },
+    // All iPhone generations share one easy-to-select profile.
+    { match: /iphone/i, name: null, profile: 'iphone' },
     // Samsung Galaxy S26 / S25 / S24 / Z Fold & Flip
     { match: /SM-S948/i, name: 'Galaxy S26 Ultra', profile: 'samsung-vivid' },
     { match: /SM-S946/i, name: 'Galaxy S26+', profile: 'samsung-vivid' },
@@ -1561,7 +1545,7 @@
     // OPPO Find X8/X9, Vivo X200/X300, OnePlus 13-15
     { match: /(find\s*x[789]|vivo\s*x[123]00|oppo|vivo|realme|oneplus|cph|v2[0-9]{3}|rmx)/i, name: null, profile: 'oppo-vivo' },
     // Sony Xperia / Honor Magic
-    { match: /(xperia|XQ-[A-Z]{2}[0-9]{2}|honor|PGT-|BVL-|PTP-)/i, name: null, profile: 'sony-honor' },
+    { match: /(xperia|XQ-[A-Z]{2}[0-9]{2}|honor|PGT-|BVL-|PTP-)/i, name: null, profile: 'other-phone' },
     // Dedicated Cameras
     { match: /(fujifilm|canon|nikon|sony\s*ilce|leica|ricoh|olympus|panasonic|hasselblad)/i, name: null, profile: 'neutral-raw' }
   ];
@@ -1657,12 +1641,12 @@
       }
     }
     if (mappedProfile === 'auto-detect') {
-      if (/apple/i.test(make)) mappedProfile = 'iphone-18';
+      if (/apple/i.test(make)) mappedProfile = 'iphone';
       else if (/samsung/i.test(make)) mappedProfile = 'samsung-vivid';
       else if (/xiaomi|redmi|poco/i.test(make)) mappedProfile = 'xiaomi-leica';
       else if (/google/i.test(make)) mappedProfile = 'pixel-hdr';
       else if (/oppo|vivo|realme|oneplus/i.test(make)) mappedProfile = 'oppo-vivo';
-      else if (/sony|honor/i.test(make)) mappedProfile = 'sony-honor';
+      else if (/sony|honor/i.test(make)) mappedProfile = 'other-phone';
     }
 
     const exp = tags[0x829A];
@@ -1728,7 +1712,7 @@
     }
 
     let suggestedPhoneId = 'auto-detect';
-    if (sharp > 0.105) suggestedPhoneId = 'iphone-18';
+    if (sharp > 0.105) suggestedPhoneId = 'iphone';
     else if (meanSat > 0.46 && (blueR > 0.14 || greenR > 0.14)) suggestedPhoneId = 'samsung-vivid';
     else if (shadowR > 0.30 && meanLum < 0.42) suggestedPhoneId = 'xiaomi-leica';
 
@@ -2333,8 +2317,8 @@
     state.previewSourceData = prevC.getContext('2d').getImageData(0, 0, pw, ph);
     state.analysis = analyzeImageCharacteristics(srcCanvas);
 
-    if (exifData && exifData.mappedProfile) state.phoneId = exifData.mappedProfile;
-    else if (state.analysis && state.analysis.suggestedPhoneId) state.phoneId = state.analysis.suggestedPhoneId;
+    if (exifData && exifData.mappedProfile) state.phoneId = normalizePhoneProfileId(exifData.mappedProfile);
+    else if (state.analysis && state.analysis.suggestedPhoneId) state.phoneId = normalizePhoneProfileId(state.analysis.suggestedPhoneId);
 
     renderExifAndAnalysisUI();
     renderPhoneProfileGrid();
@@ -2429,7 +2413,7 @@
     const exif = state.exif, ana = state.analysis;
     const prof = PHONE_PROFILES.find(p => p.id === state.phoneId) || PHONE_PROFILES[0];
 
-    hdrChip.textContent = `${prof.icon} ${prof.name}`;
+    hdrChip.textContent = prof.name;
     sceneText.textContent = ana.sceneType;
 
     if (exif) {
@@ -2465,8 +2449,8 @@
     const sel = document.getElementById('phoneProfileSelect');
     const hdrChip = document.getElementById('hdrPhoneChip');
     const activeProf = PHONE_PROFILES.find(p => p.id === state.phoneId) || PHONE_PROFILES[0];
-    hdrChip.textContent = `${activeProf.icon} ${activeProf.name}`;
-    sel.innerHTML = PHONE_PROFILES.map(p => `<option value="${p.id}">${p.icon} ${p.name}</option>`).join('');
+    hdrChip.textContent = activeProf.name;
+    sel.innerHTML = PHONE_PROFILES.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
     sel.value = activeProf.id;
   }
 
@@ -2559,7 +2543,7 @@
       chip.innerHTML = `<button class="btn-use" style="font-weight:700;">${escapeHtml(r.name)}</button><button class="btn-del" style="color:var(--danger);font-weight:700;">×</button>`;
       chip.querySelector('.btn-use').addEventListener('click', () => {
         Object.assign(state, {
-          phoneId: r.phoneId, bodyId: r.bodyId, lensId: r.lensId, filmId: r.filmId,
+          phoneId: normalizePhoneProfileId(r.phoneId), bodyId: r.bodyId, lensId: r.lensId, filmId: r.filmId,
           strength: r.strength, exposure: r.exposure, warmth: r.warmth, grain: r.grain,
           halation: r.halation, bloom: r.bloom, vignette: r.vignette,
           leakType: r.leakType, leakAmt: r.leakAmt, frameType: r.frameType, dateStamp: r.dateStamp
@@ -2598,18 +2582,11 @@
       }
     })),
     {
-      id: 'g-phone-iphone18', category: 'phone', icon: '🍎', chipClass: 'chip-phone', chipLabel: 'PHONE',
-      title: 'iPhone 16 / 17 / 18 Pro (Photonic Engine & Next-Gen HDR)', subtitle: 'Tames 48MP micro-sharpening and balances next-generation HDR range',
-      colorNote: 'The 48MP Fusion sensor on iPhone 16–18 Pro drives micro-contrast and holds shadow brightness strongly.',
-      bestFor: 'The iPhone 16–18 Pro profile softens edges by 26%, slightly reduces HDR yellow cast, and restores natural shadow depth.',
-      phoneProfile: 'iphone-18'
-    },
-    {
       id: 'g-phone-iphone', category: 'phone', icon: '📱', chipClass: 'chip-phone', chipLabel: 'PHONE',
-      title: 'iPhone 12 – 15 Series (Smart HDR / Deep Fusion)', subtitle: 'Softens harsh Deep Fusion edges and reduces yellow cast',
-      colorNote: 'Smart HDR strongly sharpens edges and lifts shadow brightness.',
-      bestFor: 'The iPhone 12–15 profile softens edges by 22% and restores film-like depth.',
-      phoneProfile: 'iphone-hdr'
+      title: 'iPhone', subtitle: 'Balanced handling for Smart HDR, Deep Fusion, and Photonic Engine processing',
+      colorNote: 'iPhone processing can increase edge sharpness, highlight control, and shadow brightness.',
+      bestFor: 'The unified iPhone profile softens edges, reduces HDR yellow cast, and restores natural shadow depth.',
+      phoneProfile: 'iphone'
     },
     {
       id: 'g-phone-samsung', category: 'phone', icon: '🌌', chipClass: 'chip-phone', chipLabel: 'PHONE',
@@ -2868,24 +2845,35 @@
     }
   }
 
-  function exportFullResolution() {
+  async function exportFullResolution() {
     if (!state.fullSourceCanvas) return;
     showToast('⏳ Saving high-quality image...');
-    setTimeout(() => {
-      const src = state.fullSourceCanvas;
-      const { phone, body, lens, film } = getSelectedGear();
-      const out = processFilmCanvas(src.getContext('2d').getImageData(0, 0, src.width, src.height), src.width, src.height, {
-        phone, body, lens, film, strength: state.strength, exposureEV: state.exposure / 100, warmth: state.warmth,
-        grainAmt: state.grain, halationAmt: state.halation, bloomAmt: state.bloom, vignetteAmt: state.vignette,
-        leakType: state.leakType, leakAmt: state.leakAmt, frameType: state.frameType, dateStampText: formatDateStamp(), frameNumberStr: '36'
-      });
-      out.toBlob(blob => {
-        const u = URL.createObjectURL(blob), a = document.createElement('a');
-        a.href = u; a.download = `tees-lab-${film.id}-${Date.now()}.jpg`; a.click();
-        setTimeout(() => URL.revokeObjectURL(u), 1000);
-        showToast('✅ Film image saved!');
-      }, 'image/jpeg', 0.94);
-    }, 30);
+    const src = state.fullSourceCanvas;
+    const { phone, body, lens, film } = getSelectedGear();
+    const out = processFilmCanvas(src.getContext('2d').getImageData(0, 0, src.width, src.height), src.width, src.height, {
+      phone, body, lens, film, strength: state.strength, exposureEV: state.exposure / 100, warmth: state.warmth,
+      grainAmt: state.grain, halationAmt: state.halation, bloomAmt: state.bloom, vignetteAmt: state.vignette,
+      leakType: state.leakType, leakAmt: state.leakAmt, frameType: state.frameType, dateStampText: formatDateStamp(), frameNumberStr: '36'
+    });
+    const blob = await new Promise(resolve => out.toBlob(resolve, 'image/jpeg', 0.94));
+    if (!blob) { showToast('❌ Could not create image file'); return; }
+
+    const filename = `tees-lab-${film.id}-${Date.now()}.jpg`;
+    const imageFile = new File([blob], filename, { type: 'image/jpeg' });
+    try {
+      if (navigator.share && (!navigator.canShare || navigator.canShare({ files: [imageFile] }))) {
+        await navigator.share({ files: [imageFile], title: "Tee's Lab photo" });
+        showToast('✅ Choose “Save Image” to add it to Photos');
+        return;
+      }
+    } catch (error) {
+      if (error?.name === 'AbortError') { showToast('Save cancelled'); return; }
+    }
+
+    const u = URL.createObjectURL(blob), a = document.createElement('a');
+    a.href = u; a.download = filename; a.click();
+    setTimeout(() => URL.revokeObjectURL(u), 1000);
+    showToast('✅ Image downloaded — add it to Photos from Downloads');
   }
 
   function escapeHtml(s) {
