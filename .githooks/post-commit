@@ -1,0 +1,3 @@
+#!/bin/sh
+# Push the branch that received this commit to its configured upstream.
+git push origin HEAD
