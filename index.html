@@ -1,0 +1,3054 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#090a0c" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Tee's Lab — 35mm Film Mobile</title>
+  <link rel="icon" type="image/jpeg" href="./logo.jpg" />
+  <link rel="apple-touch-icon" href="./logo.jpg" />
+  <link rel="manifest" href="./manifest.json" />
+  <style>
+    :root {
+      --bg-void: #050608;
+      --bg-shell: #0c0e12;
+      --bg-dock: #14171d;
+      --bg-card: #1c2028;
+      --bg-elevated: #262c36;
+      --bg-input: #0e1015;
+      --border: #2a303c;
+      --border-light: #3b4454;
+      --text-primary: #f3f4f6;
+      --text-secondary: #a1aab8;
+      --text-muted: #6c7586;
+      --cyan: #22d3ee;
+      --cyan-dim: rgba(34, 211, 238, 0.14);
+      --brass: #d4a359;
+      --brass-dim: rgba(212, 163, 89, 0.16);
+      --accent: #e86a33;
+      --fuji: #10b981;
+      --fuji-dim: rgba(16, 185, 129, 0.16);
+      --kodak: #f59e0b;
+      --kodak-dim: rgba(245, 158, 11, 0.16);
+      --cinema: #06b6d4;
+      --cinema-dim: rgba(6, 182, 212, 0.16);
+      --danger: #ef4444;
+      --mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, monospace;
+      --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Inter, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: var(--bg-void);
+      color: var(--text-primary);
+      font-family: var(--sans);
+      font-size: 13px;
+      line-height: 1.35;
+      overflow: hidden;
+      overscroll-behavior: none;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+    }
+
+    button, input, select {
+      font-family: inherit;
+      color: inherit;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      background: none;
+      padding: 0;
+    }
+
+    /* Hide scrollbars on touch horizontal tracks */
+    .h-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .h-scroll::-webkit-scrollbar { display: none; }
+
+    /* Mobile App Shell (100dvh fixed frame) */
+    .app-shell {
+      width: 100%;
+      max-width: 440px;
+      height: 100dvh;
+      max-height: 100dvh;
+      background: var(--bg-shell);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+      border-left: 1px solid #181c24;
+      border-right: 1px solid #181c24;
+      padding-top: env(safe-area-inset-top);
+    }
+
+    /* 1. COMPACT MOBILE TOPBAR (48px) */
+    .topbar {
+      height: 48px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 0 10px;
+      background: rgba(12, 14, 18, 0.96);
+      border-bottom: 1px solid var(--border);
+      z-index: 30;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+    .brand-logo-wrap {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 1.5px solid rgba(34, 211, 238, 0.7);
+      box-shadow: 0 0 10px rgba(34, 211, 238, 0.25);
+      background: #05070a;
+      flex-shrink: 0;
+    }
+    .brand-logo-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .brand-info {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+    .brand-title {
+      font-family: var(--mono);
+      font-weight: 800;
+      font-size: 12.5px;
+      letter-spacing: 0.9px;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+    }
+    .hdr-phone-chip {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--fuji);
+      background: var(--fuji-dim);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 10px;
+      padding: 1px 7px;
+      width: fit-content;
+      max-width: 155px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      margin-top: 1px;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .btn-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      height: 31px;
+      padding: 0 10px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .btn-ghost {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #c94e1c);
+      color: #fff;
+      box-shadow: 0 2px 10px rgba(232, 106, 51, 0.35);
+    }
+    .btn-brass {
+      background: linear-gradient(135deg, #d4a359, #b07f37);
+      color: #111;
+    }
+
+    /* MAIN VIEWS */
+    .view-section {
+      display: none;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+      flex-direction: column;
+    }
+    .view-section.active {
+      display: flex;
+    }
+
+    /* ==================== TAB 1: DARKROOM (FIXED STAGE + BOTTOM DOCK) ==================== */
+    .stage-area {
+      flex: 1;
+      min-height: 0;
+      position: relative;
+      background: #07080b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 34px 8px 36px;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .canvas-stack {
+      position: relative;
+      display: inline-flex;
+      max-width: 100%;
+      max-height: 100%;
+      align-items: center;
+      justify-content: center;
+    }
+    #previewCanvas, #originalOverlayCanvas {
+      display: block;
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      border-radius: 3px;
+      box-shadow: 0 8px 26px rgba(0, 0, 0, 0.7);
+    }
+    #originalOverlayCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      clip-path: inset(0 50% 0 0);
+      opacity: 0;
+    }
+    .canvas-stack.split-active #originalOverlayCanvas { opacity: 1; }
+
+    .split-divider {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 2px;
+      background: var(--brass);
+      display: none;
+      z-index: 10;
+      touch-action: none;
+    }
+    .canvas-stack.split-active .split-divider { display: block; }
+    .split-handle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--brass);
+      color: #111;
+      font-weight: 900;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.7);
+    }
+    .split-tag {
+      position: absolute;
+      top: 6px;
+      padding: 2px 6px;
+      font-family: var(--mono);
+      font-size: 9.5px;
+      font-weight: 700;
+      border-radius: 4px;
+      background: rgba(0,0,0,0.75);
+      color: #fff;
+      display: none;
+      z-index: 8;
+      pointer-events: none;
+    }
+    .canvas-stack.split-active .split-tag { display: block; }
+    .split-tag.left { left: 6px; }
+    .split-tag.right { right: 6px; color: var(--brass); }
+
+    /* Floating Stage Pills */
+    .stage-overlay-top {
+      position: absolute;
+      top: 6px;
+      left: 8px;
+      right: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      pointer-events: none;
+      z-index: 12;
+    }
+    .stage-overlay-bottom {
+      position: absolute;
+      bottom: 6px;
+      left: 8px;
+      right: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      pointer-events: none;
+      z-index: 12;
+    }
+    .float-pill {
+      pointer-events: auto;
+      background: rgba(16, 19, 25, 0.82);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-primary);
+      border-radius: 14px;
+      padding: 4px 9px;
+      font-size: 10.5px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+    .float-pill.gear {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--brass);
+      border-color: rgba(212, 163, 89, 0.35);
+      max-width: 74%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .float-pill.active {
+      background: var(--brass-dim);
+      color: var(--brass);
+      border-color: rgba(212, 163, 89, 0.55);
+    }
+
+    .hist-floating {
+      position: absolute;
+      top: 34px;
+      right: 8px;
+      width: 126px;
+      background: rgba(9, 10, 12, 0.86);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 4px 6px;
+      display: none;
+      z-index: 14;
+    }
+    .hist-floating.open { display: block; }
+    .hist-meta {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    #histogramCanvas {
+      width: 100%;
+      height: 32px;
+      display: block;
+    }
+
+    .hold-badge {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: var(--brass);
+      border: 1px solid var(--brass);
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-family: var(--mono);
+      font-size: 10.5px;
+      font-weight: 700;
+      display: none;
+      z-index: 16;
+      pointer-events: none;
+    }
+
+    /* BOTTOM TOOL DOCK */
+    .tool-dock {
+      flex-shrink: 0;
+      background: var(--bg-dock);
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .dock-tabs {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      border-bottom: 1px solid var(--border);
+      background: #101318;
+    }
+    .dock-tab {
+      height: 36px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+    }
+    .dock-tab.active {
+      color: var(--brass);
+      border-bottom-color: var(--brass);
+      background: rgba(212, 163, 89, 0.06);
+    }
+
+    .dock-body {
+      height: 196px;
+      overflow-y: auto;
+      padding: 9px 10px;
+    }
+    .dock-panel {
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .dock-panel.active {
+      display: flex;
+    }
+
+    /* Dock 1: Phone Match & Smart Recs */
+    .exif-status-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      padding: 5px 8px;
+      border-radius: 7px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      font-size: 11px;
+    }
+    .exif-status-line.detected {
+      border-color: rgba(16, 185, 129, 0.4);
+      background: rgba(16, 185, 129, 0.08);
+    }
+    .exif-status-line.fallback {
+      border-color: rgba(245, 158, 11, 0.35);
+      background: rgba(245, 158, 11, 0.07);
+    }
+
+    .mini-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .rec-chip-card {
+      flex-shrink: 0;
+      width: 215px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 7px 9px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 5px;
+    }
+    .rec-chip-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+    .rec-chip-title {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--brass);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .rec-chip-reason {
+      font-size: 10.5px;
+      color: var(--text-secondary);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .phone-chip-btn {
+      flex-shrink: 0;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      font-size: 11px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+    .phone-chip-btn.active {
+      border-color: var(--fuji);
+      background: var(--fuji-dim);
+      color: #fff;
+    }
+
+    /* Dock 2: Film Stocks Horizontal Reel */
+    .filter-chip {
+      flex-shrink: 0;
+      padding: 4px 10px;
+      border-radius: 14px;
+      font-size: 11px;
+      font-weight: 600;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+    }
+    .filter-chip.active {
+      background: var(--text-primary);
+      color: #111;
+      border-color: var(--text-primary);
+    }
+
+    .film-tile {
+      flex-shrink: 0;
+      width: 96px;
+      padding: 7px 6px;
+      border-radius: 9px;
+      background: var(--bg-card);
+      border: 1.5px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 5px;
+    }
+    .film-tile.active {
+      border-color: var(--accent);
+      background: rgba(232, 106, 51, 0.14);
+    }
+    .canister-mini {
+      width: 24px;
+      height: 36px;
+      border-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.22);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2px;
+      font-family: var(--mono);
+      font-size: 7.5px;
+      font-weight: 900;
+      color: #111;
+    }
+    .canister-mini::before {
+      content: "";
+      width: 11px;
+      height: 3px;
+      background: #1f2937;
+      border-radius: 1px;
+    }
+    .film-tile-name {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.2;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .film-tile-iso {
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--text-muted);
+    }
+
+    /* Dock 3: Bodies & Lenses */
+    .gear-tile {
+      flex-shrink: 0;
+      min-width: 112px;
+      padding: 7px 9px;
+      border-radius: 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .gear-tile.active {
+      border-color: var(--brass);
+      background: var(--brass-dim);
+    }
+    .gear-tile-name {
+      font-size: 11.5px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .gear-tile-meta {
+      font-size: 10px;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    /* Dock 4: Single-Slider Smart Tweaks */
+    .tweak-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .tweak-slider-box {
+      padding: 4px 2px;
+    }
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 4px;
+      background: var(--bg-void);
+      border: 1px solid var(--border);
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--brass);
+      border: 2px solid #111;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.7);
+    }
+    .tweak-pill {
+      flex-shrink: 0;
+      min-width: 68px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+    .tweak-pill.active {
+      border-color: var(--brass);
+      background: var(--brass-dim);
+    }
+    .tweak-pill-name {
+      font-size: 10px;
+      color: var(--text-secondary);
+    }
+    .tweak-pill-val {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    /* Dock 5: Frames, Date Stamp & Recipes */
+    .seg-grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px;
+    }
+    .seg-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 5px;
+    }
+    .seg-btn {
+      padding: 6px 4px;
+      border-radius: 7px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      font-size: 10.5px;
+      font-weight: 600;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .seg-btn.active {
+      border-color: var(--brass);
+      background: var(--brass-dim);
+      color: var(--brass);
+    }
+    .recipe-row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .dark-input, .dark-select {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      border-radius: 7px;
+      padding: 6px 8px;
+      font-size: 11.5px;
+      outline: none;
+    }
+    .recipe-chip {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      border-radius: 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      font-size: 11px;
+    }
+
+    /* ==================== TAB 2: LIVE 35MM CAMERA (MOBILE ERGONOMIC) ==================== */
+    .cam-wrap {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 8px 10px 10px;
+      background: #0a0b0e;
+    }
+
+    .cam-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+    .roll-led-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #050607;
+      border: 1px solid #2b303c;
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-family: var(--mono);
+    }
+    .roll-led {
+      color: #ff4d2e;
+      font-weight: 900;
+      font-size: 14px;
+      text-shadow: 0 0 8px rgba(255, 77, 46, 0.5);
+    }
+    .cam-vf-box {
+      flex: 1;
+      min-height: 0;
+      margin: 8px 0;
+      position: relative;
+      background: #040506;
+      border: 2px solid #2b303c;
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #cameraViewfinderCanvas {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .vf-reticle {
+      position: absolute;
+      inset: 8%;
+      border: 1px solid rgba(255,255,255,0.28);
+      pointer-events: none;
+    }
+    .vf-reticle::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 22px;
+      height: 22px;
+      border: 1.5px solid rgba(212, 163, 89, 0.7);
+      border-radius: 50%;
+    }
+    .vf-hud {
+      position: absolute;
+      bottom: 8px;
+      left: 10px;
+      right: 10px;
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--mono);
+      font-size: 10px;
+      color: rgba(255, 215, 130, 0.92);
+      text-shadow: 0 1px 4px #000;
+      pointer-events: none;
+    }
+    .shutter-flash {
+      position: absolute;
+      inset: 0;
+      background: #fff;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.08s;
+    }
+    .shutter-flash.active { opacity: 0.85; }
+
+    .cam-gear-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px;
+      margin-bottom: 10px;
+    }
+    .cam-gear-strip select {
+      width: 100%;
+      font-size: 10.5px;
+      padding: 5px 4px;
+    }
+
+    .cam-shutter-deck {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 12px;
+    }
+    .shutter-btn {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #f3f4f6, #9ca3af 70%, #4b5563 100%);
+      border: 4px solid #2b303a;
+      box-shadow: 0 5px 16px rgba(0,0,0,0.65);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .shutter-btn::after {
+      content: "";
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid var(--brass);
+      background: radial-gradient(circle, #ef4444, #991b1b);
+    }
+    .shutter-btn:active { transform: scale(0.92); }
+    .shutter-btn:disabled { opacity: 0.45; }
+
+    /* ==================== TAB 3: GUIDE ACCORDION ==================== */
+    .guide-wrap {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 10px;
+    }
+    .guide-top-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 10px;
+      background: var(--bg-dock);
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      border-radius: 10px;
+    }
+    .accordion-list {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      padding-bottom: 16px;
+    }
+    .accordion-item {
+      background: var(--bg-dock);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .accordion-item.open { border-color: var(--brass); }
+    .accordion-header {
+      width: 100%;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      text-align: left;
+    }
+    .acc-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .acc-title-wrap {
+      flex: 1;
+      min-width: 0;
+    }
+    .acc-title {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .acc-sub {
+      font-size: 11px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .acc-chip {
+      font-family: var(--mono);
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 10px;
+      flex-shrink: 0;
+    }
+    .chip-fuji { background: var(--fuji-dim); color: var(--fuji); }
+    .chip-kodak { background: var(--kodak-dim); color: var(--kodak); }
+    .chip-cinema { background: var(--cinema-dim); color: var(--cinema); }
+    .chip-phone { background: var(--brass-dim); color: var(--brass); }
+    .acc-arrow {
+      font-size: 13px;
+      color: var(--text-muted);
+      width: 14px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .accordion-body {
+      display: none;
+      padding: 8px 10px 10px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      font-size: 11.5px;
+      color: var(--text-secondary);
+      line-height: 1.45;
+    }
+    .accordion-item.open .accordion-body { display: block; }
+    .acc-bullet { margin-bottom: 5px; }
+    .acc-bullet strong { color: var(--brass); }
+
+    /* 3. FIXED BOTTOM TAB BAR */
+    .bottom-nav {
+      height: calc(54px + env(safe-area-inset-bottom));
+      padding-bottom: env(safe-area-inset-bottom);
+      flex-shrink: 0;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      background: #0d0f13;
+      border-top: 1px solid var(--border);
+      z-index: 30;
+    }
+    .bnav-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      color: var(--text-muted);
+      font-size: 10.5px;
+      font-weight: 600;
+    }
+    .bnav-btn .ico { font-size: 16px; line-height: 1; }
+    .bnav-btn.active {
+      color: var(--cyan);
+    }
+
+    /* BOTTOM SHEET DRAWERS (Samples & Contact Sheet) */
+    .sheet-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.68);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: flex-end;
+      z-index: 80;
+    }
+    .sheet-backdrop.open { display: flex; }
+    .sheet-card {
+      width: 100%;
+      max-height: 70vh;
+      background: var(--bg-dock);
+      border-top: 1px solid var(--border-light);
+      border-radius: 16px 16px 0 0;
+      padding: 12px 12px calc(16px + env(safe-area-inset-bottom));
+      overflow-y: auto;
+    }
+    .sheet-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-weight: 700;
+      font-size: 13px;
+    }
+    .sample-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .sample-thumb {
+      position: relative;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 2px solid transparent;
+      aspect-ratio: 3 / 2;
+    }
+    .sample-thumb.active { border-color: var(--brass); }
+    .sample-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .sample-thumb span {
+      position: absolute;
+      inset: auto 0 0 0;
+      background: linear-gradient(transparent, rgba(0,0,0,0.88));
+      font-size: 10px;
+      font-weight: 600;
+      padding: 8px 4px 3px;
+      text-align: center;
+    }
+    .contact-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .shot-card {
+      background: #08090b;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .shot-card img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; display: block; }
+    .shot-foot {
+      padding: 5px 7px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--mono);
+      font-size: 10px;
+    }
+
+    /* Toast */
+    .toast-box {
+      position: absolute;
+      top: 56px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-16px);
+      background: #1b2029;
+      color: var(--text-primary);
+      border: 1px solid var(--cyan);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 11.5px;
+      font-weight: 600;
+      z-index: 99;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      max-width: 90%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .toast-box.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- 1. COMPACT MOBILE TOPBAR -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-logo-wrap">
+          <img src="./logo.jpg" alt="Tee's Lab" class="brand-logo-img" />
+        </div>
+        <div class="brand-info">
+          <div class="brand-title">TEE'S LAB</div>
+          <button class="hdr-phone-chip" id="hdrPhoneChip" title="Đổi cấu hình điện thoại">✨ Đang nhận diện...</button>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <input type="file" id="fileInput" accept="image/*" hidden />
+        <button class="btn-pill btn-ghost" id="btnUpload">➕ Ảnh</button>
+        <button class="btn-pill btn-primary" id="btnExport">⬇️ Lưu</button>
+      </div>
+    </header>
+
+    <!-- 2A. VIEW: PHÒNG TỐI -->
+    <main id="view-darkroom" class="view-section active">
+      <div class="stage-area" id="previewDropZone">
+        <div class="stage-overlay-top">
+          <div class="float-pill gear" id="liveGearBadge">Rollie 35 S • Zeiss 38 • Pro 400H</div>
+          <button class="float-pill" id="btnToggleHist">📈 RGB</button>
+        </div>
+
+        <div class="hist-floating" id="histFloatingOverlay">
+          <div class="hist-meta"><span>RGB</span><span id="renderTimeMs">0ms</span></div>
+          <canvas id="histogramCanvas" width="120" height="32"></canvas>
+        </div>
+
+        <div class="canvas-stack" id="canvasStack">
+          <canvas id="previewCanvas"></canvas>
+          <canvas id="originalOverlayCanvas"></canvas>
+          <div class="split-tag left">GỐC</div>
+          <div class="split-tag right">FILM</div>
+          <div class="split-divider" id="splitDivider">
+            <div class="split-handle">⇄</div>
+          </div>
+        </div>
+        <div class="hold-badge" id="holdCompareBadge">ẢNH GỐC</div>
+
+        <div class="stage-overlay-bottom">
+          <button class="float-pill" id="btnOpenSamples">🖼️ Ảnh mẫu</button>
+          <div style="display:flex;gap:5px;">
+            <button class="float-pill" id="btnToggleSplit">◧ Chia đôi</button>
+            <button class="float-pill" id="btnHoldOriginal">👁️ Giữ gốc</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTTOM THUMB DOCK -->
+      <div class="tool-dock">
+        <div class="dock-tabs">
+          <button class="dock-tab active" data-dock="phone">✨ Gợi ý</button>
+          <button class="dock-tab" data-dock="film">🎞️ Film</button>
+          <button class="dock-tab" data-dock="gear">📷 Máy</button>
+          <button class="dock-tab" data-dock="tweak">🎚️ Chỉnh</button>
+          <button class="dock-tab" data-dock="frame">🖼️ Viền</button>
+        </div>
+
+        <div class="dock-body">
+          <!-- Dock Panel 1: Phone Detection & Top 3 Recommendations -->
+          <div class="dock-panel active" id="dock-phone">
+            <div class="exif-status-line" id="phoneStatusBanner">Đang phân tích ảnh...</div>
+
+            <div class="mini-label">
+              <span>✨ 3 Gợi ý hợp ảnh nhất</span>
+              <span id="sceneBadgeText" style="color:var(--brass);text-transform:none;font-weight:600;"></span>
+            </div>
+            <div class="h-scroll" id="smartRecsList"></div>
+
+            <div class="mini-label"><span>📱 Cân bằng cảm biến ĐT</span></div>
+            <div class="h-scroll" id="phoneProfileGrid"></div>
+          </div>
+
+          <!-- Dock Panel 2: 20 Film Stocks -->
+          <div class="dock-panel" id="dock-film">
+            <div class="h-scroll" id="filmBrandPills">
+              <button class="filter-chip active" data-brand="all">Tất cả (20)</button>
+              <button class="filter-chip" data-brand="fuji">Fujifilm (7)</button>
+              <button class="filter-chip" data-brand="kodak">Kodak (8)</button>
+              <button class="filter-chip" data-brand="cinema">CineStill (2)</button>
+              <button class="filter-chip" data-brand="bw">Đen trắng (3)</button>
+            </div>
+            <div class="h-scroll" id="filmGrid"></div>
+          </div>
+
+          <!-- Dock Panel 3: Body & Lens -->
+          <div class="dock-panel" id="dock-gear">
+            <div class="mini-label">
+              <span>1. Thân máy (Body)</span>
+              <button class="filter-chip" id="btnRandomGear" style="padding:2px 8px;font-size:10px;">🎲 Ngẫu nhiên</button>
+            </div>
+            <div class="h-scroll" id="bodyGrid"></div>
+
+            <div class="mini-label"><span>2. Ống kính (Lens)</span></div>
+            <div class="h-scroll" id="lensGrid"></div>
+          </div>
+
+          <!-- Dock Panel 4: Single-Slider Smart Tweaks -->
+          <div class="dock-panel" id="dock-tweak">
+            <div class="tweak-header-row">
+              <span id="activeTweakTitle" style="color:var(--brass);">Cường độ màu Film: 100%</span>
+              <button class="filter-chip" id="btnResetTweaks" style="padding:3px 9px;font-size:10.5px;">↺ Mặc định</button>
+            </div>
+
+            <div class="tweak-slider-box">
+              <input type="range" id="activeTweakSlider" min="0" max="100" value="100" />
+            </div>
+
+            <div class="h-scroll" id="leakTypeStrip" style="display:none;"></div>
+
+            <div class="h-scroll" id="tweakPillsRow"></div>
+          </div>
+
+          <!-- Dock Panel 5: Frame, Date Stamp & Recipes -->
+          <div class="dock-panel" id="dock-frame">
+            <div class="mini-label"><span>Khung viền 35mm</span></div>
+            <div class="seg-grid-4" id="frameSegGrid">
+              <button class="seg-btn active" data-frame="none">Không viền</button>
+              <button class="seg-btn" data-frame="35mm-sprocket">35mm Lỗ</button>
+              <button class="seg-btn" data-frame="darkroom-white">Viền trắng</button>
+              <button class="seg-btn" data-frame="polaroid">Polaroid</button>
+            </div>
+
+            <div class="mini-label"><span>Dấu ngày LED</span></div>
+            <div class="seg-grid-3" id="dateSegGrid">
+              <button class="seg-btn active" data-date="off">Tắt</button>
+              <button class="seg-btn" data-date="retro98">Kiểu '98</button>
+              <button class="seg-btn" data-date="exif-or-today">Ngày chụp</button>
+            </div>
+
+            <div class="recipe-row">
+              <input type="text" class="dark-input" id="recipeNameInput" placeholder="Tên công thức lưu..." style="flex:1;" />
+              <button class="btn-pill btn-brass" id="btnSaveRecipe" style="height:29px;">+ Lưu</button>
+            </div>
+            <div class="h-scroll" id="recipeList"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 2B. VIEW: MÁY ẢNH 35MM -->
+    <section id="view-camera" class="view-section">
+      <div class="cam-wrap">
+        <div class="cam-top-bar">
+          <div class="roll-led-pill">
+            <span class="roll-led" id="camRollCounter">01 / 36</span>
+            <span style="font-size:10.5px;color:var(--text-secondary);" id="camSourceStatus">Giả lập</span>
+          </div>
+          <div style="display:flex;gap:5px;">
+            <button class="btn-pill btn-ghost" id="btnStartCam" style="height:28px;font-size:11px;">📷 Bật Cam</button>
+            <button class="btn-pill btn-ghost" id="btnFlipCam" style="height:28px;font-size:11px;">🔄</button>
+            <button class="btn-pill btn-ghost" id="btnToggleSound" style="height:28px;font-size:11px;">🔊</button>
+          </div>
+        </div>
+
+        <div class="cam-vf-box">
+          <video id="camVideo" autoplay playsinline muted style="display:none;"></video>
+          <canvas id="cameraViewfinderCanvas"></canvas>
+          <div class="vf-reticle"></div>
+          <div class="vf-hud">
+            <span id="vfHudLeft">f/2.8 • 1/125s • ISO 400</span>
+            <span id="camGearSummary">Rollie 35 S • Pro 400H</span>
+          </div>
+          <div class="shutter-flash" id="shutterFlash"></div>
+        </div>
+
+        <div class="cam-gear-strip">
+          <select class="dark-select" id="camSelBody"></select>
+          <select class="dark-select" id="camSelLens"></select>
+          <select class="dark-select" id="camSelFilm"></select>
+          <select class="dark-select" id="camSelFrame">
+            <option value="none">Full Frame</option>
+            <option value="35mm-sprocket">35mm Lỗ</option>
+            <option value="polaroid">Polaroid</option>
+          </select>
+        </div>
+
+        <div class="cam-shutter-deck">
+          <button class="btn-pill btn-ghost" id="btnOpenContactSheet" style="height:38px;">
+            🎞️ Cuộn (<span id="contactCount">0</span>)
+          </button>
+          <button class="shutter-btn" id="btnShutter" title="Chụp 1 kiểu"></button>
+          <button class="btn-pill btn-brass" id="btnNewRoll" style="height:38px;">🔄 Cuộn mới</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2C. VIEW: CẨM NANG FILM -->
+    <section id="view-guide" class="view-section">
+      <div class="guide-wrap">
+        <div class="guide-top-bar">
+          <div class="h-scroll" id="guideFilterPills">
+            <button class="filter-chip active" data-gfilter="all">Tất cả</button>
+            <button class="filter-chip" data-gfilter="fuji">Fujifilm</button>
+            <button class="filter-chip" data-gfilter="kodak">Kodak</button>
+            <button class="filter-chip" data-gfilter="cinema">Cine &amp; B&amp;W</button>
+            <button class="filter-chip" data-gfilter="phone">Điện thoại</button>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:11px;color:var(--text-muted);">Bấm vào từng mục để xem chi tiết</span>
+            <div style="display:flex;gap:6px;">
+              <button class="filter-chip" id="btnGuideExpandAll">📖 Mở hết</button>
+              <button class="filter-chip" id="btnGuideCollapseAll">📁 Thu gọn</button>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-list" id="guideAccordionList"></div>
+      </div>
+    </section>
+
+    <!-- 3. FIXED BOTTOM NAVIGATION BAR -->
+    <nav class="bottom-nav" role="tablist">
+      <button class="bnav-btn active" data-tab="darkroom"><span class="ico">🎞️</span><span>Phòng Tối</span></button>
+      <button class="bnav-btn" data-tab="camera"><span class="ico">📷</span><span>Máy Ảnh</span></button>
+      <button class="bnav-btn" data-tab="guide"><span class="ico">📔</span><span>Cẩm Nang</span></button>
+    </nav>
+
+    <!-- BOTTOM SHEET: SAMPLE SCENES -->
+    <div class="sheet-backdrop" id="sampleSheetBackdrop">
+      <div class="sheet-card">
+        <div class="sheet-head">
+          <span>🖼️ Chọn ảnh mẫu thử màu</span>
+          <button class="btn-pill btn-ghost" id="btnCloseSampleSheet" style="height:26px;">✕</button>
+        </div>
+        <div class="sample-grid-3" id="sampleStrip"></div>
+      </div>
+    </div>
+
+    <!-- BOTTOM SHEET: CAMERA CONTACT SHEET -->
+    <div class="sheet-backdrop" id="contactSheetBackdrop">
+      <div class="sheet-card">
+        <div class="sheet-head">
+          <span>🎞️ Ảnh đã chụp trong cuộn</span>
+          <div style="display:flex;gap:6px;">
+            <button class="btn-pill btn-ghost" id="btnClearRollShots" style="height:26px;font-size:11px;">🗑️ Xóa hết</button>
+            <button class="btn-pill btn-ghost" id="btnCloseContactSheet" style="height:26px;">✕</button>
+          </div>
+        </div>
+        <div class="contact-grid-2" id="contactSheetGrid"></div>
+      </div>
+    </div>
+
+    <div class="toast-box" id="toastBox"></div>
+  </div>
+
+<script>
+(() => {
+  'use strict';
+
+  /* ==========================================================================
+     1. CATALOG DATA (CONCISE MOBILE LABELS + FULL COLOR SCIENCE)
+     ========================================================================== */
+
+  const PHONE_PROFILES = [
+    { id: 'auto-detect', name: 'Tự động', icon: '✨', deSharpen: 0.14, warmthOffset: 0, tintOffset: 0, satScale: 0.96, blueTame: 0.08, greenTame: 0.08, highlightRecover: 0.10, shadowLift: 0.04, contrastSoften: 0.06 },
+    { id: 'iphone-18', name: 'iPhone 16–18 Pro', icon: '🍎', deSharpen: 0.26, warmthOffset: -5, tintOffset: 2, satScale: 0.93, blueTame: 0.08, greenTame: 0.06, highlightRecover: 0.18, shadowLift: 0.07, contrastSoften: 0.12 },
+    { id: 'iphone-hdr', name: 'iPhone 12–15', icon: '📱', deSharpen: 0.22, warmthOffset: -4, tintOffset: 2, satScale: 0.94, blueTame: 0.06, greenTame: 0.05, highlightRecover: 0.15, shadowLift: 0.06, contrastSoften: 0.10 },
+    { id: 'iphone-classic', name: 'iPhone X / 11 / SE', icon: '🍏', deSharpen: 0.10, warmthOffset: -2, tintOffset: 1, satScale: 0.97, blueTame: 0.04, greenTame: 0.03, highlightRecover: 0.10, shadowLift: 0.04, contrastSoften: 0.05 },
+    { id: 'samsung-vivid', name: 'Samsung S23–S26 / Z', icon: '🌌', deSharpen: 0.22, warmthOffset: 3, tintOffset: -2, satScale: 0.85, blueTame: 0.28, greenTame: 0.26, highlightRecover: 0.14, shadowLift: 0.08, contrastSoften: 0.14 },
+    { id: 'xiaomi-leica', name: 'Xiaomi 13–17 Leica', icon: '🔴', deSharpen: 0.12, warmthOffset: 1, tintOffset: 0, satScale: 0.95, blueTame: 0.05, greenTame: 0.06, highlightRecover: 0.08, shadowLift: 0.14, contrastSoften: 0.08 },
+    { id: 'pixel-hdr', name: 'Pixel 8–11 Pro', icon: '📸', deSharpen: 0.20, warmthOffset: 6, tintOffset: -1, satScale: 0.94, blueTame: 0.12, greenTame: 0.08, highlightRecover: 0.12, shadowLift: 0.10, contrastSoften: 0.16 },
+    { id: 'oppo-vivo', name: 'OPPO X8–9 / Vivo X200–300', icon: '🎨', deSharpen: 0.16, warmthOffset: 2, tintOffset: -2, satScale: 0.90, blueTame: 0.16, greenTame: 0.16, highlightRecover: 0.18, shadowLift: 0.04, contrastSoften: 0.08 },
+    { id: 'sony-honor', name: 'Sony Xperia / Honor', icon: '💠', deSharpen: 0.08, warmthOffset: 2, tintOffset: 0, satScale: 0.97, blueTame: 0.05, greenTame: 0.05, highlightRecover: 0.08, shadowLift: 0.05, contrastSoften: 0.04 },
+    { id: 'neutral-raw', name: 'Máy ảnh / RAW', icon: '🎞️', deSharpen: 0.02, warmthOffset: 0, tintOffset: 0, satScale: 1.0, blueTame: 0, greenTame: 0, highlightRecover: 0.02, shadowLift: 0, contrastSoften: 0 }
+  ];
+
+  const CAMERA_BODIES = [
+    { id: 'rollie-35', name: 'Rollie 35 S', meta: 'Ấm hoài niệm', blackLift: 0.035, contrast: 1.04, highlightRolloff: 0.18, bodyWarmth: 4, bodyTint: 0 },
+    { id: 'fuji-tx1', name: 'Fuji TX-1', meta: 'Sâu sắc màu', blackLift: 0.025, contrast: 1.08, highlightRolloff: 0.15, bodyWarmth: -2, bodyTint: -2 },
+    { id: 'leica-m6', name: 'Leica M6', meta: 'Đằm sâu 3D', blackLift: 0.015, contrast: 1.13, highlightRolloff: 0.14, bodyWarmth: 1, bodyTint: 0 },
+    { id: 'contax-t2', name: 'Contax T2', meta: 'Mịn da & sáng', blackLift: 0.045, contrast: 0.98, highlightRolloff: 0.25, bodyWarmth: 3, bodyTint: 2 },
+    { id: 'hasselblad-500', name: 'Hasselblad', meta: 'Chuyển sáng êm', blackLift: 0.02, contrast: 0.95, highlightRolloff: 0.28, bodyWarmth: 0, bodyTint: 0 },
+    { id: 'olympus-mju', name: 'Olympus mju', meta: 'Phố thập niên 90', blackLift: 0.04, contrast: 1.12, highlightRolloff: 0.10, bodyWarmth: 2, bodyTint: -1 }
+  ];
+
+  const CAMERA_LENSES = [
+    { id: 'zeiss-sonnar-38', name: 'Zeiss 38mm T*', meta: 'f/2.8 • Nổi khối', coatingWarmth: 3, coatingTint: 0, bloomBase: 14, vignetteBase: 26, chromaticAb: 0.4, edgeSoft: 0.05 },
+    { id: 'leitz-summicron-35', name: 'Summicron 35', meta: 'f/2.0 • Ánh sáng dịu', coatingWarmth: 1, coatingTint: 1, bloomBase: 32, vignetteBase: 20, chromaticAb: 0.3, edgeSoft: 0.06 },
+    { id: 'fujinon-35-14', name: 'Fujinon EBC 35', meta: 'f/1.4 • Trong trẻo', coatingWarmth: -2, coatingTint: -2, bloomBase: 16, vignetteBase: 18, chromaticAb: 0.2, edgeSoft: 0.02 },
+    { id: 'voigtlander-40', name: 'Voigtländer 40', meta: 'f/1.4 • Ấm cổ điển', coatingWarmth: 5, coatingTint: 1, bloomBase: 38, vignetteBase: 35, chromaticAb: 0.8, edgeSoft: 0.10 },
+    { id: 'helios-44', name: 'Helios 44-2', meta: '58mm • Mơ màng', coatingWarmth: 4, coatingTint: -4, bloomBase: 48, vignetteBase: 38, chromaticAb: 1.4, edgeSoft: 0.18 },
+    { id: 'holga-plastic', name: 'Holga 60 Lo-Fi', meta: 'f/8 • Lệch sắc cạnh', coatingWarmth: 6, coatingTint: -3, bloomBase: 44, vignetteBase: 68, chromaticAb: 2.8, edgeSoft: 0.32 }
+  ];
+
+  const FILM_STOCKS = [
+    { id: 'fuji-pro-400h', brand: 'fuji', brandLabel: 'FUJI', name: 'Pro 400H', subtitle: 'Pastel, xanh ngọc', iso: 400, canisterColor: 'linear-gradient(180deg,#10b981,#e5e7eb,#059669)', edgeCode: 'FUJI PRO 400H   24A', matrix: [0.96,0.03,0.01,-0.02,1.03,0.02,-0.01,0.04,1.01], shadowTint: [-10,14,12], midTint: [-3,6,3], highlightTint: [6,5,0], foliageShift: {gBoost:10,bShift:12,rShift:-12,satScale:0.94}, skyShift: {cyanBoost:14,bDepth:-4}, skinProtect: 0.72, saturation: 0.92, contrast: 0.96, blackLift: 0.04, grainBase: 28, grainSize: 1.15, halationBase: 12, isBW: false },
+    { id: 'fuji-superia-400', brand: 'fuji', brandLabel: 'FUJI', name: 'Superia 400', subtitle: 'Xanh Nhật đặc trưng', iso: 400, canisterColor: 'linear-gradient(180deg,#059669,#10b981,#dc2626)', edgeCode: 'FUJI SUPERIA 400   12', matrix: [0.97,0.02,0.02,-0.02,1.05,0.01,0.02,0.03,0.99], shadowTint: [-12,16,8], midTint: [4,2,6], highlightTint: [8,4,-2], foliageShift: {gBoost:16,bShift:10,rShift:-14,satScale:1.04}, skyShift: {cyanBoost:12,bDepth:4}, skinProtect: 0.65, saturation: 1.06, contrast: 1.05, blackLift: 0.025, grainBase: 36, grainSize: 1.2, halationBase: 16, isBW: false },
+    { id: 'fuji-classic-chrome', brand: 'fuji', brandLabel: 'FUJI', name: 'Classic Chrome', subtitle: 'Tạp chí trầm cổ', iso: 200, canisterColor: 'linear-gradient(180deg,#374151,#6b7280,#065f46)', edgeCode: 'FUJICHROME CC   08A', matrix: [0.95,0.06,-0.01,0.01,0.99,0.01,-0.02,0.05,0.96], shadowTint: [-8,4,8], midTint: [-2,2,-2], highlightTint: [10,6,-4], foliageShift: {gBoost:-6,bShift:6,rShift:6,satScale:0.78}, skyShift: {cyanBoost:16,bDepth:-10}, skinProtect: 0.60, saturation: 0.80, contrast: 1.14, blackLift: 0.02, grainBase: 26, grainSize: 1.05, halationBase: 10, isBW: false },
+    { id: 'fuji-classic-neg', brand: 'fuji', brandLabel: 'FUJI', name: 'Classic Neg.', subtitle: 'Tương phản nghệ thuật', iso: 100, canisterColor: 'linear-gradient(180deg,#047857,#d97706,#111827)', edgeCode: 'FUJI SUPERIA 100 CN', matrix: [1.03,-0.02,-0.01,-0.03,1.04,0.01,-0.03,0.05,0.96], shadowTint: [-16,12,10], midTint: [8,-2,-6], highlightTint: [16,6,-12], foliageShift: {gBoost:4,bShift:12,rShift:-12,satScale:0.88}, skyShift: {cyanBoost:18,bDepth:-6}, skinProtect: 0.58, saturation: 0.94, contrast: 1.18, blackLift: 0.015, grainBase: 32, grainSize: 1.1, halationBase: 18, isBW: false },
+    { id: 'fuji-velvia-50', brand: 'fuji', brandLabel: 'FUJI', name: 'Velvia 50', subtitle: 'Phong cảnh rực sâu', iso: 50, canisterColor: 'linear-gradient(180deg,#7c3aed,#10b981,#064e3b)', edgeCode: 'FUJICHROME RVP 50', matrix: [1.07,-0.04,-0.02,-0.03,1.06,-0.02,0.01,-0.02,1.05], shadowTint: [6,-6,10], midTint: [4,2,4], highlightTint: [6,2,0], foliageShift: {gBoost:18,bShift:-4,rShift:-8,satScale:1.20}, skyShift: {cyanBoost:4,bDepth:16}, skinProtect: 0.45, saturation: 1.24, contrast: 1.20, blackLift: 0.005, grainBase: 14, grainSize: 0.9, halationBase: 10, isBW: false },
+    { id: 'fuji-astia-100f', brand: 'fuji', brandLabel: 'FUJI', name: 'Astia 100F', subtitle: 'Da hồng phấn dịu', iso: 100, canisterColor: 'linear-gradient(180deg,#ec4899,#f3f4f6,#10b981)', edgeCode: 'FUJICHROME RAP 100F', matrix: [1.01,0.01,0.0,0.0,1.0,0.01,0.01,0.01,0.99], shadowTint: [-4,6,8], midTint: [6,1,4], highlightTint: [10,6,4], foliageShift: {gBoost:6,bShift:6,rShift:-4,satScale:0.95}, skyShift: {cyanBoost:8,bDepth:0}, skinProtect: 0.85, saturation: 0.96, contrast: 0.92, blackLift: 0.035, grainBase: 16, grainSize: 0.95, halationBase: 14, isBW: false },
+    { id: 'fuji-natura-1600', brand: 'fuji', brandLabel: 'FUJI', name: 'Natura 1600', subtitle: 'Phố đêm ấm hạt', iso: 1600, canisterColor: 'linear-gradient(180deg,#0f172a,#10b981,#f59e0b)', edgeCode: 'FUJI NATURA 1600  33', matrix: [1.02,0.03,-0.02,-0.01,1.03,0.01,-0.02,0.03,0.96], shadowTint: [-6,10,12], midTint: [8,4,-4], highlightTint: [16,10,-4], foliageShift: {gBoost:8,bShift:8,rShift:-6,satScale:0.96}, skyShift: {cyanBoost:10,bDepth:-2}, skinProtect: 0.70, saturation: 0.98, contrast: 1.04, blackLift: 0.055, grainBase: 62, grainSize: 1.45, halationBase: 26, isBW: false },
+
+    { id: 'kodak-portra-400', brand: 'kodak', brandLabel: 'KODAK', name: 'Portra 400', subtitle: 'Da kem ấm mịn', iso: 400, canisterColor: 'linear-gradient(180deg,#f59e0b,#fef3c7,#d97706)', edgeCode: 'KODAK PORTRA 400  29A', matrix: [1.04,0.02,-0.02,0.01,1.01,-0.01,-0.02,0.01,0.95], shadowTint: [6,4,-4], midTint: [10,4,-6], highlightTint: [14,9,-6], foliageShift: {gBoost:-4,bShift:-6,rShift:8,satScale:0.88}, skyShift: {cyanBoost:6,bDepth:-4}, skinProtect: 0.88, saturation: 0.95, contrast: 0.96, blackLift: 0.038, grainBase: 26, grainSize: 1.05, halationBase: 18, isBW: false },
+    { id: 'kodak-portra-160', brand: 'kodak', brandLabel: 'KODAK', name: 'Portra 160', subtitle: 'Kem sữa êm dịu', iso: 160, canisterColor: 'linear-gradient(180deg,#fde68a,#f59e0b,#b45309)', edgeCode: 'KODAK PORTRA 160  14', matrix: [1.02,0.02,-0.01,0.01,1.0,0.0,-0.01,0.01,0.97], shadowTint: [4,3,2], midTint: [6,4,-2], highlightTint: [10,8,0], foliageShift: {gBoost:-2,bShift:-4,rShift:6,satScale:0.86}, skyShift: {cyanBoost:4,bDepth:-4}, skinProtect: 0.90, saturation: 0.88, contrast: 0.90, blackLift: 0.045, grainBase: 18, grainSize: 0.95, halationBase: 14, isBW: false },
+    { id: 'kodak-portra-800', brand: 'kodak', brandLabel: 'KODAK', name: 'Portra 800', subtitle: 'Hoàng hôn rực ấm', iso: 800, canisterColor: 'linear-gradient(180deg,#ea580c,#fbbf24,#78350f)', edgeCode: 'KODAK PORTRA 800  31', matrix: [1.06,0.02,-0.03,0.01,1.01,-0.02,-0.03,0.0,0.92], shadowTint: [10,2,-6], midTint: [14,5,-10], highlightTint: [18,10,-10], foliageShift: {gBoost:-4,bShift:-6,rShift:12,satScale:1.02}, skyShift: {cyanBoost:2,bDepth:4}, skinProtect: 0.84, saturation: 1.08, contrast: 1.06, blackLift: 0.03, grainBase: 40, grainSize: 1.25, halationBase: 28, isBW: false },
+    { id: 'kodak-gold-200', brand: 'kodak', brandLabel: 'KODAK', name: 'Gold 200', subtitle: 'Nắng vàng 90s', iso: 200, canisterColor: 'linear-gradient(180deg,#fbbf24,#f59e0b,#dc2626)', edgeCode: 'KODAK GB 200-6    22A', matrix: [1.07,0.04,-0.05,0.02,1.02,-0.03,-0.05,0.02,0.88], shadowTint: [12,5,-10], midTint: [16,8,-14], highlightTint: [22,14,-14], foliageShift: {gBoost:2,bShift:-10,rShift:14,satScale:1.02}, skyShift: {cyanBoost:8,bDepth:-2}, skinProtect: 0.78, saturation: 1.06, contrast: 1.07, blackLift: 0.03, grainBase: 32, grainSize: 1.15, halationBase: 20, isBW: false },
+    { id: 'kodak-ultramax-400', brand: 'kodak', brandLabel: 'KODAK', name: 'UltraMax 400', subtitle: 'Trời xanh nắng gắt', iso: 400, canisterColor: 'linear-gradient(180deg,#f59e0b,#2563eb,#dc2626)', edgeCode: 'KODAK GC 400-8    17', matrix: [1.05,0.01,-0.02,0.0,1.02,-0.01,-0.01,-0.02,1.03], shadowTint: [-4,0,12], midTint: [8,4,-6], highlightTint: [16,10,-8], foliageShift: {gBoost:6,bShift:-4,rShift:6,satScale:1.08}, skyShift: {cyanBoost:-2,bDepth:14}, skinProtect: 0.70, saturation: 1.14, contrast: 1.12, blackLift: 0.02, grainBase: 42, grainSize: 1.25, halationBase: 22, isBW: false },
+    { id: 'kodak-colorplus-200', brand: 'kodak', brandLabel: 'KODAK', name: 'ColorPlus 200', subtitle: 'Vàng cát vintage', iso: 200, canisterColor: 'linear-gradient(180deg,#eab308,#ca8a04,#7c2d12)', edgeCode: 'KODAK 200 VR PLUS  09', matrix: [1.06,0.05,-0.06,0.02,1.01,-0.03,-0.06,0.03,0.85], shadowTint: [14,6,-12], midTint: [12,8,-14], highlightTint: [18,12,-16], foliageShift: {gBoost:-4,bShift:-12,rShift:16,satScale:0.96}, skyShift: {cyanBoost:6,bDepth:-10}, skinProtect: 0.76, saturation: 0.98, contrast: 1.04, blackLift: 0.035, grainBase: 38, grainSize: 1.2, halationBase: 16, isBW: false },
+    { id: 'kodak-ektar-100', brand: 'kodak', brandLabel: 'KODAK', name: 'Ektar 100', subtitle: 'Đậm sâu siêu mịn', iso: 100, canisterColor: 'linear-gradient(180deg,#dc2626,#f59e0b,#111827)', edgeCode: 'KODAK EKTAR 100   04A', matrix: [1.08,-0.03,-0.02,-0.02,1.04,-0.01,-0.02,-0.02,1.05], shadowTint: [4,-4,8], midTint: [8,0,-4], highlightTint: [10,4,-4], foliageShift: {gBoost:12,bShift:-6,rShift:4,satScale:1.15}, skyShift: {cyanBoost:0,bDepth:16}, skinProtect: 0.55, saturation: 1.20, contrast: 1.16, blackLift: 0.01, grainBase: 14, grainSize: 0.85, halationBase: 14, isBW: false },
+    { id: 'kodak-e100', brand: 'kodak', brandLabel: 'KODAK', name: 'Ektachrome E100', subtitle: 'Slide lạnh trong vắt', iso: 100, canisterColor: 'linear-gradient(180deg,#3b82f6,#e5e7eb,#f59e0b)', edgeCode: 'KODAK E100 EPP   11', matrix: [0.98,0.0,0.02,0.0,1.01,0.01,0.01,0.02,1.06], shadowTint: [-8,-2,14], midTint: [-2,0,6], highlightTint: [4,4,8], foliageShift: {gBoost:6,bShift:8,rShift:-10,satScale:1.04}, skyShift: {cyanBoost:6,bDepth:14}, skinProtect: 0.65, saturation: 1.05, contrast: 1.12, blackLift: 0.01, grainBase: 16, grainSize: 0.9, halationBase: 10, isBW: false },
+
+    { id: 'cinestill-800t', brand: 'cinema', brandLabel: 'CINE', name: 'CineStill 800T', subtitle: 'Đêm Teal & Quầng đỏ', iso: 800, canisterColor: 'linear-gradient(180deg,#dc2626,#0e7490,#090a0c)', edgeCode: 'CINESTILL 800T   35A', matrix: [0.95,0.01,0.02,0.0,1.02,0.03,0.02,0.06,1.08], shadowTint: [-18,8,22], midTint: [-10,4,14], highlightTint: [14,2,-6], foliageShift: {gBoost:2,bShift:18,rShift:-14,satScale:0.96}, skyShift: {cyanBoost:22,bDepth:10}, skinProtect: 0.62, saturation: 1.02, contrast: 1.08, blackLift: 0.03, grainBase: 38, grainSize: 1.2, halationBase: 68, isBW: false },
+    { id: 'cinestill-50d', brand: 'cinema', brandLabel: 'CINE', name: 'CineStill 50D', subtitle: 'Điện ảnh ban ngày', iso: 50, canisterColor: 'linear-gradient(180deg,#f59e0b,#ef4444,#1f2937)', edgeCode: 'CINESTILL 50D    06', matrix: [1.04,0.02,-0.02,0.0,1.01,0.01,-0.02,0.03,0.98], shadowTint: [-4,6,8], midTint: [8,4,-4], highlightTint: [16,8,-4], foliageShift: {gBoost:4,bShift:4,rShift:-2,satScale:0.98}, skyShift: {cyanBoost:12,bDepth:4}, skinProtect: 0.80, saturation: 1.02, contrast: 1.04, blackLift: 0.025, grainBase: 16, grainSize: 0.9, halationBase: 44, isBW: false },
+
+    { id: 'ilford-hp5', brand: 'bw', brandLabel: 'B&W', name: 'Ilford HP5', subtitle: 'Đen trắng phóng sự', iso: 400, canisterColor: 'linear-gradient(180deg,#111827,#10b981,#e5e7eb)', edgeCode: 'ILFORD HP5 PLUS 400', matrix: [1,0,0,0,1,0,0,0,1], shadowTint: [2,2,0], midTint: [3,2,-2], highlightTint: [4,2,-2], foliageShift: null, skyShift: null, skinProtect: 0, saturation: 0, contrast: 1.12, blackLift: 0.04, grainBase: 44, grainSize: 1.25, halationBase: 8, isBW: true, bwWeights: [0.34,0.52,0.14] },
+    { id: 'kodak-trix-400', brand: 'bw', brandLabel: 'B&W', name: 'Tri-X 400', subtitle: 'Đen trắng gai góc', iso: 400, canisterColor: 'linear-gradient(180deg,#f59e0b,#111827,#374151)', edgeCode: 'KODAK 400TX     19', matrix: [1,0,0,0,1,0,0,0,1], shadowTint: [0,0,2], midTint: [0,0,0], highlightTint: [6,4,-2], foliageShift: null, skyShift: null, skinProtect: 0, saturation: 0, contrast: 1.28, blackLift: 0.015, grainBase: 54, grainSize: 1.38, halationBase: 10, isBW: true, bwWeights: [0.42,0.46,0.12] },
+    { id: 'fuji-acros-100', brand: 'bw', brandLabel: 'B&W', name: 'Acros 100 II', subtitle: 'Đen trắng siêu nét', iso: 100, canisterColor: 'linear-gradient(180deg,#047857,#111827,#9ca3af)', edgeCode: 'FUJI ACROS 100II  05', matrix: [1,0,0,0,1,0,0,0,1], shadowTint: [-2,2,4], midTint: [0,1,2], highlightTint: [2,2,4], foliageShift: null, skyShift: null, skinProtect: 0, saturation: 0, contrast: 1.18, blackLift: 0.01, grainBase: 16, grainSize: 0.9, halationBase: 6, isBW: true, bwWeights: [0.28,0.56,0.16] }
+  ];
+
+  const TWEAK_DEFS = [
+    { key: 'strength', label: 'Màu Film', min: 0, max: 100, fmt: v => `${v}%` },
+    { key: 'exposure', label: 'Phơi sáng', min: -150, max: 150, fmt: v => `${v >= 0 ? '+' : ''}${(v / 100).toFixed(1)} EV` },
+    { key: 'warmth', label: 'Độ ấm', min: -40, max: 40, fmt: v => (v > 0 ? `+${v}` : `${v}`) },
+    { key: 'grain', label: 'Hạt bạc', min: 0, max: 100, fmt: v => `${v}%` },
+    { key: 'halation', label: 'Quầng đỏ', min: 0, max: 100, fmt: v => `${v}%` },
+    { key: 'bloom', label: 'Ánh sáng', min: 0, max: 100, fmt: v => `${v}%` },
+    { key: 'vignette', label: 'Tối góc', min: 0, max: 100, fmt: v => `${v}%` },
+    { key: 'leakAmt', label: 'Lọt sáng', min: 0, max: 100, fmt: v => `${v}%` }
+  ];
+
+  const LEAK_TYPES = [
+    { id: 'none', name: 'Không' },
+    { id: 'amber-edge', name: 'Cam phải' },
+    { id: 'crimson-streak', name: 'Vệt đỏ' },
+    { id: 'vintage-corner', name: 'Góc nắng' },
+    { id: 'twin-sunburn', name: 'Cháy 2 mép' },
+    { id: 'film-burn', name: 'Đầu cuộn' }
+  ];
+
+  /* ==========================================================================
+     2. BINARY EXIF PARSER & SMART IMAGE ANALYZER
+     ========================================================================== */
+
+  const DEVICE_MODEL_MAP = [
+    // iPhone 18 Series (2026)
+    { match: /iphone\s*19,1/i, name: 'iPhone 18 Pro', profile: 'iphone-18' },
+    { match: /iphone\s*19,2/i, name: 'iPhone 18 Pro Max', profile: 'iphone-18' },
+    { match: /iphone\s*19,3/i, name: 'iPhone 18', profile: 'iphone-18' },
+    { match: /iphone\s*19,4/i, name: 'iPhone 18 Air / Plus', profile: 'iphone-18' },
+    // iPhone 17 Series (2025)
+    { match: /iphone\s*18,1/i, name: 'iPhone 17 Pro', profile: 'iphone-18' },
+    { match: /iphone\s*18,2/i, name: 'iPhone 17 Pro Max', profile: 'iphone-18' },
+    { match: /iphone\s*18,3/i, name: 'iPhone 17', profile: 'iphone-18' },
+    { match: /iphone\s*18,4/i, name: 'iPhone 17 Air / Plus', profile: 'iphone-18' },
+    // iPhone 16 Series
+    { match: /iphone\s*17,1/i, name: 'iPhone 16 Pro', profile: 'iphone-18' },
+    { match: /iphone\s*17,2/i, name: 'iPhone 16 Pro Max', profile: 'iphone-18' },
+    { match: /iphone\s*17,3/i, name: 'iPhone 16', profile: 'iphone-18' },
+    { match: /iphone\s*17,4/i, name: 'iPhone 16 Plus', profile: 'iphone-18' },
+    { match: /iphone\s*(16|17|18)/i, name: null, profile: 'iphone-18' },
+    // iPhone 12 - 15 Series
+    { match: /iphone\s*16,1/i, name: 'iPhone 15 Pro', profile: 'iphone-hdr' },
+    { match: /iphone\s*16,2/i, name: 'iPhone 15 Pro Max', profile: 'iphone-hdr' },
+    { match: /iphone\s*15,2/i, name: 'iPhone 14 Pro', profile: 'iphone-hdr' },
+    { match: /iphone\s*15,3/i, name: 'iPhone 14 Pro Max', profile: 'iphone-hdr' },
+    { match: /iphone\s*(12|13|14|15)/i, name: null, profile: 'iphone-hdr' },
+    { match: /iphone\s*(x|xs|xr|11|8|7|se)/i, name: null, profile: 'iphone-classic' },
+    // Samsung Galaxy S26 / S25 / S24 / Z Fold & Flip
+    { match: /SM-S948/i, name: 'Galaxy S26 Ultra', profile: 'samsung-vivid' },
+    { match: /SM-S946/i, name: 'Galaxy S26+', profile: 'samsung-vivid' },
+    { match: /SM-S941/i, name: 'Galaxy S26', profile: 'samsung-vivid' },
+    { match: /SM-S938/i, name: 'Galaxy S25 Ultra', profile: 'samsung-vivid' },
+    { match: /SM-S936/i, name: 'Galaxy S25+', profile: 'samsung-vivid' },
+    { match: /SM-S931/i, name: 'Galaxy S25', profile: 'samsung-vivid' },
+    { match: /SM-S928/i, name: 'Galaxy S24 Ultra', profile: 'samsung-vivid' },
+    { match: /SM-S926/i, name: 'Galaxy S24+', profile: 'samsung-vivid' },
+    { match: /SM-S921/i, name: 'Galaxy S24', profile: 'samsung-vivid' },
+    { match: /SM-S918/i, name: 'Galaxy S23 Ultra', profile: 'samsung-vivid' },
+    { match: /SM-F976/i, name: 'Galaxy Z Fold8', profile: 'samsung-vivid' },
+    { match: /SM-F966/i, name: 'Galaxy Z Fold7', profile: 'samsung-vivid' },
+    { match: /SM-F956/i, name: 'Galaxy Z Fold6', profile: 'samsung-vivid' },
+    { match: /SM-F766/i, name: 'Galaxy Z Flip8', profile: 'samsung-vivid' },
+    { match: /SM-F756/i, name: 'Galaxy Z Flip7', profile: 'samsung-vivid' },
+    // Xiaomi 13 - 17 Leica Series
+    { match: /xiaomi\s*17\s*ultra/i, name: 'Xiaomi 17 Ultra', profile: 'xiaomi-leica' },
+    { match: /xiaomi\s*16\s*ultra/i, name: 'Xiaomi 16 Ultra', profile: 'xiaomi-leica' },
+    { match: /25020PN60|xiaomi\s*15\s*ultra/i, name: 'Xiaomi 15 Ultra', profile: 'xiaomi-leica' },
+    { match: /24030PN60/i, name: 'Xiaomi 14 Ultra', profile: 'xiaomi-leica' },
+    { match: /2304FPN6D/i, name: 'Xiaomi 13 Ultra', profile: 'xiaomi-leica' },
+    { match: /xiaomi\s*(13|14|15|16|17)/i, name: null, profile: 'xiaomi-leica' },
+    // Google Pixel 8 - 11 Pro
+    { match: /pixel\s*(8|9|10|11)/i, name: null, profile: 'pixel-hdr' },
+    { match: /pixel/i, name: null, profile: 'pixel-hdr' },
+    // OPPO Find X8/X9, Vivo X200/X300, OnePlus 13-15
+    { match: /(find\s*x[789]|vivo\s*x[123]00|oppo|vivo|realme|oneplus|cph|v2[0-9]{3}|rmx)/i, name: null, profile: 'oppo-vivo' },
+    // Sony Xperia / Honor Magic
+    { match: /(xperia|XQ-[A-Z]{2}[0-9]{2}|honor|PGT-|BVL-|PTP-)/i, name: null, profile: 'sony-honor' },
+    // Dedicated Cameras
+    { match: /(fujifilm|canon|nikon|sony\s*ilce|leica|ricoh|olympus|panasonic|hasselblad)/i, name: null, profile: 'neutral-raw' }
+  ];
+
+  function parseExifFromArrayBuffer(buffer) {
+    const view = new DataView(buffer);
+    if (view.byteLength < 12 || view.getUint16(0, false) !== 0xFFD8) return null;
+    let offset = 2;
+    while (offset + 4 <= view.byteLength) {
+      const marker = view.getUint16(offset, false);
+      offset += 2;
+      if (marker === 0xFFDA || marker === 0xFFD9) break;
+      if ((marker & 0xFF00) !== 0xFF00) break;
+      if ((marker >= 0xFFD0 && marker <= 0xFFD7) || marker === 0xFF01) continue;
+      if (offset + 2 > view.byteLength) break;
+      const segLength = view.getUint16(offset, false);
+      if (segLength < 2 || offset + segLength > view.byteLength) break;
+      if (marker === 0xFFE1 && segLength >= 14) {
+        if (readAscii(view, offset + 2, 4) === 'Exif' && view.getUint16(offset + 6, false) === 0x0000) {
+          return parseTiffExif(view, offset + 8, offset + segLength);
+        }
+      }
+      offset += segLength;
+    }
+    return null;
+  }
+
+  function readAscii(view, start, maxLen) {
+    let out = '';
+    const end = Math.min(view.byteLength, start + maxLen);
+    for (let i = start; i < end; i++) {
+      const c = view.getUint8(i);
+      if (c === 0) break;
+      out += String.fromCharCode(c);
+    }
+    return out.trim();
+  }
+
+  function parseTiffExif(view, tiffStart, limit) {
+    if (tiffStart + 8 > limit) return null;
+    const endian = view.getUint16(tiffStart, false);
+    const le = endian === 0x4949;
+    if (!le && endian !== 0x4D4D) return null;
+    if (view.getUint16(tiffStart + 2, le) !== 42) return null;
+    const firstIfd = view.getUint32(tiffStart + 4, le);
+    const tags = {};
+
+    const readVal = (type, count, fieldOff) => {
+      const sizes = { 1:1, 2:1, 3:2, 4:4, 5:8, 7:1, 9:4, 10:8 };
+      const size = (sizes[type] || 1) * count;
+      let pos = size > 4 ? tiffStart + view.getUint32(fieldOff, le) : fieldOff;
+      if (pos < tiffStart || pos + size > view.byteLength) return null;
+      if (type === 2) return readAscii(view, pos, count);
+      if (type === 3) return view.getUint16(pos, le);
+      if (type === 4) return view.getUint32(pos, le);
+      if (type === 5) { const d = view.getUint32(pos + 4, le); return d ? view.getUint32(pos, le) / d : null; }
+      if (type === 10) { const d = view.getInt32(pos + 4, le); return d ? view.getInt32(pos, le) / d : null; }
+      return null;
+    };
+
+    const parseIfd = (rel) => {
+      const s = tiffStart + rel;
+      if (s < tiffStart || s + 2 > view.byteLength) return null;
+      const n = view.getUint16(s, le);
+      let sub = null;
+      for (let i = 0; i < n; i++) {
+        const ep = s + 2 + i * 12;
+        if (ep + 12 > view.byteLength) break;
+        const tag = view.getUint16(ep, le);
+        if (tag === 0x8769) sub = view.getUint32(ep + 8, le);
+        else {
+          const v = readVal(view.getUint16(ep + 2, le), view.getUint32(ep + 4, le), ep + 8);
+          if (v !== null && v !== '') tags[tag] = v;
+        }
+      }
+      return sub;
+    };
+
+    const subIfd = parseIfd(firstIfd);
+    if (subIfd) parseIfd(subIfd);
+    if (Object.keys(tags).length === 0) return null;
+
+    const make = tags[0x010F] || '', model = tags[0x0110] || '';
+    const combined = `${make} ${model}`.trim();
+    let commercialModel = model || make || 'Thiết bị KTS';
+    let mappedProfile = 'auto-detect';
+
+    for (const e of DEVICE_MODEL_MAP) {
+      if (e.match.test(combined)) {
+        mappedProfile = e.profile;
+        if (e.name) commercialModel = e.name;
+        break;
+      }
+    }
+    if (mappedProfile === 'auto-detect') {
+      if (/apple/i.test(make)) mappedProfile = 'iphone-18';
+      else if (/samsung/i.test(make)) mappedProfile = 'samsung-vivid';
+      else if (/xiaomi|redmi|poco/i.test(make)) mappedProfile = 'xiaomi-leica';
+      else if (/google/i.test(make)) mappedProfile = 'pixel-hdr';
+      else if (/oppo|vivo|realme|oneplus/i.test(make)) mappedProfile = 'oppo-vivo';
+      else if (/sony|honor/i.test(make)) mappedProfile = 'sony-honor';
+    }
+
+    const exp = tags[0x829A];
+    return {
+      commercialModel,
+      mappedProfile,
+      exposureStr: exp ? (exp >= 1 ? `${exp.toFixed(1)}s` : `1/${Math.round(1 / exp)}s`) : '',
+      fNumberStr: tags[0x829D] ? `f/${Number(tags[0x829D]).toFixed(1).replace(/\.0$/, '')}` : '',
+      isoStr: tags[0x8827] ? `ISO ${tags[0x8827]}` : '',
+      focalStr: tags[0xA405] ? `${tags[0xA405]}mm` : (tags[0x920A] ? `${Math.round(tags[0x920A])}mm` : ''),
+      dateRaw: tags[0x9003] || tags[0x0132] || ''
+    };
+  }
+
+  function analyzeImageCharacteristics(canvas) {
+    const size = 160;
+    const tmp = document.createElement('canvas');
+    const ratio = canvas.width / canvas.height;
+    tmp.width = ratio >= 1 ? size : Math.max(40, Math.round(size * ratio));
+    tmp.height = ratio >= 1 ? Math.max(40, Math.round(size / ratio)) : size;
+    const ctx = tmp.getContext('2d');
+    ctx.drawImage(canvas, 0, 0, tmp.width, tmp.height);
+
+    const { data, width, height } = ctx.getImageData(0, 0, tmp.width, tmp.height);
+    const total = width * height;
+    let sumLum = 0, sumWarmth = 0, sumSat = 0, highlightClip = 0, shadowCrush = 0, greenCount = 0, blueCount = 0, skinCount = 0, lapSum = 0;
+    const lumArr = new Float32Array(total);
+
+    for (let i = 0, p = 0; i < total; i++, p += 4) {
+      const r = data[p], g = data[p + 1], b = data[p + 2];
+      const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+      lumArr[i] = lum;
+      sumLum += lum;
+      sumWarmth += (r - b) / 255;
+      const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+      sumSat += mx > 0 ? (mx - mn) / mx : 0;
+      if (lum > 0.93) highlightClip++;
+      if (lum < 0.08) shadowCrush++;
+      if (g > r * 1.07 && g > b * 1.07 && g > 40) greenCount++;
+      if (b > r * 1.12 && b > g * 1.02 && b > 50) blueCount++;
+      if (r > g && g > b && (r - b) > 18 && lum > 0.24 && lum < 0.85) skinCount++;
+    }
+    for (let y = 1; y < height - 1; y++) {
+      for (let x = 1; x < width - 1; x++) {
+        const idx = y * width + x;
+        lapSum += Math.abs(4 * lumArr[idx] - lumArr[idx-1] - lumArr[idx+1] - lumArr[idx-width] - lumArr[idx+width]);
+      }
+    }
+
+    const meanLum = sumLum / total, warmth = sumWarmth / total, meanSat = sumSat / total;
+    const greenR = greenCount / total, blueR = blueCount / total, skinR = skinCount / total;
+    const shadowR = shadowCrush / total, sharp = lapSum / total;
+
+    let sceneType = 'Đời thường & Đường phố', sceneKey = 'balanced';
+    if (meanLum < 0.30 && (shadowR > 0.28 || highlightClip / total > 0.02)) {
+      sceneType = 'Phố đêm / Ánh đèn Neon'; sceneKey = 'night';
+    } else if (greenR > 0.16) {
+      sceneType = 'Thiên nhiên & Lá xanh'; sceneKey = 'nature';
+    } else if (warmth > 0.10 || (skinR > 0.22 && warmth > 0.04)) {
+      sceneType = 'Nắng ấm / Chân dung'; sceneKey = 'warm-portrait';
+    } else if (blueR > 0.18 && meanLum > 0.45) {
+      sceneType = 'Biển trời nắng sáng'; sceneKey = 'bright-sky';
+    }
+
+    let suggestedPhoneId = 'auto-detect';
+    if (sharp > 0.105) suggestedPhoneId = 'iphone-18';
+    else if (meanSat > 0.46 && (blueR > 0.14 || greenR > 0.14)) suggestedPhoneId = 'samsung-vivid';
+    else if (shadowR > 0.30 && meanLum < 0.42) suggestedPhoneId = 'xiaomi-leica';
+
+    const recsByScene = {
+      night: [
+        { bodyId: 'leica-m6', lensId: 'voigtlander-40', filmId: 'cinestill-800t', title: 'CineStill 800T + Leica M6', reason: 'Tạo quầng đỏ Halation quanh đèn đêm & nền xanh điện ảnh.' },
+        { bodyId: 'olympus-mju', lensId: 'leitz-summicron-35', filmId: 'fuji-natura-1600', title: 'Fuji Natura 1600 + mju-II', reason: 'Giữ nét ấm ánh đèn phố đêm với hạt bạc giàu cảm xúc.' },
+        { bodyId: 'leica-m6', lensId: 'zeiss-sonnar-38', filmId: 'kodak-trix-400', title: 'Kodak Tri-X 400 + Zeiss 38', reason: 'Chuyển ánh sáng đêm sang đen trắng phóng sự gai góc.' }
+      ],
+      nature: [
+        { bodyId: 'fuji-tx1', lensId: 'fujinon-35-14', filmId: 'fuji-pro-400h', title: 'Fuji Pro 400H + TX-1', reason: 'Đưa mảng cây lá sang xanh ngọc pastel đặc trưng Nhật Bản.' },
+        { bodyId: 'rollie-35', lensId: 'zeiss-sonnar-38', filmId: 'fuji-classic-neg', title: 'Fuji Classic Neg. + Rollie', reason: 'Vùng tối lục lạnh sâu thẳm tương phản ánh sáng ấm.' },
+        { bodyId: 'hasselblad-500', lensId: 'zeiss-sonnar-38', filmId: 'fuji-velvia-50', title: 'Fuji Velvia 50 + Hasselblad', reason: 'Tăng độ rực phong cảnh như phim slide dương bản.' }
+      ],
+      'warm-portrait': [
+        { bodyId: 'contax-t2', lensId: 'leitz-summicron-35', filmId: 'kodak-portra-400', title: 'Portra 400 + Contax T2', reason: 'Làm mịn vùng sáng & giữ tông da kem ấm nịnh mắt.' },
+        { bodyId: 'rollie-35', lensId: 'voigtlander-40', filmId: 'kodak-gold-200', title: 'Gold 200 + Rollie 35 S', reason: 'Đẩy chất nắng vàng hoài niệm thập niên 90.' },
+        { bodyId: 'hasselblad-500', lensId: 'fujinon-35-14', filmId: 'fuji-astia-100f', title: 'Fuji Astia 100F + Hasselblad', reason: 'Tông da hồng phấn dịu dàng chuẩn tạp chí Nhật.' }
+      ],
+      'bright-sky': [
+        { bodyId: 'fuji-tx1', lensId: 'zeiss-sonnar-38', filmId: 'kodak-ultramax-400', title: 'UltraMax 400 + Fuji TX-1', reason: 'Làm bầu trời xanh sâu & nắng vàng rực rỡ.' },
+        { bodyId: 'contax-t2', lensId: 'fujinon-35-14', filmId: 'fuji-superia-400', title: 'Fuji Superia 400 + Contax', reason: 'Bầu trời xanh mát trong trẻo kiểu phim Nhật.' },
+        { bodyId: 'rollie-35', lensId: 'zeiss-sonnar-38', filmId: 'kodak-ektar-100', title: 'Ektar 100 + Zeiss 38mm', reason: 'Hạt siêu mịn, sắc xanh biển & đỏ nổi bật.' }
+      ],
+      balanced: [
+        { bodyId: 'leica-m6', lensId: 'zeiss-sonnar-38', filmId: 'fuji-classic-chrome', title: 'Classic Chrome + Leica M6', reason: 'Tông màu tạp chí cổ điển trầm lắng, sang trọng.' },
+        { bodyId: 'contax-t2', lensId: 'leitz-summicron-35', filmId: 'kodak-portra-400', title: 'Portra 400 + Contax T2', reason: 'Hài hòa mọi ánh sáng với độ chuyển màu êm dịu.' },
+        { bodyId: 'rollie-35', lensId: 'helios-44', filmId: 'kodak-colorplus-200', title: 'ColorPlus 200 + Helios', reason: 'Tạo sắc vàng cát cổ điển & ánh viền mơ màng.' }
+      ]
+    };
+
+    return { sceneType, sceneKey, suggestedPhoneId, recs: recsByScene[sceneKey] };
+  }
+
+  /* ==========================================================================
+     3. PROCEDURAL 6 SAMPLE SCENES
+     ========================================================================== */
+
+  function generateSampleScenes() {
+    const W = 900, H = 600;
+    const makeCanvas = () => { const c = document.createElement('canvas'); c.width = W; c.height = H; return { c, ctx: c.getContext('2d') }; };
+    const addTex = (ctx, amt) => {
+      const img = ctx.getImageData(0, 0, W, H), d = img.data;
+      let s = 1337;
+      for (let i = 0; i < d.length; i += 4) {
+        s = (s * 1664525 + 1013904223) | 0;
+        const n = ((s >> 24) / 128) * amt;
+        d[i] = Math.max(0, Math.min(255, d[i] + n));
+        d[i+1] = Math.max(0, Math.min(255, d[i+1] + n));
+        d[i+2] = Math.max(0, Math.min(255, d[i+2] + n));
+      }
+      ctx.putImageData(img, 0, 0);
+    };
+
+    const scenes = [];
+
+    // 1. Hoàng hôn Phố
+    {
+      const { c, ctx } = makeCanvas();
+      const sky = ctx.createLinearGradient(0, 0, 0, H * 0.65);
+      sky.addColorStop(0, '#2a4d7a'); sky.addColorStop(0.45, '#d97a54'); sky.addColorStop(1, '#fbd07c');
+      ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
+      const sun = ctx.createRadialGradient(W * 0.68, H * 0.34, 8, W * 0.68, H * 0.34, 240);
+      sun.addColorStop(0, '#fffbe6'); sun.addColorStop(0.18, 'rgba(255,214,120,0.85)'); sun.addColorStop(1, 'rgba(255,160,80,0)');
+      ctx.fillStyle = sun; ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = '#3b2c2a'; ctx.fillRect(0, H * 0.68, W, H * 0.32);
+      ctx.fillStyle = '#a85d44'; ctx.fillRect(0, H * 0.22, W * 0.32, H * 0.56);
+      ctx.fillStyle = '#733b2c'; ctx.fillRect(W * 0.32, H * 0.26, W * 0.08, H * 0.52);
+      ctx.fillStyle = '#d49a5a'; ctx.fillRect(W * 0.72, H * 0.18, W * 0.28, H * 0.62);
+      for (let r = 0; r < 3; r++) for (let col = 0; col < 2; col++) {
+        ctx.fillStyle = (r + col) % 2 === 0 ? '#ffd27d' : '#2d221e';
+        ctx.fillRect(50 + col * 95, 165 + r * 90, 54, 65);
+        ctx.fillStyle = '#472a20'; ctx.fillRect(W * 0.76 + col * 85, 145 + r * 95, 48, 62);
+      }
+      ctx.fillStyle = '#253c28'; ctx.beginPath(); ctx.arc(W * 0.46, H * 0.55, 70, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(W * 0.52, H * 0.50, 55, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#1b1414'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(0, 130); ctx.quadraticCurveTo(450, 210, W, 115); ctx.stroke();
+      addTex(ctx, 6);
+      scenes.push({ id: 'golden-street', title: 'Hoàng hôn', canvas: c });
+    }
+
+    // 2. Phố Đêm Neon
+    {
+      const { c, ctx } = makeCanvas();
+      const bg = ctx.createLinearGradient(0, 0, 0, H);
+      bg.addColorStop(0, '#070b14'); bg.addColorStop(0.65, '#101d2e'); bg.addColorStop(1, '#080b12');
+      ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = '#0e131d'; ctx.fillRect(0, 40, 250, 440); ctx.fillRect(650, 20, 250, 460);
+      ctx.fillStyle = '#151c29'; ctx.fillRect(280, 120, 340, 320);
+      const drawNeon = (x, y, w, h, core, glow) => {
+        const g = ctx.createRadialGradient(x + w/2, y + h/2, 5, x + w/2, y + h/2, Math.max(w, h) * 1.4);
+        g.addColorStop(0, glow); g.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = g; ctx.fillRect(x - w, y - h, w * 3, h * 3);
+        ctx.fillStyle = core; ctx.fillRect(x, y, w, h);
+        ctx.fillStyle = '#fff'; ctx.fillRect(x + 4, y + 4, w - 8, h - 8);
+      };
+      drawNeon(90, 150, 120, 44, '#ff2e63', 'rgba(255,46,99,0.55)');
+      drawNeon(700, 120, 110, 56, '#08d9d6', 'rgba(8,217,214,0.5)');
+      drawNeon(410, 230, 80, 36, '#ffb703', 'rgba(255,183,3,0.55)');
+      ctx.fillStyle = '#090e17'; ctx.fillRect(0, 440, W, 160);
+      addTex(ctx, 5);
+      scenes.push({ id: 'neon-night', title: 'Đêm Neon', canvas: c });
+    }
+
+    // 3. Rừng Sương Mù
+    {
+      const { c, ctx } = makeCanvas();
+      const sky = ctx.createLinearGradient(0, 0, 0, H * 0.55);
+      sky.addColorStop(0, '#6a98b0'); sky.addColorStop(0.6, '#b8d1d8'); sky.addColorStop(1, '#e4eceb');
+      ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = '#4e6f73';
+      ctx.beginPath(); ctx.moveTo(0, 270); ctx.lineTo(240, 165); ctx.lineTo(520, 250); ctx.lineTo(780, 150); ctx.lineTo(W, 230); ctx.lineTo(W, 400); ctx.lineTo(0, 400); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#264446'; ctx.fillRect(0, 320, W, H - 320);
+      for (let x = 20; x < W; x += 50) {
+        ctx.fillStyle = '#2e5d40';
+        ctx.beginPath(); ctx.moveTo(x, 220); ctx.lineTo(x - 28, 345); ctx.lineTo(x + 28, 345); ctx.closePath(); ctx.fill();
+      }
+      ctx.fillStyle = '#3d7c3f';
+      ctx.beginPath(); ctx.moveTo(0, 470); ctx.quadraticCurveTo(220, 440, 420, 600); ctx.lineTo(0, 600); ctx.closePath(); ctx.fill();
+      addTex(ctx, 6);
+      scenes.push({ id: 'emerald-forest', title: 'Rừng thông', canvas: c });
+    }
+
+    // 4. Chân Dung Nắng Chiều
+    {
+      const { c, ctx } = makeCanvas();
+      const wall = ctx.createLinearGradient(0, 0, W, H);
+      wall.addColorStop(0, '#282320'); wall.addColorStop(0.5, '#59473d'); wall.addColorStop(1, '#1e1917');
+      ctx.fillStyle = wall; ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = 'rgba(255,210,145,0.26)';
+      ctx.beginPath(); ctx.moveTo(0, 80); ctx.lineTo(540, 200); ctx.lineTo(540, 560); ctx.lineTo(0, 420); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#7c5338'; ctx.beginPath(); ctx.ellipse(470, 580, 180, 160, 0, Math.PI, 0); ctx.fill();
+      ctx.fillStyle = '#d89b78'; ctx.fillRect(435, 340, 70, 90);
+      const sg = ctx.createRadialGradient(455, 250, 15, 470, 260, 115);
+      sg.addColorStop(0, '#f3bfa0'); sg.addColorStop(0.65, '#da9a77'); sg.addColorStop(1, '#9e6246');
+      ctx.fillStyle = sg; ctx.beginPath(); ctx.ellipse(470, 260, 76, 98, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#231915'; ctx.beginPath(); ctx.ellipse(470, 205, 86, 65, -0.05, Math.PI * 0.9, Math.PI * 2.1); ctx.fill();
+      addTex(ctx, 5);
+      scenes.push({ id: 'portrait-window', title: 'Chân dung', canvas: c });
+    }
+
+    // 5. Cà Phê Sáng
+    {
+      const { c, ctx } = makeCanvas();
+      ctx.fillStyle = '#dcd2c4'; ctx.fillRect(0, 0, W, 320);
+      ctx.fillStyle = '#b49473'; ctx.fillRect(0, 320, W, 280);
+      ctx.fillStyle = '#f5efe6'; ctx.beginPath(); ctx.ellipse(480, 435, 108, 36, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#e9e1d4'; ctx.beginPath(); ctx.moveTo(405, 360); ctx.lineTo(555, 360); ctx.lineTo(535, 435); ctx.lineTo(425, 435); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#6f4528'; ctx.beginPath(); ctx.ellipse(480, 360, 75, 22, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#336b42'; ctx.beginPath(); ctx.ellipse(720, 240, 40, 85, -0.3, 0, Math.PI * 2); ctx.fill();
+      addTex(ctx, 5);
+      scenes.push({ id: 'morning-cafe', title: 'Cà phê', canvas: c });
+    }
+
+    // 6. Biển Nắng Vàng
+    {
+      const { c, ctx } = makeCanvas();
+      const sky = ctx.createLinearGradient(0, 0, 0, 310);
+      sky.addColorStop(0, '#1256a0'); sky.addColorStop(0.6, '#3991d4'); sky.addColorStop(1, '#a9daf2');
+      ctx.fillStyle = sky; ctx.fillRect(0, 0, W, 310);
+      const sea = ctx.createLinearGradient(0, 310, 0, 485);
+      sea.addColorStop(0, '#0a658c'); sea.addColorStop(0.6, '#1497ab'); sea.addColorStop(1, '#7de0df');
+      ctx.fillStyle = sea; ctx.fillRect(0, 310, W, 175);
+      ctx.fillStyle = '#f3d9ac'; ctx.fillRect(0, 475, W, H - 475);
+      ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.moveTo(575, 295); ctx.lineTo(575, 195); ctx.lineTo(635, 295); ctx.closePath(); ctx.fill();
+      addTex(ctx, 5);
+      scenes.push({ id: 'ocean-breeze', title: 'Biển xanh', canvas: c });
+    }
+
+    return scenes;
+  }
+
+  /* ==========================================================================
+     4. GRAIN TEXTURE, OPTICAL BLUR & FILM COLOR ENGINE
+     ========================================================================== */
+
+  const GRAIN_SIZE = 256;
+  const GRAIN_TILE = (() => {
+    const raw = new Float32Array(GRAIN_SIZE * GRAIN_SIZE);
+    let seed = 987654321;
+    const rand = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+    for (let i = 0; i < raw.length; i++) {
+      raw[i] = Math.sqrt(-2 * Math.log(Math.max(1e-5, rand()))) * Math.cos(2 * Math.PI * rand());
+    }
+    const clumped = new Float32Array(GRAIN_SIZE * GRAIN_SIZE);
+    for (let y = 0; y < GRAIN_SIZE; y++) {
+      for (let x = 0; x < GRAIN_SIZE; x++) {
+        const xm = (x - 1 + GRAIN_SIZE) % GRAIN_SIZE, xp = (x + 1) % GRAIN_SIZE;
+        const ym = (y - 1 + GRAIN_SIZE) % GRAIN_SIZE, yp = (y + 1) % GRAIN_SIZE;
+        clumped[y * GRAIN_SIZE + x] = raw[y * GRAIN_SIZE + x] * 0.55 +
+          (raw[y * GRAIN_SIZE + xm] + raw[y * GRAIN_SIZE + xp] + raw[ym * GRAIN_SIZE + x] + raw[yp * GRAIN_SIZE + x]) * 0.1125;
+      }
+    }
+    return clumped;
+  })();
+
+  function fastBoxBlurRGB(buf, w, h, radius) {
+    if (radius < 1) return;
+    const tmp = new Float32Array(buf.length);
+    const div = radius * 2 + 1;
+    for (let y = 0; y < h; y++) {
+      const row = y * w * 3;
+      let rS = 0, gS = 0, bS = 0;
+      for (let k = -radius; k <= radius; k++) {
+        const p = row + Math.max(0, Math.min(w - 1, k)) * 3;
+        rS += buf[p]; gS += buf[p+1]; bS += buf[p+2];
+      }
+      for (let x = 0; x < w; x++) {
+        const p = row + x * 3;
+        tmp[p] = rS / div; tmp[p+1] = gS / div; tmp[p+2] = bS / div;
+        const pA = row + Math.min(w - 1, x + radius + 1) * 3;
+        const pB = row + Math.max(0, x - radius) * 3;
+        rS += buf[pA] - buf[pB]; gS += buf[pA+1] - buf[pB+1]; bS += buf[pA+2] - buf[pB+2];
+      }
+    }
+    for (let x = 0; x < w; x++) {
+      let rS = 0, gS = 0, bS = 0;
+      for (let k = -radius; k <= radius; k++) {
+        const p = (Math.max(0, Math.min(h - 1, k)) * w + x) * 3;
+        rS += tmp[p]; gS += tmp[p+1]; bS += tmp[p+2];
+      }
+      for (let y = 0; y < h; y++) {
+        const p = (y * w + x) * 3;
+        buf[p] = rS / div; buf[p+1] = gS / div; buf[p+2] = bS / div;
+        const pA = (Math.min(h - 1, y + radius + 1) * w + x) * 3;
+        const pB = (Math.max(0, y - radius) * w + x) * 3;
+        rS += tmp[pA] - tmp[pB]; gS += tmp[pA+1] - tmp[pB+1]; bS += tmp[pA+2] - tmp[pB+2];
+      }
+    }
+  }
+
+  function clamp255(v) { return v < 0 ? 0 : (v > 255 ? 255 : v); }
+
+  function buildToneLUT(exposureEV, contrast, blackLift, highlightRolloff, warmthShift, tintShift) {
+    const lutR = new Uint8ClampedArray(256), lutG = new Uint8ClampedArray(256), lutB = new Uint8ClampedArray(256);
+    const expMul = Math.pow(2, exposureEV);
+    for (let i = 0; i < 256; i++) {
+      let x = (i / 255) * expMul;
+      if (highlightRolloff > 0 && x > 0.65) {
+        const ex = x - 0.65;
+        x = 0.65 + ex / (1 + ex * highlightRolloff * 2.4);
+      }
+      if (x > 1) x = 1;
+      let y = blackLift + (0.5 + (x - 0.5) * contrast) * (1 - blackLift * 1.15);
+      const base = Math.max(0, Math.min(1, y)) * 255;
+      lutR[i] = clamp255(base + warmthShift * 1.15 + tintShift * 0.3);
+      lutG[i] = clamp255(base - tintShift * 0.8);
+      lutB[i] = clamp255(base - warmthShift * 1.15 + tintShift * 0.3);
+    }
+    return { lutR, lutG, lutB };
+  }
+
+  function processFilmCanvas(sourceImgData, width, height, cfg) {
+    const { phone, body, lens, film, strength, exposureEV, warmth, grainAmt, halationAmt, bloomAmt, vignetteAmt, leakType, leakAmt, frameType, dateStampText, frameNumberStr } = cfg;
+    const src = sourceImgData.data;
+    const outData = new Uint8ClampedArray(src.length);
+    const str = strength / 100;
+    const totalContrast = body.contrast * (1 - phone.contrastSoften) * film.contrast;
+    const totalLift = Math.min(0.14, body.blackLift + film.blackLift + phone.shadowLift * 0.25);
+    const totalRolloff = body.highlightRolloff + phone.highlightRecover;
+    const totalWarmth = warmth + phone.warmthOffset + body.bodyWarmth + lens.coatingWarmth;
+    const totalTint = phone.tintOffset + body.bodyTint + lens.coatingTint;
+    const { lutR, lutG, lutB } = buildToneLUT(exposureEV, totalContrast, totalLift, totalRolloff, totalWarmth, totalTint);
+
+    const m = film.matrix, sT = film.shadowTint, mT = film.midTint, hT = film.highlightTint;
+    const deSharp = Math.min(0.45, phone.deSharpen + lens.edgeSoft * 0.45);
+    const hasCA = lens.chromaticAb > 0.2, caStr = lens.chromaticAb * (width / 900);
+    const invW = 1 / width, invH = 1 / height;
+
+    for (let y = 0; y < height; y++) {
+      const ny = (y * invH - 0.5) * 2;
+      for (let x = 0; x < width; x++) {
+        const p = (y * width + x) * 4;
+        const nx = (x * invW - 0.5) * 2;
+        const dist2 = nx * nx + ny * ny;
+        let r0 = src[p], g0 = src[p+1], b0 = src[p+2];
+
+        if (hasCA && dist2 > 0.25) {
+          const shift = Math.round(caStr * dist2);
+          if (shift >= 1) {
+            r0 = src[(y * width + Math.max(0, Math.min(width - 1, Math.round(x - nx * shift)))) * 4];
+            b0 = src[(y * width + Math.max(0, Math.min(width - 1, Math.round(x + nx * shift)))) * 4 + 2];
+          }
+        }
+        if (deSharp > 0.02 && x > 0 && x < width - 1 && y > 0 && y < height - 1) {
+          const pL = p - 4, pR = p + 4, pU = p - width * 4, pD = p + width * 4;
+          const ef = Math.min(1, deSharp * (1 + dist2 * lens.edgeSoft * 2));
+          r0 += ((src[pL] + src[pR] + src[pU] + src[pD]) * 0.25 - r0) * ef;
+          g0 += ((src[pL+1] + src[pR+1] + src[pU+1] + src[pD+1]) * 0.25 - g0) * ef;
+          b0 += ((src[pL+2] + src[pR+2] + src[pU+2] + src[pD+2]) * 0.25 - b0) * ef;
+        }
+        if (phone.blueTame > 0 || phone.greenTame > 0 || phone.satScale !== 1) {
+          const gray0 = 0.299 * r0 + 0.587 * g0 + 0.114 * b0;
+          let satF = phone.satScale;
+          if (b0 > r0 && b0 > g0) satF *= (1 - phone.blueTame * 0.45);
+          if (g0 > r0 && g0 > b0) satF *= (1 - phone.greenTame * 0.45);
+          r0 = gray0 + (r0 - gray0) * satF;
+          g0 = gray0 + (g0 - gray0) * satF;
+          b0 = gray0 + (b0 - gray0) * satF;
+        }
+
+        const rBase = clamp255(r0), gBase = clamp255(g0), bBase = clamp255(b0);
+        let r = lutR[rBase | 0], g = lutG[gBase | 0], b = lutB[bBase | 0];
+
+        if (film.isBW) {
+          const w = film.bwWeights;
+          const mono = r * w[0] + g * w[1] + b * w[2];
+          const lum = mono / 255, wS = (1 - lum) * (1 - lum), wM = 4 * lum * (1 - lum), wH = lum * lum;
+          r = mono + sT[0]*wS + mT[0]*wM + hT[0]*wH;
+          g = mono + sT[1]*wS + mT[1]*wM + hT[1]*wH;
+          b = mono + sT[2]*wS + mT[2]*wM + hT[2]*wH;
+        } else {
+          let mr = r*m[0] + g*m[1] + b*m[2];
+          let mg = r*m[3] + g*m[4] + b*m[5];
+          let mb = r*m[6] + g*m[7] + b*m[8];
+          const lum = (0.299*mr + 0.587*mg + 0.114*mb) / 255;
+          const wS = (1 - lum) * (1 - lum), wM = 4 * lum * (1 - lum), wH = lum * lum;
+          mr += sT[0]*wS + mT[0]*wM + hT[0]*wH;
+          mg += sT[1]*wS + mT[1]*wM + hT[1]*wH;
+          mb += sT[2]*wS + mT[2]*wM + hT[2]*wH;
+
+          if (film.foliageShift && mg > mr && mg > mb) {
+            const gDom = Math.min(1, (mg - Math.max(mr, mb)) / 70);
+            const fs = film.foliageShift;
+            mr += fs.rShift * gDom; mg += fs.gBoost * gDom; mb += fs.bShift * gDom;
+            if (fs.satScale !== 1) {
+              const gg = 0.299*mr + 0.587*mg + 0.114*mb, mix = 1 + (fs.satScale - 1) * gDom;
+              mr = gg + (mr - gg) * mix; mg = gg + (mg - gg) * mix; mb = gg + (mb - gg) * mix;
+            }
+          }
+          if (film.skyShift && mb > mr * 1.08 && mb > mg) {
+            const bDom = Math.min(1, (mb - Math.max(mr, mg)) / 75);
+            mg += film.skyShift.cyanBoost * bDom; mb += film.skyShift.bDepth * bDom;
+          }
+          if (film.skinProtect > 0 && r > g && g > b && (r - b) > 16 && lum > 0.2 && lum < 0.86) {
+            const sw = Math.max(0, 1 - Math.abs((r - g) - 30) / 48) * film.skinProtect * 0.45;
+            mr += (r * 1.03 - mr) * sw; mg += (g * 0.99 - mg) * sw; mb += (b * 0.95 - mb) * sw;
+          }
+          if (film.saturation !== 1) {
+            const gray = 0.299*mr + 0.587*mg + 0.114*mb;
+            mr = gray + (mr - gray) * film.saturation; mg = gray + (mg - gray) * film.saturation; mb = gray + (mb - gray) * film.saturation;
+          }
+          r = mr; g = mg; b = mb;
+        }
+        if (str < 0.999) {
+          r = rBase + (r - rBase) * str; g = gBase + (g - gBase) * str; b = bBase + (b - bBase) * str;
+        }
+        outData[p] = clamp255(r); outData[p+1] = clamp255(g); outData[p+2] = clamp255(b); outData[p+3] = 255;
+      }
+    }
+
+    if (halationAmt > 0 || bloomAmt > 0) {
+      const gw = Math.max(32, Math.floor(width / 4)), gh = Math.max(24, Math.floor(height / 4));
+      const halBuf = halationAmt > 0 ? new Float32Array(gw * gh * 3) : null;
+      const bloomBuf = bloomAmt > 0 ? new Float32Array(gw * gh * 3) : null;
+      for (let gy = 0; gy < gh; gy++) {
+        const sy = Math.min(height - 1, gy * 4 + 1);
+        for (let gx = 0; gx < gw; gx++) {
+          const sp = (sy * width + Math.min(width - 1, gx * 4 + 1)) * 4, gp = (gy * gw + gx) * 3;
+          const r = outData[sp], g = outData[sp+1], b = outData[sp+2], lum = 0.299*r + 0.587*g + 0.114*b;
+          if (halBuf && lum > 195) { const t = (lum - 195) / 60; halBuf[gp] = 255*t; halBuf[gp+1] = 52*t; halBuf[gp+2] = 14*t; }
+          if (bloomBuf && lum > 175) { const t = (lum - 175) / 80; bloomBuf[gp] = r*t; bloomBuf[gp+1] = g*t; bloomBuf[gp+2] = b*t; }
+        }
+      }
+      const br = Math.max(3, Math.round(gw * 0.022));
+      if (halBuf) { fastBoxBlurRGB(halBuf, gw, gh, br); fastBoxBlurRGB(halBuf, gw, gh, Math.max(2, Math.round(br * 0.6))); }
+      if (bloomBuf) fastBoxBlurRGB(bloomBuf, gw, gh, br);
+      const halGain = (halationAmt / 100) * 1.15 * str, bloomGain = (bloomAmt / 100) * 0.55;
+      for (let y = 0; y < height; y++) {
+        const gyf = (y / height) * (gh - 1), gy0 = gyf | 0, gy1 = Math.min(gh - 1, gy0 + 1), fy = gyf - gy0;
+        for (let x = 0; x < width; x++) {
+          const gxf = (x / width) * (gw - 1), gx0 = gxf | 0, gx1 = Math.min(gw - 1, gx0 + 1), fx = gxf - gx0;
+          const p00 = (gy0*gw+gx0)*3, p10 = (gy0*gw+gx1)*3, p01 = (gy1*gw+gx0)*3, p11 = (gy1*gw+gx1)*3;
+          const w00 = (1-fx)*(1-fy), w10 = fx*(1-fy), w01 = (1-fx)*fy, w11 = fx*fy;
+          const sp = (y * width + x) * 4;
+          let r = outData[sp], g = outData[sp+1], b = outData[sp+2];
+          if (halBuf) {
+            r = 255 - ((255 - r) * (255 - clamp255((halBuf[p00]*w00+halBuf[p10]*w10+halBuf[p01]*w01+halBuf[p11]*w11)*halGain))) / 255;
+            g = 255 - ((255 - g) * (255 - clamp255((halBuf[p00+1]*w00+halBuf[p10+1]*w10+halBuf[p01+1]*w01+halBuf[p11+1]*w11)*halGain))) / 255;
+            b = 255 - ((255 - b) * (255 - clamp255((halBuf[p00+2]*w00+halBuf[p10+2]*w10+halBuf[p01+2]*w01+halBuf[p11+2]*w11)*halGain))) / 255;
+          }
+          if (bloomBuf) {
+            r = 255 - ((255 - r) * (255 - clamp255((bloomBuf[p00]*w00+bloomBuf[p10]*w10+bloomBuf[p01]*w01+bloomBuf[p11]*w11)*bloomGain))) / 255;
+            g = 255 - ((255 - g) * (255 - clamp255((bloomBuf[p00+1]*w00+bloomBuf[p10+1]*w10+bloomBuf[p01+1]*w01+bloomBuf[p11+1]*w11)*bloomGain))) / 255;
+            b = 255 - ((255 - b) * (255 - clamp255((bloomBuf[p00+2]*w00+bloomBuf[p10+2]*w10+bloomBuf[p01+2]*w01+bloomBuf[p11+2]*w11)*bloomGain))) / 255;
+          }
+          outData[sp] = clamp255(r); outData[sp+1] = clamp255(g); outData[sp+2] = clamp255(b);
+        }
+      }
+    }
+
+    const vigStr = (vignetteAmt / 100) * 0.72, grainGain = (grainAmt / 100) * 26;
+    const grainScale = 1 / Math.max(0.65, film.grainSize * (width / 950));
+    if (vigStr > 0.01 || grainGain > 0.2) {
+      for (let y = 0; y < height; y++) {
+        const ny = (y * invH - 0.5) * 2, gy = ((y * grainScale) | 0) & (GRAIN_SIZE - 1);
+        for (let x = 0; x < width; x++) {
+          const sp = (y * width + x) * 4;
+          let r = outData[sp], g = outData[sp+1], b = outData[sp+2];
+          if (vigStr > 0.01) {
+            const nx = (x * invW - 0.5) * 2;
+            const vig = Math.max(0.18, 1 - vigStr * Math.pow((nx*nx + ny*ny) * 0.55, 1.35));
+            r *= vig; g *= vig; b *= vig;
+          }
+          if (grainGain > 0.2) {
+            const gx = ((x * grainScale) | 0) & (GRAIN_SIZE - 1);
+            const lumN = (0.299*r + 0.587*g + 0.114*b) / 255;
+            const n = GRAIN_TILE[gy * GRAIN_SIZE + gx] * grainGain * (0.35 + 2.6 * lumN * (1 - lumN));
+            if (film.isBW) { r += n; g += n; b += n; }
+            else { r += n * 1.05; g += n * 0.96; b += n * 1.08; }
+          }
+          outData[sp] = clamp255(r); outData[sp+1] = clamp255(g); outData[sp+2] = clamp255(b);
+        }
+      }
+    }
+
+    const photoCanvas = document.createElement('canvas');
+    photoCanvas.width = width; photoCanvas.height = height;
+    const pCtx = photoCanvas.getContext('2d');
+    pCtx.putImageData(new ImageData(outData, width, height), 0, 0);
+
+    if (leakType !== 'none' && leakAmt > 0) {
+      pCtx.save();
+      pCtx.globalCompositeOperation = 'screen';
+      const alpha = Math.min(0.92, (leakAmt / 100) * 0.85);
+      if (leakType === 'amber-edge') {
+        const g = pCtx.createLinearGradient(width*0.65, 0, width, height*0.2);
+        g.addColorStop(0, 'rgba(255,90,10,0)'); g.addColorStop(0.65, `rgba(255,115,25,${alpha*0.7})`); g.addColorStop(1, `rgba(255,210,90,${alpha})`);
+        pCtx.fillStyle = g; pCtx.fillRect(0, 0, width, height);
+      } else if (leakType === 'crimson-streak') {
+        const g = pCtx.createLinearGradient(width*0.15, 0, width*0.48, 0);
+        g.addColorStop(0, 'rgba(255,30,10,0)'); g.addColorStop(0.5, `rgba(255,45,20,${alpha*0.85})`); g.addColorStop(1, 'rgba(255,30,10,0)');
+        pCtx.fillStyle = g; pCtx.fillRect(0, 0, width, height);
+      } else if (leakType === 'vintage-corner') {
+        const g = pCtx.createRadialGradient(0, height, 10, 0, height, width*0.65);
+        g.addColorStop(0, `rgba(255,180,65,${alpha})`); g.addColorStop(0.45, `rgba(255,70,20,${alpha*0.5})`); g.addColorStop(1, 'rgba(0,0,0,0)');
+        pCtx.fillStyle = g; pCtx.fillRect(0, 0, width, height);
+      } else if (leakType === 'twin-sunburn') {
+        const g1 = pCtx.createLinearGradient(0, 0, width*0.28, 0); g1.addColorStop(0, `rgba(255,85,20,${alpha*0.85})`); g1.addColorStop(1, 'rgba(0,0,0,0)');
+        const g2 = pCtx.createLinearGradient(width, 0, width*0.72, 0); g2.addColorStop(0, `rgba(255,175,45,${alpha*0.8})`); g2.addColorStop(1, 'rgba(0,0,0,0)');
+        pCtx.fillStyle = g1; pCtx.fillRect(0, 0, width, height); pCtx.fillStyle = g2; pCtx.fillRect(0, 0, width, height);
+      } else if (leakType === 'film-burn') {
+        const g = pCtx.createLinearGradient(0, 0, width*0.5, 0);
+        g.addColorStop(0, `rgba(255,235,180,${alpha})`); g.addColorStop(0.35, `rgba(255,75,15,${alpha*0.85})`); g.addColorStop(1, 'rgba(0,0,0,0)');
+        pCtx.fillStyle = g; pCtx.fillRect(0, 0, width, height);
+      }
+      pCtx.restore();
+    }
+
+    if (dateStampText) {
+      pCtx.save();
+      const fs = Math.max(14, Math.round(height * 0.036));
+      pCtx.font = `700 ${fs}px "Courier New", monospace`;
+      pCtx.textAlign = 'right'; pCtx.textBaseline = 'bottom';
+      pCtx.shadowColor = 'rgba(255,45,0,0.9)'; pCtx.shadowBlur = Math.max(4, Math.round(fs * 0.4));
+      pCtx.fillStyle = '#ff6a1a'; pCtx.fillText(dateStampText, width - Math.round(width*0.04), height - Math.round(height*0.045));
+      pCtx.restore();
+    }
+
+    if (frameType === 'none') return photoCanvas;
+
+    const framed = document.createElement('canvas'), fCtx = framed.getContext('2d');
+    if (frameType === '35mm-sprocket') {
+      const barH = Math.max(36, Math.round(height * 0.145)), sidePad = Math.max(10, Math.round(width * 0.025));
+      framed.width = width + sidePad * 2; framed.height = height + barH * 2;
+      fCtx.fillStyle = '#0e0e10'; fCtx.fillRect(0, 0, framed.width, framed.height);
+      fCtx.drawImage(photoCanvas, sidePad, barH);
+      const holeW = Math.max(10, Math.round(barH * 0.25)), holeH = Math.max(14, Math.round(barH * 0.36)), step = holeW * 2.15;
+      fCtx.fillStyle = '#e5e7eb';
+      for (let hx = sidePad; hx < framed.width - sidePad - holeW; hx += step) {
+        roundRect(fCtx, hx, Math.round(barH * 0.32), holeW, holeH, Math.max(2, holeW * 0.2)); fCtx.fill();
+        roundRect(fCtx, hx, framed.height - barH + Math.round(barH * 0.32), holeW, holeH, Math.max(2, holeW * 0.2)); fCtx.fill();
+      }
+      fCtx.font = `700 ${Math.max(9, Math.round(barH * 0.18))}px monospace`;
+      fCtx.fillStyle = '#e69d35'; fCtx.textBaseline = 'middle';
+      fCtx.fillText(`◀ ${film.edgeCode} ▶`, sidePad + 8, Math.round(barH * 0.16));
+      fCtx.fillText(`${frameNumberStr || '24A'}`, framed.width - sidePad - 36, Math.round(barH * 0.16));
+    } else if (frameType === 'darkroom-white') {
+      const b = Math.max(16, Math.round(Math.min(width, height) * 0.055));
+      framed.width = width + b * 2; framed.height = height + b * 2;
+      fCtx.fillStyle = '#f5f2eb'; fCtx.fillRect(0, 0, framed.width, framed.height);
+      fCtx.drawImage(photoCanvas, b, b);
+    } else if (frameType === 'polaroid') {
+      const side = Math.max(18, Math.round(width * 0.055)), bot = Math.max(54, Math.round(height * 0.22));
+      framed.width = width + side * 2; framed.height = height + side + bot;
+      fCtx.fillStyle = '#f3efe6'; fCtx.fillRect(0, 0, framed.width, framed.height);
+      fCtx.drawImage(photoCanvas, side, side);
+      fCtx.font = `600 ${Math.max(12, Math.round(bot * 0.22))}px monospace`;
+      fCtx.fillStyle = '#4b5563'; fCtx.textAlign = 'center'; fCtx.textBaseline = 'middle';
+      fCtx.fillText(`${film.name} • ${body.name}`, framed.width / 2, height + side + bot * 0.5);
+    }
+    return framed;
+  }
+
+  function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+  }
+
+  /* ==========================================================================
+     5. STATE & CORE CONTROLLERS
+     ========================================================================== */
+
+  const SAMPLES = generateSampleScenes();
+  const state = {
+    fullSourceCanvas: SAMPLES[0].canvas,
+    previewSourceCanvas: null,
+    previewSourceData: null,
+    activeSampleId: SAMPLES[0].id,
+    exif: null,
+    analysis: null,
+
+    phoneId: 'auto-detect',
+    bodyId: 'rollie-35',
+    lensId: 'zeiss-sonnar-38',
+    filmId: 'fuji-pro-400h',
+    filmBrandFilter: 'all',
+    activeTweakKey: 'strength',
+
+    strength: 100,
+    exposure: 0,
+    warmth: 0,
+    grain: 28,
+    halation: 12,
+    bloom: 14,
+    vignette: 26,
+    leakType: 'none',
+    leakAmt: 0,
+    frameType: 'none',
+    dateStamp: 'off',
+
+    splitMode: false,
+    splitPos: 50,
+    recipes: [],
+
+    camStream: null,
+    camFacing: 'environment',
+    camAnimId: null,
+    camSound: true,
+    camShotCount: 0,
+    camMaxShots: 36,
+    camRollShots: [],
+    audioCtx: null
+  };
+
+  try {
+    const saved = localStorage.getItem('tees_lab_recipes_v1') || localStorage.getItem('rollies_lab_recipes_v1');
+    if (saved) state.recipes = JSON.parse(saved);
+  } catch (e) {}
+
+  const previewCanvas = document.getElementById('previewCanvas');
+  const originalOverlayCanvas = document.getElementById('originalOverlayCanvas');
+  const canvasStack = document.getElementById('canvasStack');
+  const splitDivider = document.getElementById('splitDivider');
+  const histogramCanvas = document.getElementById('histogramCanvas');
+
+  function showToast(msg) {
+    const el = document.getElementById('toastBox');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(el._t);
+    el._t = setTimeout(() => el.classList.remove('show'), 2200);
+  }
+
+  function getSelectedGear() {
+    return {
+      phone: PHONE_PROFILES.find(p => p.id === state.phoneId) || PHONE_PROFILES[0],
+      body: CAMERA_BODIES.find(b => b.id === state.bodyId) || CAMERA_BODIES[0],
+      lens: CAMERA_LENSES.find(l => l.id === state.lensId) || CAMERA_LENSES[0],
+      film: FILM_STOCKS.find(f => f.id === state.filmId) || FILM_STOCKS[0]
+    };
+  }
+
+  function formatDateStamp() {
+    if (state.dateStamp === 'off') return '';
+    if (state.dateStamp === 'retro98') {
+      const n = new Date();
+      return `'98 ${String(n.getMonth() + 1).padStart(2, '0')} ${String(n.getDate()).padStart(2, '0')}`;
+    }
+    if (state.exif && state.exif.dateRaw) {
+      const m = state.exif.dateRaw.match(/^(\d{4}):(\d{2}):(\d{2})/);
+      if (m) return `'${m[1].slice(2)} ${m[2]} ${m[3]}`;
+    }
+    const d = new Date();
+    return `'${String(d.getFullYear()).slice(2)} ${String(d.getMonth() + 1).padStart(2, '0')} ${String(d.getDate()).padStart(2, '0')}`;
+  }
+
+  function loadSourceCanvas(srcCanvas, exifData = null) {
+    state.fullSourceCanvas = srcCanvas;
+    state.exif = exifData;
+
+    const maxDim = 860;
+    const scale = Math.min(1, maxDim / Math.max(srcCanvas.width, srcCanvas.height));
+    const pw = Math.max(100, Math.round(srcCanvas.width * scale));
+    const ph = Math.max(100, Math.round(srcCanvas.height * scale));
+    const prevC = document.createElement('canvas');
+    prevC.width = pw; prevC.height = ph;
+    prevC.getContext('2d').drawImage(srcCanvas, 0, 0, pw, ph);
+
+    state.previewSourceCanvas = prevC;
+    state.previewSourceData = prevC.getContext('2d').getImageData(0, 0, pw, ph);
+    state.analysis = analyzeImageCharacteristics(srcCanvas);
+
+    if (exifData && exifData.mappedProfile) state.phoneId = exifData.mappedProfile;
+    else if (state.analysis && state.analysis.suggestedPhoneId) state.phoneId = state.analysis.suggestedPhoneId;
+
+    renderExifAndAnalysisUI();
+    renderPhoneProfileGrid();
+    renderPreview();
+  }
+
+  let renderRaf = null;
+  function scheduleRender() {
+    if (renderRaf) return;
+    renderRaf = requestAnimationFrame(() => { renderRaf = null; renderPreview(); });
+  }
+
+  function renderPreview() {
+    if (!state.previewSourceData) return;
+    const t0 = performance.now();
+    const { phone, body, lens, film } = getSelectedGear();
+
+    const outCanvas = processFilmCanvas(
+      state.previewSourceData,
+      state.previewSourceCanvas.width,
+      state.previewSourceCanvas.height,
+      {
+        phone, body, lens, film,
+        strength: state.strength,
+        exposureEV: state.exposure / 100,
+        warmth: state.warmth,
+        grainAmt: state.grain,
+        halationAmt: state.halation,
+        bloomAmt: state.bloom,
+        vignetteAmt: state.vignette,
+        leakType: state.leakType,
+        leakAmt: state.leakAmt,
+        frameType: state.frameType,
+        dateStampText: formatDateStamp(),
+        frameNumberStr: '24A'
+      }
+    );
+
+    previewCanvas.width = outCanvas.width;
+    previewCanvas.height = outCanvas.height;
+    previewCanvas.getContext('2d').drawImage(outCanvas, 0, 0);
+
+    originalOverlayCanvas.width = outCanvas.width;
+    originalOverlayCanvas.height = outCanvas.height;
+    const oCtx = originalOverlayCanvas.getContext('2d');
+    oCtx.fillStyle = '#07080b';
+    oCtx.fillRect(0, 0, outCanvas.width, outCanvas.height);
+    if (state.frameType === 'none') {
+      oCtx.drawImage(state.previewSourceCanvas, 0, 0, outCanvas.width, outCanvas.height);
+    } else {
+      const sx = (outCanvas.width - state.previewSourceCanvas.width) / 2;
+      const sy = state.frameType === 'polaroid'
+        ? Math.round(state.previewSourceCanvas.width * 0.055)
+        : (outCanvas.height - state.previewSourceCanvas.height) / 2;
+      oCtx.drawImage(state.previewSourceCanvas, sx, sy);
+    }
+
+    drawHistogram(outCanvas);
+    document.getElementById('renderTimeMs').textContent = `${Math.round(performance.now() - t0)}ms`;
+    document.getElementById('liveGearBadge').textContent = `${body.name} • ${lens.name} • ${film.name}`;
+  }
+
+  function drawHistogram(canvas) {
+    const w = canvas.width, h = canvas.height, step = Math.max(3, Math.floor((w * h) / 14000));
+    const data = canvas.getContext('2d').getImageData(0, 0, w, h).data;
+    const rH = new Uint32Array(48), gH = new Uint32Array(48), bH = new Uint32Array(48);
+    for (let i = 0; i < data.length; i += 4 * step) {
+      rH[(data[i] * 47 / 255) | 0]++; gH[(data[i+1] * 47 / 255) | 0]++; bH[(data[i+2] * 47 / 255) | 0]++;
+    }
+    let maxV = 1;
+    for (let i = 1; i < 47; i++) { if (rH[i] > maxV) maxV = rH[i]; if (gH[i] > maxV) maxV = gH[i]; if (bH[i] > maxV) maxV = bH[i]; }
+    const hCtx = histogramCanvas.getContext('2d'), hw = histogramCanvas.width, hh = histogramCanvas.height;
+    hCtx.clearRect(0, 0, hw, hh);
+    hCtx.globalCompositeOperation = 'screen';
+    const drawCh = (arr, col) => {
+      hCtx.fillStyle = col; hCtx.beginPath(); hCtx.moveTo(0, hh);
+      for (let i = 0; i < 48; i++) hCtx.lineTo((i / 47) * hw, hh - Math.min(1, arr[i] / maxV) * (hh - 2));
+      hCtx.lineTo(hw, hh); hCtx.closePath(); hCtx.fill();
+    };
+    drawCh(rH, 'rgba(239,68,68,0.75)'); drawCh(gH, 'rgba(16,185,129,0.75)'); drawCh(bH, 'rgba(59,130,246,0.75)');
+    hCtx.globalCompositeOperation = 'source-over';
+  }
+
+  /* ==========================================================================
+     6. MOBILE UI RENDERERS
+     ========================================================================== */
+
+  function renderExifAndAnalysisUI() {
+    const banner = document.getElementById('phoneStatusBanner');
+    const hdrChip = document.getElementById('hdrPhoneChip');
+    const sceneText = document.getElementById('sceneBadgeText');
+    const exif = state.exif, ana = state.analysis;
+    const prof = PHONE_PROFILES.find(p => p.id === state.phoneId) || PHONE_PROFILES[0];
+
+    hdrChip.textContent = `${prof.icon} ${prof.name}`;
+    sceneText.textContent = ana.sceneType;
+
+    if (exif) {
+      const specs = [exif.focalStr, exif.fNumberStr, exif.exposureStr, exif.isoStr].filter(Boolean).join(' • ');
+      banner.className = 'exif-status-line detected';
+      banner.innerHTML = `<span>✅ <strong>${escapeHtml(exif.commercialModel)}</strong></span><span style="color:var(--text-secondary);font-family:var(--mono);font-size:10px;">${escapeHtml(specs || 'EXIF')}</span>`;
+    } else {
+      banner.className = 'exif-status-line fallback';
+      banner.innerHTML = `<span>🔍 Không có EXIF (Zalo/Mẫu)</span><span style="color:var(--kodak);font-size:10px;">Chọn máy hoặc gợi ý ↓</span>`;
+    }
+
+    const recList = document.getElementById('smartRecsList');
+    recList.innerHTML = '';
+    ana.recs.forEach(rec => {
+      const card = document.createElement('div');
+      card.className = 'rec-chip-card';
+      card.innerHTML = `
+        <div class="rec-chip-top">
+          <div class="rec-chip-title">${rec.title}</div>
+          <button class="btn-pill btn-brass" style="height:22px;padding:0 8px;font-size:10.5px;">Dùng</button>
+        </div>
+        <div class="rec-chip-reason">${rec.reason}</div>
+      `;
+      card.querySelector('button').addEventListener('click', () => {
+        applyGearPreset(rec.bodyId, rec.lensId, rec.filmId);
+        showToast(`Đã áp dụng: ${rec.title}`);
+      });
+      recList.appendChild(card);
+    });
+  }
+
+  function renderPhoneProfileGrid() {
+    const grid = document.getElementById('phoneProfileGrid');
+    grid.innerHTML = '';
+    const hdrChip = document.getElementById('hdrPhoneChip');
+    const activeProf = PHONE_PROFILES.find(p => p.id === state.phoneId) || PHONE_PROFILES[0];
+    hdrChip.textContent = `${activeProf.icon} ${activeProf.name}`;
+
+    PHONE_PROFILES.forEach(prof => {
+      const btn = document.createElement('button');
+      btn.className = `phone-chip-btn ${state.phoneId === prof.id ? 'active' : ''}`;
+      btn.innerHTML = `<span>${prof.icon}</span><span>${prof.name}</span>`;
+      btn.addEventListener('click', () => {
+        state.phoneId = prof.id;
+        renderPhoneProfileGrid();
+        renderPreview();
+      });
+      grid.appendChild(btn);
+    });
+  }
+
+  function renderSampleStrip() {
+    const strip = document.getElementById('sampleStrip');
+    strip.innerHTML = '';
+    SAMPLES.forEach(s => {
+      const item = document.createElement('button');
+      item.className = `sample-thumb ${state.activeSampleId === s.id ? 'active' : ''}`;
+      const img = document.createElement('img');
+      img.src = s.canvas.toDataURL('image/jpeg', 0.72);
+      img.alt = s.title;
+      const lbl = document.createElement('span');
+      lbl.textContent = s.title;
+      item.appendChild(img); item.appendChild(lbl);
+      item.addEventListener('click', () => {
+        state.activeSampleId = s.id;
+        renderSampleStrip();
+        loadSourceCanvas(s.canvas, null);
+        document.getElementById('sampleSheetBackdrop').classList.remove('open');
+        showToast(`Ảnh mẫu: ${s.title}`);
+      });
+      strip.appendChild(item);
+    });
+  }
+
+  function renderGearRack() {
+    const bGrid = document.getElementById('bodyGrid');
+    bGrid.innerHTML = '';
+    CAMERA_BODIES.forEach(b => {
+      const btn = document.createElement('button');
+      btn.className = `gear-tile ${state.bodyId === b.id ? 'active' : ''}`;
+      btn.innerHTML = `<div class="gear-tile-name">${b.name}</div><div class="gear-tile-meta">${b.meta}</div>`;
+      btn.addEventListener('click', () => {
+        state.bodyId = b.id; renderGearRack(); syncCameraDropdowns(); renderPreview();
+      });
+      bGrid.appendChild(btn);
+    });
+
+    const lGrid = document.getElementById('lensGrid');
+    lGrid.innerHTML = '';
+    CAMERA_LENSES.forEach(l => {
+      const btn = document.createElement('button');
+      btn.className = `gear-tile ${state.lensId === l.id ? 'active' : ''}`;
+      btn.innerHTML = `<div class="gear-tile-name">${l.name}</div><div class="gear-tile-meta">${l.meta}</div>`;
+      btn.addEventListener('click', () => {
+        state.lensId = l.id; state.bloom = l.bloomBase; state.vignette = l.vignetteBase;
+        renderTweaksDock(); renderGearRack(); syncCameraDropdowns(); renderPreview();
+      });
+      lGrid.appendChild(btn);
+    });
+
+    const fGrid = document.getElementById('filmGrid');
+    fGrid.innerHTML = '';
+    const filtered = state.filmBrandFilter === 'all' ? FILM_STOCKS : FILM_STOCKS.filter(f => f.brand === state.filmBrandFilter);
+    filtered.forEach(f => {
+      const btn = document.createElement('button');
+      btn.className = `film-tile ${state.filmId === f.id ? 'active' : ''}`;
+      btn.innerHTML = `
+        <div class="canister-mini" style="background:${f.canisterColor}"><span>${f.iso}</span></div>
+        <div class="film-tile-name">${f.name}</div>
+        <div class="film-tile-iso">${f.subtitle}</div>
+      `;
+      btn.addEventListener('click', () => selectFilmStock(f.id));
+      fGrid.appendChild(btn);
+    });
+  }
+
+  function selectFilmStock(filmId) {
+    state.filmId = filmId;
+    const f = FILM_STOCKS.find(x => x.id === filmId);
+    if (f) { state.grain = f.grainBase; state.halation = f.halationBase; }
+    renderTweaksDock(); renderGearRack(); syncCameraDropdowns(); renderPreview();
+  }
+
+  function applyGearPreset(bodyId, lensId, filmId) {
+    state.bodyId = bodyId; state.lensId = lensId; state.filmId = filmId;
+    const lens = CAMERA_LENSES.find(l => l.id === lensId);
+    const film = FILM_STOCKS.find(f => f.id === filmId);
+    if (lens) { state.bloom = lens.bloomBase; state.vignette = lens.vignetteBase; }
+    if (film) { state.grain = film.grainBase; state.halation = film.halationBase; }
+    renderTweaksDock(); renderGearRack(); syncCameraDropdowns(); renderPreview();
+  }
+
+  function renderTweaksDock() {
+    const def = TWEAK_DEFS.find(d => d.key === state.activeTweakKey) || TWEAK_DEFS[0];
+    document.getElementById('activeTweakTitle').textContent = `${def.label}: ${def.fmt(state[def.key])}`;
+    const slider = document.getElementById('activeTweakSlider');
+    slider.min = def.min; slider.max = def.max; slider.value = state[def.key];
+
+    const leakStrip = document.getElementById('leakTypeStrip');
+    if (def.key === 'leakAmt') {
+      leakStrip.style.display = 'flex';
+      leakStrip.innerHTML = '';
+      LEAK_TYPES.forEach(lt => {
+        const b = document.createElement('button');
+        b.className = `filter-chip ${state.leakType === lt.id ? 'active' : ''}`;
+        b.textContent = lt.name;
+        b.addEventListener('click', () => {
+          state.leakType = lt.id;
+          if (lt.id !== 'none' && state.leakAmt === 0) state.leakAmt = 45;
+          renderTweaksDock(); renderPreview();
+        });
+        leakStrip.appendChild(b);
+      });
+    } else {
+      leakStrip.style.display = 'none';
+    }
+
+    const row = document.getElementById('tweakPillsRow');
+    row.innerHTML = '';
+    TWEAK_DEFS.forEach(t => {
+      const btn = document.createElement('button');
+      btn.className = `tweak-pill ${state.activeTweakKey === t.key ? 'active' : ''}`;
+      btn.innerHTML = `<span class="tweak-pill-name">${t.label}</span><span class="tweak-pill-val">${t.fmt(state[t.key])}</span>`;
+      btn.addEventListener('click', () => {
+        state.activeTweakKey = t.key;
+        renderTweaksDock();
+      });
+      row.appendChild(btn);
+    });
+  }
+
+  function renderFrameAndRecipes() {
+    document.querySelectorAll('#frameSegGrid .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.frame === state.frameType));
+    document.querySelectorAll('#dateSegGrid .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.date === state.dateStamp));
+
+    const list = document.getElementById('recipeList');
+    if (state.recipes.length === 0) {
+      list.innerHTML = `<span style="font-size:11px;color:var(--text-muted);">Chưa có công thức đã lưu</span>`;
+      return;
+    }
+    list.innerHTML = '';
+    state.recipes.forEach((r, idx) => {
+      const chip = document.createElement('div');
+      chip.className = 'recipe-chip';
+      chip.innerHTML = `<button class="btn-use" style="font-weight:700;">${escapeHtml(r.name)}</button><button class="btn-del" style="color:var(--danger);font-weight:700;">×</button>`;
+      chip.querySelector('.btn-use').addEventListener('click', () => {
+        Object.assign(state, {
+          phoneId: r.phoneId, bodyId: r.bodyId, lensId: r.lensId, filmId: r.filmId,
+          strength: r.strength, exposure: r.exposure, warmth: r.warmth, grain: r.grain,
+          halation: r.halation, bloom: r.bloom, vignette: r.vignette,
+          leakType: r.leakType, leakAmt: r.leakAmt, frameType: r.frameType, dateStamp: r.dateStamp
+        });
+        renderPhoneProfileGrid(); renderGearRack(); renderTweaksDock(); renderFrameAndRecipes(); renderPreview();
+        showToast(`Đã dùng: ${r.name}`);
+      });
+      chip.querySelector('.btn-del').addEventListener('click', () => {
+        state.recipes.splice(idx, 1);
+        localStorage.setItem('tees_lab_recipes_v1', JSON.stringify(state.recipes));
+        renderFrameAndRecipes();
+      });
+      list.appendChild(chip);
+    });
+  }
+
+  /* ==========================================================================
+     7. GUIDE ACCORDION (CONCISE MOBILE)
+     ========================================================================== */
+
+  const GUIDE_ITEMS = [
+    ...FILM_STOCKS.map(f => ({
+      id: `g-${f.id}`,
+      category: f.brand === 'bw' ? 'cinema' : f.brand,
+      icon: f.brand === 'fuji' ? '🌿' : (f.brand === 'kodak' ? '☀️' : (f.brand === 'cinema' ? '🎬' : '🎞️')),
+      chipClass: f.brand === 'fuji' ? 'chip-fuji' : (f.brand === 'kodak' ? 'chip-kodak' : 'chip-cinema'),
+      chipLabel: f.brandLabel,
+      title: `${f.name} (ISO ${f.iso})`,
+      subtitle: f.subtitle,
+      colorNote: f.isBW ? `Đen trắng tỷ trọng RGB [${f.bwWeights.join('/')}] • Hạt ${f.grainBase}%` : `Shadow RGB(${f.shadowTint.join(',')}) • Highlight RGB(${f.highlightTint.join(',')})`,
+      bestFor: f.brand === 'fuji' ? 'Cây xanh, thiên nhiên, trời sáng dịu, da trong trẻo.' : (f.brand === 'kodak' ? 'Nắng vàng, chân dung, hoàng hôn, kỷ niệm ấm áp.' : (f.id === 'cinestill-800t' ? 'Phố đêm, biển Neon, ánh đèn.' : 'Đường phố, kiến trúc tương phản.')),
+      tryGear: {
+        bodyId: f.brand === 'fuji' ? 'fuji-tx1' : (f.id === 'cinestill-800t' ? 'leica-m6' : 'contax-t2'),
+        lensId: f.brand === 'fuji' ? 'fujinon-35-14' : (f.id === 'cinestill-800t' ? 'voigtlander-40' : 'zeiss-sonnar-38'),
+        filmId: f.id
+      }
+    })),
+    {
+      id: 'g-phone-iphone18', category: 'phone', icon: '🍎', chipClass: 'chip-phone', chipLabel: 'ĐIỆN THOẠI',
+      title: 'iPhone 16 / 17 / 18 Pro (Photonic Engine & Next-Gen HDR)', subtitle: 'Khử gắt nét vi mô 48MP & cân bằng dải sáng HDR thế hệ mới',
+      colorNote: 'Cảm biến 48MP Fusion trên iPhone 16–18 Pro đẩy micro-contrast và giữ sáng vùng tối rất mạnh.',
+      bestFor: 'Profile iPhone 16–18 Pro làm mềm biên 26%, hạ nhẹ sắc vàng HDR và trả lại độ sâu vùng tối tự nhiên.',
+      phoneProfile: 'iphone-18'
+    },
+    {
+      id: 'g-phone-iphone', category: 'phone', icon: '📱', chipClass: 'chip-phone', chipLabel: 'ĐIỆN THOẠI',
+      title: 'iPhone 12 – 15 Series (Smart HDR / Deep Fusion)', subtitle: 'Làm dịu viền nét gắt Deep Fusion & hạ ám vàng',
+      colorNote: 'Thuật toán Smart HDR đẩy nét biên mạnh và nâng sáng vùng tối.',
+      bestFor: 'Profile iPhone 12–15 làm mềm biên 22% và trả lại chiều sâu như film.',
+      phoneProfile: 'iphone-hdr'
+    },
+    {
+      id: 'g-phone-samsung', category: 'phone', icon: '🌌', chipClass: 'chip-phone', chipLabel: 'ĐIỆN THOẠI',
+      title: 'Samsung Galaxy S23 – S26 Ultra & Z Fold/Flip', subtitle: 'Giảm rực xanh dương & lá cây (De-Neon)',
+      colorNote: 'ISP Samsung đẩy độ bão hòa bầu trời và cỏ cây rất rực trên màn AMOLED.',
+      bestFor: 'Profile Samsung S23–S26 giảm 28% độ gắt xanh trước khi phủ film.',
+      phoneProfile: 'samsung-vivid'
+    },
+    {
+      id: 'g-phone-flagship-cn', category: 'phone', icon: '🔴', chipClass: 'chip-phone', chipLabel: 'ĐIỆN THOẠI',
+      title: 'Xiaomi 13–17 Leica, Vivo X200–300 Zeiss & OPPO Find X8–9', subtitle: 'Cân bằng vùng tối Leica & làm dịu màu da AI',
+      colorNote: 'Các flagship cảm biến 1-inch có tương phản vùng tối mạnh hoặc làm sáng da AI.',
+      bestFor: 'Chọn Xiaomi 13–17 Leica hoặc OPPO/Vivo để mở chi tiết vùng tối trước khi áp màu Kodak/Fuji.',
+      phoneProfile: 'xiaomi-leica'
+    },
+    {
+      id: 'g-phone-zalo', category: 'phone', icon: '🔍', chipClass: 'chip-phone', chipLabel: 'EXIF',
+      title: 'Khi ảnh mất EXIF qua Zalo / Messenger', subtitle: 'Cách Tee\'s Lab tự động gợi ý cuộn film',
+      colorNote: 'Ứng dụng chat xóa EXIF thiết bị khi gửi ảnh thường.',
+      bestFor: 'App tự đo độ sáng, màu trời/lá/da để gợi ý 3 combo film hợp nhất.',
+      tryGear: null
+    }
+  ];
+
+  let guideFilter = 'all';
+  const openGuideIds = new Set();
+
+  function renderGuideAccordion() {
+    const container = document.getElementById('guideAccordionList');
+    container.innerHTML = '';
+    const items = guideFilter === 'all' ? GUIDE_ITEMS : GUIDE_ITEMS.filter(i => i.category === guideFilter);
+    items.forEach(item => {
+      const isOpen = openGuideIds.has(item.id);
+      const card = document.createElement('div');
+      card.className = `accordion-item ${isOpen ? 'open' : ''}`;
+      card.innerHTML = `
+        <button class="accordion-header" type="button">
+          <div class="acc-icon">${item.icon}</div>
+          <div class="acc-title-wrap">
+            <div class="acc-title">${item.title}</div>
+            <div class="acc-sub">${item.subtitle}</div>
+          </div>
+          <span class="acc-chip ${item.chipClass}">${item.chipLabel}</span>
+          <span class="acc-arrow">${isOpen ? '▴' : '▾'}</span>
+        </button>
+        <div class="accordion-body">
+          <div class="acc-bullet"><strong>🎨 Sắc độ:</strong> ${item.colorNote}</div>
+          <div class="acc-bullet"><strong>🌤️ Hợp chụp:</strong> ${item.bestFor}</div>
+          ${item.tryGear ? `<button class="btn-pill btn-brass btn-try" style="margin-top:6px;height:28px;">🎞️ Thử ngay trong Phòng Tối</button>` : ''}
+          ${item.phoneProfile ? `<button class="btn-pill btn-ghost btn-phone" style="margin-top:6px;height:28px;">📱 Bật Profile này</button>` : ''}
+        </div>
+      `;
+      card.querySelector('.accordion-header').addEventListener('click', () => {
+        if (openGuideIds.has(item.id)) openGuideIds.delete(item.id);
+        else openGuideIds.add(item.id);
+        renderGuideAccordion();
+      });
+      const btnT = card.querySelector('.btn-try');
+      if (btnT) btnT.addEventListener('click', () => { applyGearPreset(item.tryGear.bodyId, item.tryGear.lensId, item.tryGear.filmId); switchMainTab('darkroom'); showToast(`Đang thử ${item.title}`); });
+      const btnP = card.querySelector('.btn-phone');
+      if (btnP) btnP.addEventListener('click', () => { state.phoneId = item.phoneProfile; renderPhoneProfileGrid(); renderPreview(); switchMainTab('darkroom'); showToast(`Đã bật ${item.title}`); });
+      container.appendChild(card);
+    });
+  }
+
+  /* ==========================================================================
+     8. LIVE 35MM CAMERA VIEWFINDER
+     ========================================================================== */
+
+  const vfCanvas = document.getElementById('cameraViewfinderCanvas');
+  const camVideo = document.getElementById('camVideo');
+
+  function playShutterSound() {
+    if (!state.camSound) return;
+    try {
+      if (!state.audioCtx) state.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const ctx = state.audioCtx;
+      if (ctx.state === 'suspended') ctx.resume();
+      const now = ctx.currentTime, bs = ctx.sampleRate * 0.045, buf = ctx.createBuffer(1, bs, ctx.sampleRate), d = buf.getChannelData(0);
+      for (let i = 0; i < bs; i++) d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bs * 0.22));
+      const n = ctx.createBufferSource(); n.buffer = buf;
+      const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 1800;
+      const g = ctx.createGain(); g.gain.setValueAtTime(0.6, now); g.gain.exponentialRampToValueAtTime(0.01, now + 0.045);
+      n.connect(f); f.connect(g); g.connect(ctx.destination); n.start(now);
+    } catch (e) {}
+  }
+
+  function syncCameraDropdowns() {
+    const fill = (id, arr, cur) => {
+      document.getElementById(id).innerHTML = arr.map(x => `<option value="${x.id}" ${x.id === cur ? 'selected' : ''}>${x.name}</option>`).join('');
+    };
+    fill('camSelBody', CAMERA_BODIES, state.bodyId);
+    fill('camSelLens', CAMERA_LENSES, state.lensId);
+    fill('camSelFilm', FILM_STOCKS, state.filmId);
+    const { body, film } = getSelectedGear();
+    document.getElementById('camGearSummary').textContent = `${body.name} • ${film.name}`;
+    document.getElementById('vfHudLeft').textContent = `f/2.8 • 1/125s • ISO ${film.iso}`;
+    document.getElementById('camRollCounter').textContent = `${String(Math.min(state.camShotCount + 1, state.camMaxShots)).padStart(2, '0')} / ${state.camMaxShots}`;
+  }
+
+  async function startRealCamera() {
+    if (state.camStream) { state.camStream.getTracks().forEach(t => t.stop()); state.camStream = null; }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: state.camFacing, width: { ideal: 1280 }, height: { ideal: 960 } }, audio: false });
+      state.camStream = stream;
+      camVideo.srcObject = stream;
+      await camVideo.play();
+      document.getElementById('camSourceStatus').textContent = state.camFacing === 'environment' ? 'Cam Sau' : 'Cam Trước';
+      showToast('Đã bật Camera trực tiếp');
+    } catch (e) {
+      document.getElementById('camSourceStatus').textContent = 'Giả lập';
+      showToast('Đang dùng ống ngắm giả lập');
+    }
+  }
+
+  function startCameraLoop() {
+    if (state.camAnimId) return;
+    vfCanvas.width = 420; vfCanvas.height = 280;
+    const tmp = document.createElement('canvas'); tmp.width = 420; tmp.height = 280;
+    const tCtx = tmp.getContext('2d'), vfCtx = vfCanvas.getContext('2d');
+    let last = 0;
+    const loop = (ts) => {
+      state.camAnimId = requestAnimationFrame(loop);
+      if (ts - last < 50) return;
+      last = ts;
+      if (state.camStream && camVideo.readyState >= 2) {
+        const vw = camVideo.videoWidth || 420, vh = camVideo.videoHeight || 280, tr = 3/2, sr = vw/vh;
+        let sx = 0, sy = 0, sw = vw, sh = vh;
+        if (sr > tr) { sw = vh * tr; sx = (vw - sw) / 2; } else { sh = vw / tr; sy = (vh - sh) / 2; }
+        tCtx.drawImage(camVideo, sx, sy, sw, sh, 0, 0, 420, 280);
+      } else {
+        const s = SAMPLES.find(x => x.id === state.activeSampleId) || SAMPLES[0];
+        tCtx.drawImage(s.canvas, 35 + Math.sin(ts * 0.0006) * 16, 20 + Math.cos(ts * 0.0005) * 10, 820, 546, 0, 0, 420, 280);
+      }
+      const { phone, body, lens, film } = getSelectedGear();
+      const proc = processFilmCanvas(tCtx.getImageData(0, 0, 420, 280), 420, 280, {
+        phone, body, lens, film, strength: 100, exposureEV: state.exposure / 100, warmth: state.warmth,
+        grainAmt: Math.round(film.grainBase * 0.65), halationAmt: Math.round(film.halationBase * 0.6),
+        bloomAmt: lens.bloomBase, vignetteAmt: lens.vignetteBase, leakType: 'none', leakAmt: 0, frameType: 'none', dateStampText: '', frameNumberStr: ''
+      });
+      vfCtx.drawImage(proc, 0, 0);
+    };
+    state.camAnimId = requestAnimationFrame(loop);
+  }
+
+  function stopCameraLoop() {
+    if (state.camAnimId) { cancelAnimationFrame(state.camAnimId); state.camAnimId = null; }
+  }
+
+  function captureCameraShot() {
+    if (state.camShotCount >= state.camMaxShots) { showToast('Hết cuộn 36 kiểu! Bấm Cuộn mới'); return; }
+    const fl = document.getElementById('shutterFlash');
+    fl.classList.add('active'); setTimeout(() => fl.classList.remove('active'), 110);
+    playShutterSound();
+
+    const capW = (state.camStream && camVideo.videoWidth) ? Math.min(1280, camVideo.videoWidth) : 900;
+    const capH = Math.round(capW * (2 / 3));
+    const capC = document.createElement('canvas'); capC.width = capW; capC.height = capH;
+    const cCtx = capC.getContext('2d');
+    if (state.camStream && camVideo.readyState >= 2) {
+      const vw = camVideo.videoWidth, vh = camVideo.videoHeight, tr = 3/2, sr = vw/vh;
+      let sx = 0, sy = 0, sw = vw, sh = vh;
+      if (sr > tr) { sw = vh * tr; sx = (vw - sw) / 2; } else { sh = vw / tr; sy = (vh - sh) / 2; }
+      cCtx.drawImage(camVideo, sx, sy, sw, sh, 0, 0, capW, capH);
+    } else {
+      const s = SAMPLES.find(x => x.id === state.activeSampleId) || SAMPLES[0];
+      cCtx.drawImage(s.canvas, 0, 0, capW, capH);
+    }
+    const { phone, body, lens, film } = getSelectedGear();
+    const cf = document.getElementById('camSelFrame').value;
+    const numStr = `${String(state.camShotCount + 1).padStart(2, '0')}A`;
+    const dev = processFilmCanvas(cCtx.getImageData(0, 0, capW, capH), capW, capH, {
+      phone, body, lens, film, strength: 100, exposureEV: state.exposure / 100, warmth: state.warmth,
+      grainAmt: film.grainBase, halationAmt: film.halationBase, bloomAmt: lens.bloomBase, vignetteAmt: lens.vignetteBase,
+      leakType: state.leakType, leakAmt: state.leakAmt, frameType: cf, dateStampText: formatDateStamp(), frameNumberStr: numStr
+    });
+    state.camShotCount++;
+    state.camRollShots.unshift({ num: state.camShotCount, filmName: film.name, rawCanvas: capC, dataUrl: dev.toDataURL('image/jpeg', 0.92) });
+    if (state.camShotCount >= state.camMaxShots) document.getElementById('btnShutter').disabled = true;
+    syncCameraDropdowns();
+    renderContactSheet();
+  }
+
+  function renderContactSheet() {
+    document.getElementById('contactCount').textContent = state.camRollShots.length;
+    const grid = document.getElementById('contactSheetGrid');
+    if (state.camRollShots.length === 0) {
+      grid.innerHTML = `<div style="grid-column:1/-1;color:var(--text-muted);font-size:11.5px;padding:12px 0;">Chưa có ảnh nào trong cuộn này.</div>`;
+      return;
+    }
+    grid.innerHTML = '';
+    state.camRollShots.forEach(s => {
+      const card = document.createElement('div');
+      card.className = 'shot-card';
+      card.innerHTML = `
+        <img src="${s.dataUrl}" alt="Shot ${s.num}" />
+        <div class="shot-foot">
+          <span>#${String(s.num).padStart(2, '0')}</span>
+          <div style="display:flex;gap:4px;">
+            <button class="btn-pill btn-ghost btn-edit" style="height:24px;padding:0 7px;font-size:10.5px;">Chỉnh</button>
+            <a class="btn-pill btn-primary" style="height:24px;padding:0 7px;font-size:10.5px;text-decoration:none;" href="${s.dataUrl}" download="tees-lab-shot-${s.num}.jpg">Lưu</a>
+          </div>
+        </div>
+      `;
+      card.querySelector('.btn-edit').addEventListener('click', () => {
+        document.getElementById('contactSheetBackdrop').classList.remove('open');
+        loadSourceCanvas(s.rawCanvas, null);
+        switchMainTab('darkroom');
+        showToast(`Đã đưa kiểu #${s.num} vào Phòng Tối`);
+      });
+      grid.appendChild(card);
+    });
+  }
+
+  /* ==========================================================================
+     9. NAVIGATION & EVENTS
+     ========================================================================== */
+
+  function switchMainTab(tabId) {
+    document.querySelectorAll('.bnav-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tabId));
+    document.querySelectorAll('.view-section').forEach(s => s.classList.toggle('active', s.id === `view-${tabId}`));
+    if (tabId === 'camera') { syncCameraDropdowns(); startCameraLoop(); }
+    else stopCameraLoop();
+  }
+
+  function switchDockTab(dockId) {
+    document.querySelectorAll('.dock-tab').forEach(b => b.classList.toggle('active', b.dataset.dock === dockId));
+    document.querySelectorAll('.dock-panel').forEach(p => p.classList.toggle('active', p.id === `dock-${dockId}`));
+  }
+
+  async function handleImageFile(file) {
+    if (!file) return;
+    try {
+      const buf = await file.arrayBuffer();
+      const exif = parseExifFromArrayBuffer(buf);
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        const scale = Math.min(1, 2400 / Math.max(img.naturalWidth, img.naturalHeight));
+        const c = document.createElement('canvas');
+        c.width = Math.round(img.naturalWidth * scale);
+        c.height = Math.round(img.naturalHeight * scale);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        state.activeSampleId = null;
+        renderSampleStrip();
+        loadSourceCanvas(c, exif);
+        switchMainTab('darkroom');
+        switchDockTab('phone');
+        showToast(exif ? `📱 Nhận diện: ${exif.commercialModel}` : 'Đã tải ảnh — Xem gợi ý màu Film');
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); showToast('❌ Định dạng ảnh chưa được hỗ trợ'); };
+      img.src = url;
+    } catch (e) {
+      showToast('❌ Lỗi đọc file ảnh');
+    }
+  }
+
+  function exportFullResolution() {
+    if (!state.fullSourceCanvas) return;
+    showToast('⏳ Đang lưu ảnh chất lượng cao...');
+    setTimeout(() => {
+      const src = state.fullSourceCanvas;
+      const { phone, body, lens, film } = getSelectedGear();
+      const out = processFilmCanvas(src.getContext('2d').getImageData(0, 0, src.width, src.height), src.width, src.height, {
+        phone, body, lens, film, strength: state.strength, exposureEV: state.exposure / 100, warmth: state.warmth,
+        grainAmt: state.grain, halationAmt: state.halation, bloomAmt: state.bloom, vignetteAmt: state.vignette,
+        leakType: state.leakType, leakAmt: state.leakAmt, frameType: state.frameType, dateStampText: formatDateStamp(), frameNumberStr: '36'
+      });
+      out.toBlob(blob => {
+        const u = URL.createObjectURL(blob), a = document.createElement('a');
+        a.href = u; a.download = `tees-lab-${film.id}-${Date.now()}.jpg`; a.click();
+        setTimeout(() => URL.revokeObjectURL(u), 1000);
+        showToast('✅ Đã lưu ảnh Film về máy!');
+      }, 'image/jpeg', 0.94);
+    }, 30);
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+  }
+
+  // Wire Nav & Dock
+  document.querySelectorAll('.bnav-btn').forEach(b => b.addEventListener('click', () => switchMainTab(b.dataset.tab)));
+  document.querySelectorAll('.dock-tab').forEach(b => b.addEventListener('click', () => switchDockTab(b.dataset.dock)));
+  document.getElementById('hdrPhoneChip').addEventListener('click', () => { switchMainTab('darkroom'); switchDockTab('phone'); });
+
+  // File & Export
+  const fileInput = document.getElementById('fileInput');
+  document.getElementById('btnUpload').addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', e => { if (e.target.files[0]) handleImageFile(e.target.files[0]); e.target.value = ''; });
+  document.getElementById('btnExport').addEventListener('click', exportFullResolution);
+
+  // Histogram toggle
+  document.getElementById('btnToggleHist').addEventListener('click', (e) => {
+    const h = document.getElementById('histFloatingOverlay');
+    const on = !h.classList.contains('open');
+    h.classList.toggle('open', on);
+    e.currentTarget.classList.toggle('active', on);
+  });
+
+  // Split & Hold Original
+  document.getElementById('btnToggleSplit').addEventListener('click', (e) => {
+    state.splitMode = !state.splitMode;
+    e.currentTarget.classList.toggle('active', state.splitMode);
+    canvasStack.classList.toggle('split-active', state.splitMode);
+  });
+  let dragSplit = false;
+  const moveSplit = (cx) => {
+    const r = canvasStack.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(100, ((cx - r.left) / r.width) * 100));
+    state.splitPos = pct;
+    splitDivider.style.left = `${pct}%`;
+    originalOverlayCanvas.style.clipPath = `inset(0 ${100 - pct}% 0 0)`;
+  };
+  splitDivider.addEventListener('pointerdown', e => { dragSplit = true; splitDivider.setPointerCapture(e.pointerId); });
+  window.addEventListener('pointermove', e => { if (dragSplit) moveSplit(e.clientX); });
+  window.addEventListener('pointerup', () => { dragSplit = false; });
+
+  const btnHold = document.getElementById('btnHoldOriginal'), holdBadge = document.getElementById('holdCompareBadge');
+  const setHold = (on) => {
+    btnHold.classList.toggle('active', on);
+    holdBadge.style.display = on ? 'block' : 'none';
+    originalOverlayCanvas.style.opacity = on ? '1' : '';
+    originalOverlayCanvas.style.clipPath = on ? 'inset(0 0 0 0)' : (state.splitMode ? `inset(0 ${100 - state.splitPos}% 0 0)` : 'inset(0 50% 0 0)');
+  };
+  btnHold.addEventListener('pointerdown', () => setHold(true));
+  btnHold.addEventListener('pointerup', () => setHold(false));
+  btnHold.addEventListener('pointercancel', () => setHold(false));
+  btnHold.addEventListener('pointerleave', () => setHold(false));
+
+  // Brand Filter
+  document.querySelectorAll('#filmBrandPills .filter-chip').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#filmBrandPills .filter-chip').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      state.filmBrandFilter = b.dataset.brand;
+      renderGearRack();
+    });
+  });
+
+  // Random Gear
+  document.getElementById('btnRandomGear').addEventListener('click', () => {
+    const b = CAMERA_BODIES[Math.floor(Math.random() * CAMERA_BODIES.length)];
+    const l = CAMERA_LENSES[Math.floor(Math.random() * CAMERA_LENSES.length)];
+    const f = FILM_STOCKS[Math.floor(Math.random() * FILM_STOCKS.length)];
+    applyGearPreset(b.id, l.id, f.id);
+    showToast(`🎲 ${b.name} + ${f.name}`);
+  });
+
+  // Single Tweak Slider
+  document.getElementById('activeTweakSlider').addEventListener('input', (e) => {
+    state[state.activeTweakKey] = Number(e.target.value);
+    renderTweaksDock();
+    scheduleRender();
+  });
+  document.getElementById('btnResetTweaks').addEventListener('click', () => {
+    const { lens, film } = getSelectedGear();
+    state.strength = 100; state.exposure = 0; state.warmth = 0;
+    state.grain = film.grainBase; state.halation = film.halationBase;
+    state.bloom = lens.bloomBase; state.vignette = lens.vignetteBase;
+    state.leakType = 'none'; state.leakAmt = 0;
+    renderTweaksDock(); renderPreview();
+    showToast('↺ Đã đặt lại thông số');
+  });
+
+  // Frame, Date & Recipes
+  document.querySelectorAll('#frameSegGrid .seg-btn').forEach(b => b.addEventListener('click', () => {
+    state.frameType = b.dataset.frame; renderFrameAndRecipes(); renderPreview();
+  }));
+  document.querySelectorAll('#dateSegGrid .seg-btn').forEach(b => b.addEventListener('click', () => {
+    state.dateStamp = b.dataset.date; renderFrameAndRecipes(); renderPreview();
+  }));
+  document.getElementById('btnSaveRecipe').addEventListener('click', () => {
+    const inp = document.getElementById('recipeNameInput');
+    const name = inp.value.trim() || `${getSelectedGear().film.name}`;
+    state.recipes.unshift({
+      name, phoneId: state.phoneId, bodyId: state.bodyId, lensId: state.lensId, filmId: state.filmId,
+      strength: state.strength, exposure: state.exposure, warmth: state.warmth, grain: state.grain,
+      halation: state.halation, bloom: state.bloom, vignette: state.vignette,
+      leakType: state.leakType, leakAmt: state.leakAmt, frameType: state.frameType, dateStamp: state.dateStamp
+    });
+    localStorage.setItem('tees_lab_recipes_v1', JSON.stringify(state.recipes));
+    inp.value = '';
+    renderFrameAndRecipes();
+    showToast(`💾 Đã lưu "${name}"`);
+  });
+
+  // Bottom Sheets (Samples & Contact Sheet)
+  const sampleSheet = document.getElementById('sampleSheetBackdrop');
+  document.getElementById('btnOpenSamples').addEventListener('click', () => sampleSheet.classList.add('open'));
+  document.getElementById('btnCloseSampleSheet').addEventListener('click', () => sampleSheet.classList.remove('open'));
+  sampleSheet.addEventListener('click', e => { if (e.target === sampleSheet) sampleSheet.classList.remove('open'); });
+
+  const contactSheet = document.getElementById('contactSheetBackdrop');
+  document.getElementById('btnOpenContactSheet').addEventListener('click', () => contactSheet.classList.add('open'));
+  document.getElementById('btnCloseContactSheet').addEventListener('click', () => contactSheet.classList.remove('open'));
+  contactSheet.addEventListener('click', e => { if (e.target === contactSheet) contactSheet.classList.remove('open'); });
+
+  // Camera Events
+  document.getElementById('btnStartCam').addEventListener('click', startRealCamera);
+  document.getElementById('btnFlipCam').addEventListener('click', () => {
+    state.camFacing = state.camFacing === 'environment' ? 'user' : 'environment';
+    if (state.camStream) startRealCamera();
+    else showToast(state.camFacing === 'environment' ? 'Cam Sau' : 'Cam Trước');
+  });
+  document.getElementById('btnToggleSound').addEventListener('click', e => {
+    state.camSound = !state.camSound;
+    e.currentTarget.textContent = state.camSound ? '🔊' : '🔇';
+  });
+  document.getElementById('btnNewRoll').addEventListener('click', () => {
+    state.camShotCount = 0; document.getElementById('btnShutter').disabled = false;
+    syncCameraDropdowns(); showToast('🎞️ Đã nạp cuộn 36 kiểu mới');
+  });
+  document.getElementById('btnClearRollShots').addEventListener('click', () => { state.camRollShots = []; renderContactSheet(); });
+  document.getElementById('btnShutter').addEventListener('click', captureCameraShot);
+  document.getElementById('camSelBody').addEventListener('change', e => { state.bodyId = e.target.value; renderGearRack(); syncCameraDropdowns(); renderPreview(); });
+  document.getElementById('camSelLens').addEventListener('change', e => { state.lensId = e.target.value; renderGearRack(); syncCameraDropdowns(); renderPreview(); });
+  document.getElementById('camSelFilm').addEventListener('change', e => { selectFilmStock(e.target.value); syncCameraDropdowns(); });
+
+  // Guide Events
+  document.querySelectorAll('#guideFilterPills .filter-chip').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#guideFilterPills .filter-chip').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      guideFilter = b.dataset.gfilter;
+      renderGuideAccordion();
+    });
+  });
+  document.getElementById('btnGuideExpandAll').addEventListener('click', () => { GUIDE_ITEMS.forEach(i => openGuideIds.add(i.id)); renderGuideAccordion(); });
+  document.getElementById('btnGuideCollapseAll').addEventListener('click', () => { openGuideIds.clear(); renderGuideAccordion(); });
+
+  // Bootstrap
+  renderSampleStrip();
+  renderPhoneProfileGrid();
+  renderGearRack();
+  renderTweaksDock();
+  renderFrameAndRecipes();
+  renderContactSheet();
+  renderGuideAccordion();
+  loadSourceCanvas(SAMPLES[0].canvas, null);
+})();
+</script>
+</body>
+</html>

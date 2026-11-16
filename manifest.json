@@ -1,0 +1,17 @@
+{
+  "name": "Tee's Lab — 35mm Film Camera & Darkroom",
+  "short_name": "Tee's Lab",
+  "description": "Ứng dụng giả lập màu film 35mm (Fujifilm, Kodak, CineStill, Ilford) theo cơ chế Body + Lens + Film, tự động đọc EXIF và cân bằng cảm biến điện thoại.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#090a0c",
+  "theme_color": "#090a0c",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "./logo.jpg",
+      "sizes": "1024x1024",
+      "type": "image/jpeg"
+    }
+  ]
+}
