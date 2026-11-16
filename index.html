@@ -206,21 +206,21 @@
 
     /* Primary header actions stay large and legible on touch devices. */
     #btnUpload, #btnExport {
-      height: 40px;
+      height: 36px;
       border-radius: 12px;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 800;
       letter-spacing: 0.1px;
     }
     #btnUpload {
-      min-width: 88px;
-      padding: 0 13px;
+      min-width: 82px;
+      padding: 0 11px;
       border-color: var(--border-light);
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
     }
     #btnExport {
-      min-width: 76px;
-      padding: 0 14px;
+      min-width: 70px;
+      padding: 0 12px;
       box-shadow: 0 3px 12px rgba(232, 106, 51, 0.46);
     }
     #btnUpload:active, #btnExport:active { transform: scale(0.97); }
@@ -451,7 +451,7 @@
 
     .dock-tabs {
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       border-bottom: 1px solid var(--border);
       background: #101318;
     }
@@ -554,19 +554,6 @@
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
-
-    .film-roll-launcher {
-      width: 100%;
-      min-height: 112px;
-      border: 1px solid rgba(212, 163, 89, 0.45);
-      border-radius: 12px;
-      background: linear-gradient(135deg, rgba(212, 163, 89, 0.16), rgba(12, 14, 18, 0.96));
-      color: var(--text-primary);
-      text-align: left;
-      padding: 14px;
-    }
-    .film-roll-launcher strong { display: block; color: var(--brass); font-size: 14px; margin-bottom: 4px; }
-    .film-roll-launcher span { color: var(--text-secondary); font-size: 11.5px; }
 
     .phone-chip-btn {
       flex-shrink: 0;
@@ -1212,7 +1199,7 @@
     <main id="view-darkroom" class="view-section active">
       <div class="stage-area" id="previewDropZone">
         <div class="stage-overlay-top">
-          <div class="float-pill gear" id="liveGearBadge">Rollie 35 S • Zeiss 38 • Pro 400H</div>
+          <div class="float-pill gear" id="liveGearBadge">Phone photo • Pro 400H</div>
           <button class="float-pill" id="btnToggleHist">📈 RGB</button>
         </div>
 
@@ -1246,10 +1233,8 @@
         <div class="dock-tabs">
           <button class="dock-tab active" data-dock="phone">✨ Suggested</button>
           <button class="dock-tab" data-dock="film">🎞️ Film</button>
-          <button class="dock-tab" data-dock="gear">📷 Camera</button>
           <button class="dock-tab" data-dock="tweak">🎚️ Adjust</button>
           <button class="dock-tab" data-dock="frame">🖼️ Frame</button>
-          <button class="dock-tab" data-dock="roll">🎞️ Roll</button>
         </div>
 
         <div class="dock-body">
@@ -1281,19 +1266,7 @@
             <select class="dd-full dark-select" id="filmSelect"></select>
           </div>
 
-          <!-- Dock Panel 3: Body & Lens -->
-          <div class="dock-panel" id="dock-gear">
-            <div class="mini-label">
-              <span>1. Camera body</span>
-              <button class="filter-chip" id="btnRandomGear" style="padding:2px 8px;font-size:10px;">🎲 Random</button>
-            </div>
-            <select class="dd-full dark-select" id="bodySelect"></select>
-
-            <div class="mini-label"><span>2. Lens</span></div>
-            <select class="dd-full dark-select" id="lensSelect"></select>
-          </div>
-
-          <!-- Dock Panel 4: Single-Slider Smart Tweaks -->
+          <!-- Dock Panel 3: Single-Slider Smart Tweaks -->
           <div class="dock-panel" id="dock-tweak">
             <div class="tweak-header-row">
               <span id="activeTweakTitle" style="color:var(--brass);">Film strength: 100%</span>
@@ -1310,7 +1283,7 @@
 
           </div>
 
-          <!-- Dock Panel 5: Frame, Date Stamp & Recipes -->
+          <!-- Dock Panel 4: Frame, Date Stamp & Recipes -->
           <div class="dock-panel" id="dock-frame">
             <div class="mini-label"><span>35mm frame</span></div>
             <select class="dd-full dark-select" id="frameSelect">
@@ -1334,12 +1307,6 @@
             <div class="h-scroll" id="recipeList"></div>
           </div>
 
-          <div class="dock-panel" id="dock-roll">
-            <button class="film-roll-launcher" id="btnOpenFilmRoll">
-              <strong>🎞️ Film Roll Camera</strong>
-              <span>Capture frames, apply your selected film look, and review the roll.</span>
-            </button>
-          </div>
         </div>
       </div>
     </main>
@@ -1353,7 +1320,6 @@
             <span style="font-size:10.5px;color:var(--text-secondary);" id="camSourceStatus">Simulated</span>
           </div>
           <div style="display:flex;gap:5px;">
-            <button class="btn-pill btn-ghost" id="btnCloseFilmRoll" style="height:28px;font-size:11px;">← Editor</button>
             <button class="btn-pill btn-ghost" id="btnStartCam" style="height:28px;font-size:11px;">📷 Start camera</button>
             <button class="btn-pill btn-ghost" id="btnFlipCam" style="height:28px;font-size:11px;">🔄</button>
             <button class="btn-pill btn-ghost" id="btnToggleSound" style="height:28px;font-size:11px;">🔊</button>
@@ -1391,6 +1357,35 @@
         </div>
       </div>
     </section>
+
+    <!-- FILM GUIDE -->
+    <section id="view-guide" class="view-section">
+      <div class="guide-wrap">
+        <div class="guide-top-bar">
+          <div class="h-scroll" id="guideFilterPills">
+            <button class="filter-chip active" data-gfilter="all">All</button>
+            <button class="filter-chip" data-gfilter="fuji">Fujifilm</button>
+            <button class="filter-chip" data-gfilter="kodak">Kodak</button>
+            <button class="filter-chip" data-gfilter="cinema">Cine &amp; B&amp;W</button>
+            <button class="filter-chip" data-gfilter="phone">Phones</button>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:11px;color:var(--text-muted);">Tap an item to view details</span>
+            <div style="display:flex;gap:6px;">
+              <button class="filter-chip" id="btnGuideExpandAll">📖 Expand all</button>
+              <button class="filter-chip" id="btnGuideCollapseAll">📁 Collapse all</button>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-list" id="guideAccordionList"></div>
+      </div>
+    </section>
+
+    <nav class="bottom-nav" role="tablist">
+      <button class="bnav-btn active" data-tab="darkroom"><span class="ico">🎞️</span><span>Darkroom</span></button>
+      <button class="bnav-btn" data-tab="camera"><span class="ico">📷</span><span>Camera</span></button>
+      <button class="bnav-btn" data-tab="guide"><span class="ico">📔</span><span>Guide</span></button>
+    </nav>
 
     <!-- BOTTOM SHEET: SAMPLE SCENES -->
     <div class="sheet-backdrop" id="sampleSheetBackdrop">
@@ -2224,7 +2219,7 @@
       fCtx.drawImage(photoCanvas, side, side);
       fCtx.font = `600 ${Math.max(12, Math.round(bot * 0.22))}px monospace`;
       fCtx.fillStyle = '#4b5563'; fCtx.textAlign = 'center'; fCtx.textBaseline = 'middle';
-      fCtx.fillText(`${film.name} • ${body.name}`, framed.width / 2, height + side + bot * 0.5);
+      fCtx.fillText(film.name, framed.width / 2, height + side + bot * 0.5);
     }
     return framed;
   }
@@ -2588,7 +2583,7 @@
 
     drawHistogram(outCanvas);
     document.getElementById('renderTimeMs').textContent = `${Math.round(performance.now() - t0)}ms`;
-    document.getElementById('liveGearBadge').textContent = `${body.name} • ${lens.name} • ${film.name}`;
+    document.getElementById('liveGearBadge').textContent = `Phone photo • ${film.name}`;
   }
 
   function drawHistogram(canvas) {
@@ -2642,14 +2637,14 @@
       card.className = 'rec-chip-card';
       card.innerHTML = `
         <div class="rec-chip-top">
-          <div class="rec-chip-title">${rec.title}</div>
+          <div class="rec-chip-title">${FILM_STOCKS.find(f => f.id === rec.filmId)?.name || 'Film look'}</div>
           <button class="btn-pill btn-brass" style="height:22px;padding:0 8px;font-size:10.5px;">Use</button>
         </div>
         <div class="rec-chip-reason">${rec.reason}</div>
       `;
       card.querySelector('button').addEventListener('click', () => {
-        applyGearPreset(rec.bodyId, rec.lensId, rec.filmId);
-        showToast(`Applied: ${rec.title}`);
+        selectFilmStock(rec.filmId);
+        showToast(`Applied: ${FILM_STOCKS.find(f => f.id === rec.filmId)?.name || 'film look'}`);
       });
       recList.appendChild(card);
     });
@@ -2693,8 +2688,6 @@
       el.innerHTML = arr.map(x => `<option value="${x.id}">${label(x)}</option>`).join('');
       el.value = cur;
     };
-    fill('bodySelect', CAMERA_BODIES, state.bodyId, b => `${b.name} — ${b.meta}`);
-    fill('lensSelect', CAMERA_LENSES, state.lensId, l => `${l.name} — ${l.meta}`);
     let filtered = state.filmBrandFilter === 'all' ? FILM_STOCKS : FILM_STOCKS.filter(f => f.brand === state.filmBrandFilter);
     if (!filtered.some(f => f.id === state.filmId)) { state.filmBrandFilter = 'all'; filtered = FILM_STOCKS; }
     document.getElementById('filmBrandSelect').value = state.filmBrandFilter;
@@ -3016,6 +3009,7 @@
      ========================================================================== */
 
   function switchMainTab(tabId) {
+    document.querySelectorAll('.bnav-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tabId));
     document.querySelectorAll('.view-section').forEach(s => s.classList.toggle('active', s.id === `view-${tabId}`));
     if (tabId === 'camera') { syncCameraDropdowns(); startCameraLoop(); }
     else stopCameraLoop();
@@ -3090,6 +3084,7 @@
   }
 
   // Wire Nav & Dock
+  document.querySelectorAll('.bnav-btn').forEach(b => b.addEventListener('click', () => switchMainTab(b.dataset.tab)));
   document.querySelectorAll('.dock-tab').forEach(b => b.addEventListener('click', () => switchDockTab(b.dataset.dock)));
   document.getElementById('hdrPhoneChip').addEventListener('click', () => { switchMainTab('darkroom'); switchDockTab('phone'); });
 
@@ -3148,14 +3143,6 @@
     else renderGearRack();
   });
   document.getElementById('filmSelect').addEventListener('change', e => selectFilmStock(e.target.value));
-  document.getElementById('bodySelect').addEventListener('change', e => {
-    state.bodyId = e.target.value; renderGearRack(); syncCameraDropdowns(); renderPreview();
-  });
-  document.getElementById('lensSelect').addEventListener('change', e => {
-    const l = CAMERA_LENSES.find(x => x.id === e.target.value);
-    state.lensId = l.id; state.bloom = l.bloomBase; state.vignette = l.vignetteBase;
-    renderTweaksDock(); renderGearRack(); syncCameraDropdowns(); renderPreview();
-  });
   document.getElementById('tweakSelect').addEventListener('change', e => {
     state.activeTweakKey = e.target.value; renderTweaksDock();
   });
@@ -3169,15 +3156,6 @@
   });
   document.getElementById('dateSelect').addEventListener('change', e => {
     state.dateStamp = e.target.value; renderFrameAndRecipes(); renderPreview();
-  });
-
-  // Random Gear
-  document.getElementById('btnRandomGear').addEventListener('click', () => {
-    const b = CAMERA_BODIES[Math.floor(Math.random() * CAMERA_BODIES.length)];
-    const l = CAMERA_LENSES[Math.floor(Math.random() * CAMERA_LENSES.length)];
-    const f = FILM_STOCKS[Math.floor(Math.random() * FILM_STOCKS.length)];
-    applyGearPreset(b.id, l.id, f.id);
-    showToast(`🎲 ${b.name} + ${f.name}`);
   });
 
   // Single Tweak Slider
@@ -3244,8 +3222,17 @@
   document.getElementById('camSelLens').addEventListener('change', e => { state.lensId = e.target.value; renderGearRack(); syncCameraDropdowns(); renderPreview(); });
   document.getElementById('camSelFilm').addEventListener('change', e => { selectFilmStock(e.target.value); syncCameraDropdowns(); });
 
-  document.getElementById('btnOpenFilmRoll').addEventListener('click', () => switchMainTab('camera'));
-  document.getElementById('btnCloseFilmRoll').addEventListener('click', () => switchMainTab('darkroom'));
+  // Guide Events
+  document.querySelectorAll('#guideFilterPills .filter-chip').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#guideFilterPills .filter-chip').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      guideFilter = b.dataset.gfilter;
+      renderGuideAccordion();
+    });
+  });
+  document.getElementById('btnGuideExpandAll').addEventListener('click', () => { GUIDE_ITEMS.forEach(i => openGuideIds.add(i.id)); renderGuideAccordion(); });
+  document.getElementById('btnGuideCollapseAll').addEventListener('click', () => { openGuideIds.clear(); renderGuideAccordion(); });
 
   // Bootstrap
   renderSampleStrip();
@@ -3254,6 +3241,7 @@
   renderTweaksDock();
   renderFrameAndRecipes();
   renderContactSheet();
+  renderGuideAccordion();
   loadSourceCanvas(SAMPLES[0].canvas, null);
   updateSyncButton();
   startGhSync();
