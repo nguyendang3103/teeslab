@@ -456,7 +456,7 @@
 
     .dock-tabs {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       border-bottom: 1px solid var(--border);
       background: #101318;
     }
@@ -1066,7 +1066,7 @@
       padding-bottom: env(safe-area-inset-bottom);
       flex-shrink: 0;
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       background: #0d0f13;
       border-top: 1px solid var(--border);
       z-index: 30;
@@ -1276,6 +1276,7 @@
         <div class="dock-tabs">
           <button class="dock-tab active" data-dock="phone">Film Roll</button>
           <button class="dock-tab" data-dock="tweak">Adjust</button>
+          <button class="dock-tab" data-dock="sensor">Sensor</button>
         </div>
 
         <div class="dock-body">
@@ -1343,6 +1344,21 @@
               <button class="btn-pill btn-brass" id="btnSaveRecipe" style="height:29px;">+ Save</button>
             </div>
             <div class="h-scroll" id="recipeList"></div>
+          </div>
+
+          <div class="dock-panel" id="dock-sensor">
+            <div class="sensor-card">
+              <div class="sensor-card-title">Phone sensor balancing</div>
+              <select class="dark-select" id="phoneProfileSelect" aria-label="Phone sensor profile"></select>
+              <div class="sensor-help">Choose a profile for your phone camera sensor.</div>
+            </div>
+            <div class="sensor-card">
+              <div class="sensor-card-title">Film camera body</div>
+              <select class="dark-select" id="bodySelect" aria-label="Film camera body"></select>
+              <div class="sensor-card-title">Lens</div>
+              <select class="dark-select" id="lensSelect" aria-label="Lens"></select>
+              <div class="sensor-help">Camera body and lens profiles shape the film rendering.</div>
+            </div>
           </div>
 
         </div>
@@ -1419,26 +1435,8 @@
       </div>
     </section>
 
-    <section id="view-sensor" class="view-section">
-      <div class="sensor-wrap">
-        <div class="sensor-card">
-          <div class="sensor-card-title">Phone sensor balancing</div>
-          <select class="dark-select" id="phoneProfileSelect" aria-label="Phone sensor profile"></select>
-          <div class="sensor-help">Choose a profile for your phone camera sensor.</div>
-        </div>
-        <div class="sensor-card">
-          <div class="sensor-card-title">Film camera body</div>
-          <select class="dark-select" id="bodySelect" aria-label="Film camera body"></select>
-          <div class="sensor-card-title">Lens</div>
-          <select class="dark-select" id="lensSelect" aria-label="Lens"></select>
-          <div class="sensor-help">Camera body and lens profiles shape the film rendering.</div>
-        </div>
-      </div>
-    </section>
-
     <nav class="bottom-nav" role="tablist">
-      <button class="bnav-btn active" data-tab="darkroom"><span class="ico">🎞️</span><span>Darkroom</span></button>
-      <button class="bnav-btn" data-tab="sensor"><span class="ico">🎛️</span><span>Sensor</span></button>
+      <button class="bnav-btn active" data-tab="darkroom"><span class="ico">🎞️</span><span>Lab</span></button>
       <button class="bnav-btn" id="btnBottomPhoto" type="button"><span class="ico">➕</span><span>Photo</span></button>
       <button class="bnav-btn" data-tab="camera"><span class="ico">📷</span><span>Camera</span></button>
     </nav>
@@ -3153,7 +3151,7 @@
   // Wire Nav & Dock
   document.querySelectorAll('.bnav-btn').forEach(b => b.addEventListener('click', () => switchMainTab(b.dataset.tab)));
   document.querySelectorAll('.dock-tab').forEach(b => b.addEventListener('click', () => switchDockTab(b.dataset.dock)));
-  document.getElementById('hdrPhoneChip').addEventListener('click', () => switchMainTab('sensor'));
+  document.getElementById('hdrPhoneChip').addEventListener('click', () => { switchMainTab('darkroom'); switchDockTab('sensor'); });
 
   // File & Export
   const fileInput = document.getElementById('fileInput');
