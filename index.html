@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
@@ -102,14 +102,14 @@
       padding-top: env(safe-area-inset-top);
     }
 
-    /* 1. COMPACT MOBILE TOPBAR (48px) */
+    /* 1. MOBILE TOPBAR */
     .topbar {
-      height: 48px;
+      min-height: 58px;
       flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
+      gap: 10px;
       padding: 0 10px;
       background: rgba(12, 14, 18, 0.96);
       border-bottom: 1px solid var(--border);
@@ -173,7 +173,7 @@
     .topbar-actions {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       flex-shrink: 0;
     }
 
@@ -202,6 +202,40 @@
     .btn-brass {
       background: linear-gradient(135deg, #d4a359, #b07f37);
       color: #111;
+    }
+
+    /* Primary header actions stay large and legible on touch devices. */
+    #btnUpload, #btnExport {
+      height: 40px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.1px;
+    }
+    #btnUpload {
+      min-width: 88px;
+      padding: 0 13px;
+      border-color: var(--border-light);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
+    }
+    #btnExport {
+      min-width: 76px;
+      padding: 0 14px;
+      box-shadow: 0 3px 12px rgba(232, 106, 51, 0.46);
+    }
+    #btnUpload:active, #btnExport:active { transform: scale(0.97); }
+    #btnUpload:focus-visible, #btnExport:focus-visible {
+      outline: 2px solid var(--cyan);
+      outline-offset: 2px;
+    }
+    @media (max-width: 360px) {
+      .topbar { padding: 0 8px; gap: 6px; }
+      .brand { gap: 6px; }
+      .brand-logo-wrap { width: 28px; height: 28px; }
+      .hdr-phone-chip { display: none; }
+      .topbar-actions { gap: 5px; }
+      #btnUpload { min-width: 82px; padding: 0 10px; }
+      #btnExport { min-width: 70px; padding: 0 11px; }
     }
 
     /* MAIN VIEWS */
@@ -1140,8 +1174,8 @@
 
       <div class="topbar-actions">
         <input type="file" id="fileInput" accept="image/*" hidden />
-        <button class="btn-pill btn-ghost" id="btnUpload">➕ Photo</button>
-        <button class="btn-pill btn-primary" id="btnExport">⬇️ Save</button>
+        <button class="btn-pill btn-ghost" id="btnUpload" title="Add a photo" aria-label="Add a photo">➕ Photo</button>
+        <button class="btn-pill btn-primary" id="btnExport" title="Save edited photo" aria-label="Save edited photo">⬇️ Save</button>
       </div>
     </header>
 
