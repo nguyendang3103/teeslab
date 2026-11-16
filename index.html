@@ -1079,6 +1079,23 @@
       font-size: 10px;
     }
 
+
+    select { color-scheme: dark; }
+    .dd-full {
+      width: 100%;
+      padding: 9px 30px 9px 10px;
+      font-size: 12.5px;
+      font-weight: 600;
+      appearance: none;
+      -webkit-appearance: none;
+      background-color: var(--bg-card);
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1l5 5 5-5' fill='none' stroke='%23a1aab8' stroke-width='2'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 11px center;
+      border: 1px solid var(--border-light);
+    }
+    .dd-full:focus { border-color: var(--brass); }
+
     /* Toast */
     .toast-box {
       position: absolute;
@@ -1117,14 +1134,14 @@
         </div>
         <div class="brand-info">
           <div class="brand-title">TEE'S LAB</div>
-          <button class="hdr-phone-chip" id="hdrPhoneChip" title="Đổi cấu hình điện thoại">✨ Đang nhận diện...</button>
+          <button class="hdr-phone-chip" id="hdrPhoneChip" title="Change phone profile">✨ Detecting...</button>
         </div>
       </div>
 
       <div class="topbar-actions">
         <input type="file" id="fileInput" accept="image/*" hidden />
-        <button class="btn-pill btn-ghost" id="btnUpload">➕ Ảnh</button>
-        <button class="btn-pill btn-primary" id="btnExport">⬇️ Lưu</button>
+        <button class="btn-pill btn-ghost" id="btnUpload">➕ Photo</button>
+        <button class="btn-pill btn-primary" id="btnExport">⬇️ Save</button>
       </div>
     </header>
 
@@ -1144,19 +1161,19 @@
         <div class="canvas-stack" id="canvasStack">
           <canvas id="previewCanvas"></canvas>
           <canvas id="originalOverlayCanvas"></canvas>
-          <div class="split-tag left">GỐC</div>
+        <div class="split-tag left">ORIGINAL</div>
           <div class="split-tag right">FILM</div>
           <div class="split-divider" id="splitDivider">
             <div class="split-handle">⇄</div>
           </div>
         </div>
-        <div class="hold-badge" id="holdCompareBadge">ẢNH GỐC</div>
+        <div class="hold-badge" id="holdCompareBadge">ORIGINAL</div>
 
         <div class="stage-overlay-bottom">
-          <button class="float-pill" id="btnOpenSamples">🖼️ Ảnh mẫu</button>
+          <button class="float-pill" id="btnOpenSamples">🖼️ Samples</button>
           <div style="display:flex;gap:5px;">
-            <button class="float-pill" id="btnToggleSplit">◧ Chia đôi</button>
-            <button class="float-pill" id="btnHoldOriginal">👁️ Giữ gốc</button>
+            <button class="float-pill" id="btnToggleSplit">◧ Split</button>
+            <button class="float-pill" id="btnHoldOriginal">👁️ Hold original</button>
           </div>
         </div>
       </div>
@@ -1164,88 +1181,91 @@
       <!-- BOTTOM THUMB DOCK -->
       <div class="tool-dock">
         <div class="dock-tabs">
-          <button class="dock-tab active" data-dock="phone">✨ Gợi ý</button>
+          <button class="dock-tab active" data-dock="phone">✨ Suggested</button>
           <button class="dock-tab" data-dock="film">🎞️ Film</button>
-          <button class="dock-tab" data-dock="gear">📷 Máy</button>
-          <button class="dock-tab" data-dock="tweak">🎚️ Chỉnh</button>
-          <button class="dock-tab" data-dock="frame">🖼️ Viền</button>
+          <button class="dock-tab" data-dock="gear">📷 Camera</button>
+          <button class="dock-tab" data-dock="tweak">🎚️ Adjust</button>
+          <button class="dock-tab" data-dock="frame">🖼️ Frame</button>
         </div>
 
         <div class="dock-body">
           <!-- Dock Panel 1: Phone Detection & Top 3 Recommendations -->
           <div class="dock-panel active" id="dock-phone">
-            <div class="exif-status-line" id="phoneStatusBanner">Đang phân tích ảnh...</div>
+            <div class="exif-status-line" id="phoneStatusBanner">Analyzing photo...</div>
 
             <div class="mini-label">
-              <span>✨ 3 Gợi ý hợp ảnh nhất</span>
+              <span>✨ Top 3 matches</span>
               <span id="sceneBadgeText" style="color:var(--brass);text-transform:none;font-weight:600;"></span>
             </div>
             <div class="h-scroll" id="smartRecsList"></div>
 
-            <div class="mini-label"><span>📱 Cân bằng cảm biến ĐT</span></div>
-            <div class="h-scroll" id="phoneProfileGrid"></div>
+            <div class="mini-label"><span>📱 Phone sensor balancing</span></div>
+            <select class="dd-full dark-select" id="phoneProfileSelect"></select>
           </div>
 
           <!-- Dock Panel 2: 20 Film Stocks -->
           <div class="dock-panel" id="dock-film">
-            <div class="h-scroll" id="filmBrandPills">
-              <button class="filter-chip active" data-brand="all">Tất cả (20)</button>
-              <button class="filter-chip" data-brand="fuji">Fujifilm (7)</button>
-              <button class="filter-chip" data-brand="kodak">Kodak (8)</button>
-              <button class="filter-chip" data-brand="cinema">CineStill (2)</button>
-              <button class="filter-chip" data-brand="bw">Đen trắng (3)</button>
-            </div>
-            <div class="h-scroll" id="filmGrid"></div>
+            <div class="mini-label"><span>Film brand</span></div>
+            <select class="dd-full dark-select" id="filmBrandSelect">
+              <option value="all">All (20)</option>
+              <option value="fuji">Fujifilm (7)</option>
+              <option value="kodak">Kodak (8)</option>
+              <option value="cinema">CineStill (2)</option>
+              <option value="bw">Black &amp; white (3)</option>
+            </select>
+            <div class="mini-label"><span>Film stock</span></div>
+            <select class="dd-full dark-select" id="filmSelect"></select>
           </div>
 
           <!-- Dock Panel 3: Body & Lens -->
           <div class="dock-panel" id="dock-gear">
             <div class="mini-label">
-              <span>1. Thân máy (Body)</span>
-              <button class="filter-chip" id="btnRandomGear" style="padding:2px 8px;font-size:10px;">🎲 Ngẫu nhiên</button>
+              <span>1. Camera body</span>
+              <button class="filter-chip" id="btnRandomGear" style="padding:2px 8px;font-size:10px;">🎲 Random</button>
             </div>
-            <div class="h-scroll" id="bodyGrid"></div>
+            <select class="dd-full dark-select" id="bodySelect"></select>
 
-            <div class="mini-label"><span>2. Ống kính (Lens)</span></div>
-            <div class="h-scroll" id="lensGrid"></div>
+            <div class="mini-label"><span>2. Lens</span></div>
+            <select class="dd-full dark-select" id="lensSelect"></select>
           </div>
 
           <!-- Dock Panel 4: Single-Slider Smart Tweaks -->
           <div class="dock-panel" id="dock-tweak">
             <div class="tweak-header-row">
-              <span id="activeTweakTitle" style="color:var(--brass);">Cường độ màu Film: 100%</span>
-              <button class="filter-chip" id="btnResetTweaks" style="padding:3px 9px;font-size:10.5px;">↺ Mặc định</button>
+              <span id="activeTweakTitle" style="color:var(--brass);">Film strength: 100%</span>
+              <button class="filter-chip" id="btnResetTweaks" style="padding:3px 9px;font-size:10.5px;">↺ Reset</button>
             </div>
+
+            <select class="dd-full dark-select" id="tweakSelect"></select>
 
             <div class="tweak-slider-box">
               <input type="range" id="activeTweakSlider" min="0" max="100" value="100" />
             </div>
 
-            <div class="h-scroll" id="leakTypeStrip" style="display:none;"></div>
+            <select class="dd-full dark-select" id="leakTypeSelect" style="display:none;"></select>
 
-            <div class="h-scroll" id="tweakPillsRow"></div>
           </div>
 
           <!-- Dock Panel 5: Frame, Date Stamp & Recipes -->
           <div class="dock-panel" id="dock-frame">
-            <div class="mini-label"><span>Khung viền 35mm</span></div>
-            <div class="seg-grid-4" id="frameSegGrid">
-              <button class="seg-btn active" data-frame="none">Không viền</button>
-              <button class="seg-btn" data-frame="35mm-sprocket">35mm Lỗ</button>
-              <button class="seg-btn" data-frame="darkroom-white">Viền trắng</button>
-              <button class="seg-btn" data-frame="polaroid">Polaroid</button>
-            </div>
+            <div class="mini-label"><span>35mm frame</span></div>
+            <select class="dd-full dark-select" id="frameSelect">
+              <option value="none">No frame</option>
+              <option value="35mm-sprocket">35mm sprocket</option>
+              <option value="darkroom-white">White border</option>
+              <option value="polaroid">Polaroid</option>
+            </select>
 
-            <div class="mini-label"><span>Dấu ngày LED</span></div>
-            <div class="seg-grid-3" id="dateSegGrid">
-              <button class="seg-btn active" data-date="off">Tắt</button>
-              <button class="seg-btn" data-date="retro98">Kiểu '98</button>
-              <button class="seg-btn" data-date="exif-or-today">Ngày chụp</button>
-            </div>
+            <div class="mini-label"><span>LED date stamp</span></div>
+            <select class="dd-full dark-select" id="dateSelect">
+              <option value="off">Off</option>
+              <option value="retro98">'98 style</option>
+              <option value="exif-or-today">Photo date</option>
+            </select>
 
             <div class="recipe-row">
-              <input type="text" class="dark-input" id="recipeNameInput" placeholder="Tên công thức lưu..." style="flex:1;" />
-              <button class="btn-pill btn-brass" id="btnSaveRecipe" style="height:29px;">+ Lưu</button>
+              <input type="text" class="dark-input" id="recipeNameInput" placeholder="Saved recipe name..." style="flex:1;" />
+              <button class="btn-pill btn-brass" id="btnSaveRecipe" style="height:29px;">+ Save</button>
             </div>
             <div class="h-scroll" id="recipeList"></div>
           </div>
@@ -1259,10 +1279,10 @@
         <div class="cam-top-bar">
           <div class="roll-led-pill">
             <span class="roll-led" id="camRollCounter">01 / 36</span>
-            <span style="font-size:10.5px;color:var(--text-secondary);" id="camSourceStatus">Giả lập</span>
+            <span style="font-size:10.5px;color:var(--text-secondary);" id="camSourceStatus">Simulated</span>
           </div>
           <div style="display:flex;gap:5px;">
-            <button class="btn-pill btn-ghost" id="btnStartCam" style="height:28px;font-size:11px;">📷 Bật Cam</button>
+            <button class="btn-pill btn-ghost" id="btnStartCam" style="height:28px;font-size:11px;">📷 Start camera</button>
             <button class="btn-pill btn-ghost" id="btnFlipCam" style="height:28px;font-size:11px;">🔄</button>
             <button class="btn-pill btn-ghost" id="btnToggleSound" style="height:28px;font-size:11px;">🔊</button>
           </div>
@@ -1285,17 +1305,17 @@
           <select class="dark-select" id="camSelFilm"></select>
           <select class="dark-select" id="camSelFrame">
             <option value="none">Full Frame</option>
-            <option value="35mm-sprocket">35mm Lỗ</option>
+            <option value="35mm-sprocket">35mm sprocket</option>
             <option value="polaroid">Polaroid</option>
           </select>
         </div>
 
         <div class="cam-shutter-deck">
           <button class="btn-pill btn-ghost" id="btnOpenContactSheet" style="height:38px;">
-            🎞️ Cuộn (<span id="contactCount">0</span>)
+            🎞️ Roll (<span id="contactCount">0</span>)
           </button>
-          <button class="shutter-btn" id="btnShutter" title="Chụp 1 kiểu"></button>
-          <button class="btn-pill btn-brass" id="btnNewRoll" style="height:38px;">🔄 Cuộn mới</button>
+          <button class="shutter-btn" id="btnShutter" title="Take a shot"></button>
+          <button class="btn-pill btn-brass" id="btnNewRoll" style="height:38px;">🔄 New roll</button>
         </div>
       </div>
     </section>
@@ -1305,17 +1325,17 @@
       <div class="guide-wrap">
         <div class="guide-top-bar">
           <div class="h-scroll" id="guideFilterPills">
-            <button class="filter-chip active" data-gfilter="all">Tất cả</button>
+            <button class="filter-chip active" data-gfilter="all">All</button>
             <button class="filter-chip" data-gfilter="fuji">Fujifilm</button>
             <button class="filter-chip" data-gfilter="kodak">Kodak</button>
             <button class="filter-chip" data-gfilter="cinema">Cine &amp; B&amp;W</button>
-            <button class="filter-chip" data-gfilter="phone">Điện thoại</button>
+            <button class="filter-chip" data-gfilter="phone">Phones</button>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:11px;color:var(--text-muted);">Bấm vào từng mục để xem chi tiết</span>
+            <span style="font-size:11px;color:var(--text-muted);">Tap an item to view details</span>
             <div style="display:flex;gap:6px;">
-              <button class="filter-chip" id="btnGuideExpandAll">📖 Mở hết</button>
-              <button class="filter-chip" id="btnGuideCollapseAll">📁 Thu gọn</button>
+              <button class="filter-chip" id="btnGuideExpandAll">📖 Expand all</button>
+              <button class="filter-chip" id="btnGuideCollapseAll">📁 Collapse all</button>
             </div>
           </div>
         </div>
@@ -1325,16 +1345,16 @@
 
     <!-- 3. FIXED BOTTOM NAVIGATION BAR -->
     <nav class="bottom-nav" role="tablist">
-      <button class="bnav-btn active" data-tab="darkroom"><span class="ico">🎞️</span><span>Phòng Tối</span></button>
-      <button class="bnav-btn" data-tab="camera"><span class="ico">📷</span><span>Máy Ảnh</span></button>
-      <button class="bnav-btn" data-tab="guide"><span class="ico">📔</span><span>Cẩm Nang</span></button>
+      <button class="bnav-btn active" data-tab="darkroom"><span class="ico">🎞️</span><span>Darkroom</span></button>
+      <button class="bnav-btn" data-tab="camera"><span class="ico">📷</span><span>Camera</span></button>
+      <button class="bnav-btn" data-tab="guide"><span class="ico">📔</span><span>Guide</span></button>
     </nav>
 
     <!-- BOTTOM SHEET: SAMPLE SCENES -->
     <div class="sheet-backdrop" id="sampleSheetBackdrop">
       <div class="sheet-card">
         <div class="sheet-head">
-          <span>🖼️ Chọn ảnh mẫu thử màu</span>
+          <span>🖼️ Choose a sample photo</span>
           <button class="btn-pill btn-ghost" id="btnCloseSampleSheet" style="height:26px;">✕</button>
         </div>
         <div class="sample-grid-3" id="sampleStrip"></div>
@@ -1345,9 +1365,9 @@
     <div class="sheet-backdrop" id="contactSheetBackdrop">
       <div class="sheet-card">
         <div class="sheet-head">
-          <span>🎞️ Ảnh đã chụp trong cuộn</span>
+          <span>🎞️ Photos on this roll</span>
           <div style="display:flex;gap:6px;">
-            <button class="btn-pill btn-ghost" id="btnClearRollShots" style="height:26px;font-size:11px;">🗑️ Xóa hết</button>
+            <button class="btn-pill btn-ghost" id="btnClearRollShots" style="height:26px;font-size:11px;">🗑️ Clear all</button>
             <button class="btn-pill btn-ghost" id="btnCloseContactSheet" style="height:26px;">✕</button>
           </div>
         </div>
@@ -1367,7 +1387,7 @@
      ========================================================================== */
 
   const PHONE_PROFILES = [
-    { id: 'auto-detect', name: 'Tự động', icon: '✨', deSharpen: 0.14, warmthOffset: 0, tintOffset: 0, satScale: 0.96, blueTame: 0.08, greenTame: 0.08, highlightRecover: 0.10, shadowLift: 0.04, contrastSoften: 0.06 },
+    { id: 'auto-detect', name: 'Automatic', icon: '✨', deSharpen: 0.14, warmthOffset: 0, tintOffset: 0, satScale: 0.96, blueTame: 0.08, greenTame: 0.08, highlightRecover: 0.10, shadowLift: 0.04, contrastSoften: 0.06 },
     { id: 'iphone-18', name: 'iPhone 16–18 Pro', icon: '🍎', deSharpen: 0.26, warmthOffset: -5, tintOffset: 2, satScale: 0.93, blueTame: 0.08, greenTame: 0.06, highlightRecover: 0.18, shadowLift: 0.07, contrastSoften: 0.12 },
     { id: 'iphone-hdr', name: 'iPhone 12–15', icon: '📱', deSharpen: 0.22, warmthOffset: -4, tintOffset: 2, satScale: 0.94, blueTame: 0.06, greenTame: 0.05, highlightRecover: 0.15, shadowLift: 0.06, contrastSoften: 0.10 },
     { id: 'iphone-classic', name: 'iPhone X / 11 / SE', icon: '🍏', deSharpen: 0.10, warmthOffset: -2, tintOffset: 1, satScale: 0.97, blueTame: 0.04, greenTame: 0.03, highlightRecover: 0.10, shadowLift: 0.04, contrastSoften: 0.05 },
@@ -1376,25 +1396,25 @@
     { id: 'pixel-hdr', name: 'Pixel 8–11 Pro', icon: '📸', deSharpen: 0.20, warmthOffset: 6, tintOffset: -1, satScale: 0.94, blueTame: 0.12, greenTame: 0.08, highlightRecover: 0.12, shadowLift: 0.10, contrastSoften: 0.16 },
     { id: 'oppo-vivo', name: 'OPPO X8–9 / Vivo X200–300', icon: '🎨', deSharpen: 0.16, warmthOffset: 2, tintOffset: -2, satScale: 0.90, blueTame: 0.16, greenTame: 0.16, highlightRecover: 0.18, shadowLift: 0.04, contrastSoften: 0.08 },
     { id: 'sony-honor', name: 'Sony Xperia / Honor', icon: '💠', deSharpen: 0.08, warmthOffset: 2, tintOffset: 0, satScale: 0.97, blueTame: 0.05, greenTame: 0.05, highlightRecover: 0.08, shadowLift: 0.05, contrastSoften: 0.04 },
-    { id: 'neutral-raw', name: 'Máy ảnh / RAW', icon: '🎞️', deSharpen: 0.02, warmthOffset: 0, tintOffset: 0, satScale: 1.0, blueTame: 0, greenTame: 0, highlightRecover: 0.02, shadowLift: 0, contrastSoften: 0 }
+    { id: 'neutral-raw', name: 'Camera / RAW', icon: '🎞️', deSharpen: 0.02, warmthOffset: 0, tintOffset: 0, satScale: 1.0, blueTame: 0, greenTame: 0, highlightRecover: 0.02, shadowLift: 0, contrastSoften: 0 }
   ];
 
   const CAMERA_BODIES = [
-    { id: 'rollie-35', name: 'Rollie 35 S', meta: 'Ấm hoài niệm', blackLift: 0.035, contrast: 1.04, highlightRolloff: 0.18, bodyWarmth: 4, bodyTint: 0 },
-    { id: 'fuji-tx1', name: 'Fuji TX-1', meta: 'Sâu sắc màu', blackLift: 0.025, contrast: 1.08, highlightRolloff: 0.15, bodyWarmth: -2, bodyTint: -2 },
-    { id: 'leica-m6', name: 'Leica M6', meta: 'Đằm sâu 3D', blackLift: 0.015, contrast: 1.13, highlightRolloff: 0.14, bodyWarmth: 1, bodyTint: 0 },
-    { id: 'contax-t2', name: 'Contax T2', meta: 'Mịn da & sáng', blackLift: 0.045, contrast: 0.98, highlightRolloff: 0.25, bodyWarmth: 3, bodyTint: 2 },
-    { id: 'hasselblad-500', name: 'Hasselblad', meta: 'Chuyển sáng êm', blackLift: 0.02, contrast: 0.95, highlightRolloff: 0.28, bodyWarmth: 0, bodyTint: 0 },
-    { id: 'olympus-mju', name: 'Olympus mju', meta: 'Phố thập niên 90', blackLift: 0.04, contrast: 1.12, highlightRolloff: 0.10, bodyWarmth: 2, bodyTint: -1 }
+    { id: 'rollie-35', name: 'Rollie 35 S', meta: 'Warm nostalgia', blackLift: 0.035, contrast: 1.04, highlightRolloff: 0.18, bodyWarmth: 4, bodyTint: 0 },
+    { id: 'fuji-tx1', name: 'Fuji TX-1', meta: 'Rich color depth', blackLift: 0.025, contrast: 1.08, highlightRolloff: 0.15, bodyWarmth: -2, bodyTint: -2 },
+    { id: 'leica-m6', name: 'Leica M6', meta: 'Deep 3D rendering', blackLift: 0.015, contrast: 1.13, highlightRolloff: 0.14, bodyWarmth: 1, bodyTint: 0 },
+    { id: 'contax-t2', name: 'Contax T2', meta: 'Smooth skin & bright', blackLift: 0.045, contrast: 0.98, highlightRolloff: 0.25, bodyWarmth: 3, bodyTint: 2 },
+    { id: 'hasselblad-500', name: 'Hasselblad', meta: 'Gentle tonal roll-off', blackLift: 0.02, contrast: 0.95, highlightRolloff: 0.28, bodyWarmth: 0, bodyTint: 0 },
+    { id: 'olympus-mju', name: 'Olympus mju', meta: '90s street mood', blackLift: 0.04, contrast: 1.12, highlightRolloff: 0.10, bodyWarmth: 2, bodyTint: -1 }
   ];
 
   const CAMERA_LENSES = [
-    { id: 'zeiss-sonnar-38', name: 'Zeiss 38mm T*', meta: 'f/2.8 • Nổi khối', coatingWarmth: 3, coatingTint: 0, bloomBase: 14, vignetteBase: 26, chromaticAb: 0.4, edgeSoft: 0.05 },
-    { id: 'leitz-summicron-35', name: 'Summicron 35', meta: 'f/2.0 • Ánh sáng dịu', coatingWarmth: 1, coatingTint: 1, bloomBase: 32, vignetteBase: 20, chromaticAb: 0.3, edgeSoft: 0.06 },
-    { id: 'fujinon-35-14', name: 'Fujinon EBC 35', meta: 'f/1.4 • Trong trẻo', coatingWarmth: -2, coatingTint: -2, bloomBase: 16, vignetteBase: 18, chromaticAb: 0.2, edgeSoft: 0.02 },
-    { id: 'voigtlander-40', name: 'Voigtländer 40', meta: 'f/1.4 • Ấm cổ điển', coatingWarmth: 5, coatingTint: 1, bloomBase: 38, vignetteBase: 35, chromaticAb: 0.8, edgeSoft: 0.10 },
-    { id: 'helios-44', name: 'Helios 44-2', meta: '58mm • Mơ màng', coatingWarmth: 4, coatingTint: -4, bloomBase: 48, vignetteBase: 38, chromaticAb: 1.4, edgeSoft: 0.18 },
-    { id: 'holga-plastic', name: 'Holga 60 Lo-Fi', meta: 'f/8 • Lệch sắc cạnh', coatingWarmth: 6, coatingTint: -3, bloomBase: 44, vignetteBase: 68, chromaticAb: 2.8, edgeSoft: 0.32 }
+    { id: 'zeiss-sonnar-38', name: 'Zeiss 38mm T*', meta: 'f/2.8 • Dimensional', coatingWarmth: 3, coatingTint: 0, bloomBase: 14, vignetteBase: 26, chromaticAb: 0.4, edgeSoft: 0.05 },
+    { id: 'leitz-summicron-35', name: 'Summicron 35', meta: 'f/2.0 • Soft light', coatingWarmth: 1, coatingTint: 1, bloomBase: 32, vignetteBase: 20, chromaticAb: 0.3, edgeSoft: 0.06 },
+    { id: 'fujinon-35-14', name: 'Fujinon EBC 35', meta: 'f/1.4 • Clear', coatingWarmth: -2, coatingTint: -2, bloomBase: 16, vignetteBase: 18, chromaticAb: 0.2, edgeSoft: 0.02 },
+    { id: 'voigtlander-40', name: 'Voigtländer 40', meta: 'f/1.4 • Classic warmth', coatingWarmth: 5, coatingTint: 1, bloomBase: 38, vignetteBase: 35, chromaticAb: 0.8, edgeSoft: 0.10 },
+    { id: 'helios-44', name: 'Helios 44-2', meta: '58mm • Dreamy', coatingWarmth: 4, coatingTint: -4, bloomBase: 48, vignetteBase: 38, chromaticAb: 1.4, edgeSoft: 0.18 },
+    { id: 'holga-plastic', name: 'Holga 60 Lo-Fi', meta: 'f/8 • Raw color shift', coatingWarmth: 6, coatingTint: -3, bloomBase: 44, vignetteBase: 68, chromaticAb: 2.8, edgeSoft: 0.32 }
   ];
 
   const FILM_STOCKS = [
@@ -1423,24 +1443,31 @@
     { id: 'fuji-acros-100', brand: 'bw', brandLabel: 'B&W', name: 'Acros 100 II', subtitle: 'Đen trắng siêu nét', iso: 100, canisterColor: 'linear-gradient(180deg,#047857,#111827,#9ca3af)', edgeCode: 'FUJI ACROS 100II  05', matrix: [1,0,0,0,1,0,0,0,1], shadowTint: [-2,2,4], midTint: [0,1,2], highlightTint: [2,2,4], foliageShift: null, skyShift: null, skinProtect: 0, saturation: 0, contrast: 1.18, blackLift: 0.01, grainBase: 16, grainSize: 0.9, halationBase: 6, isBW: true, bwWeights: [0.28,0.56,0.16] }
   ];
 
+  const FILM_SUBTITLES_EN = {
+    'fuji-pro-400h': 'Pastel teal', 'fuji-superia-400': 'Signature Japanese greens', 'fuji-classic-chrome': 'Muted vintage editorial', 'fuji-classic-neg': 'Artful contrast', 'fuji-velvia-50': 'Vivid landscapes', 'fuji-astia-100f': 'Soft rosy skin', 'fuji-natura-1600': 'Warm grainy night streets',
+    'kodak-portra-400': 'Smooth warm cream skin', 'kodak-portra-160': 'Soft milky tones', 'kodak-portra-800': 'Vivid warm sunsets', 'kodak-gold-200': '90s golden sun', 'kodak-ultramax-400': 'Deep blue skies', 'kodak-colorplus-200': 'Vintage sand gold', 'kodak-ektar-100': 'Rich and ultra-fine', 'kodak-e100': 'Clear cool slide film',
+    'cinestill-800t': 'Teal nights & red halation', 'cinestill-50d': 'Daylight cinema', 'ilford-hp5': 'Documentary black & white', 'kodak-trix-400': 'Gritty black & white', 'fuji-acros-100': 'Ultra-sharp black & white'
+  };
+  FILM_STOCKS.forEach(film => { film.subtitle = FILM_SUBTITLES_EN[film.id]; });
+
   const TWEAK_DEFS = [
-    { key: 'strength', label: 'Màu Film', min: 0, max: 100, fmt: v => `${v}%` },
-    { key: 'exposure', label: 'Phơi sáng', min: -150, max: 150, fmt: v => `${v >= 0 ? '+' : ''}${(v / 100).toFixed(1)} EV` },
-    { key: 'warmth', label: 'Độ ấm', min: -40, max: 40, fmt: v => (v > 0 ? `+${v}` : `${v}`) },
-    { key: 'grain', label: 'Hạt bạc', min: 0, max: 100, fmt: v => `${v}%` },
-    { key: 'halation', label: 'Quầng đỏ', min: 0, max: 100, fmt: v => `${v}%` },
-    { key: 'bloom', label: 'Ánh sáng', min: 0, max: 100, fmt: v => `${v}%` },
-    { key: 'vignette', label: 'Tối góc', min: 0, max: 100, fmt: v => `${v}%` },
-    { key: 'leakAmt', label: 'Lọt sáng', min: 0, max: 100, fmt: v => `${v}%` }
+    { key: 'strength', label: 'Film strength', min: 0, max: 100, fmt: v => `${v}%` },
+    { key: 'exposure', label: 'Exposure', min: -150, max: 150, fmt: v => `${v >= 0 ? '+' : ''}${(v / 100).toFixed(1)} EV` },
+    { key: 'warmth', label: 'Warmth', min: -40, max: 40, fmt: v => (v > 0 ? `+${v}` : `${v}`) },
+    { key: 'grain', label: 'Grain', min: 0, max: 100, fmt: v => `${v}%` },
+    { key: 'halation', label: 'Halation', min: 0, max: 100, fmt: v => `${v}%` },
+    { key: 'bloom', label: 'Bloom', min: 0, max: 100, fmt: v => `${v}%` },
+    { key: 'vignette', label: 'Vignette', min: 0, max: 100, fmt: v => `${v}%` },
+    { key: 'leakAmt', label: 'Light leak', min: 0, max: 100, fmt: v => `${v}%` }
   ];
 
   const LEAK_TYPES = [
-    { id: 'none', name: 'Không' },
-    { id: 'amber-edge', name: 'Cam phải' },
-    { id: 'crimson-streak', name: 'Vệt đỏ' },
-    { id: 'vintage-corner', name: 'Góc nắng' },
-    { id: 'twin-sunburn', name: 'Cháy 2 mép' },
-    { id: 'film-burn', name: 'Đầu cuộn' }
+    { id: 'none', name: 'None' },
+    { id: 'amber-edge', name: 'Amber edge' },
+    { id: 'crimson-streak', name: 'Crimson streak' },
+    { id: 'vintage-corner', name: 'Sunlit corner' },
+    { id: 'twin-sunburn', name: 'Burned edges' },
+    { id: 'film-burn', name: 'Film leader' }
   ];
 
   /* ==========================================================================
@@ -1585,7 +1612,7 @@
 
     const make = tags[0x010F] || '', model = tags[0x0110] || '';
     const combined = `${make} ${model}`.trim();
-    let commercialModel = model || make || 'Thiết bị KTS';
+    let commercialModel = model || make || 'Digital camera';
     let mappedProfile = 'auto-detect';
 
     for (const e of DEVICE_MODEL_MAP) {
@@ -1655,15 +1682,15 @@
     const greenR = greenCount / total, blueR = blueCount / total, skinR = skinCount / total;
     const shadowR = shadowCrush / total, sharp = lapSum / total;
 
-    let sceneType = 'Đời thường & Đường phố', sceneKey = 'balanced';
+    let sceneType = 'Everyday & street', sceneKey = 'balanced';
     if (meanLum < 0.30 && (shadowR > 0.28 || highlightClip / total > 0.02)) {
-      sceneType = 'Phố đêm / Ánh đèn Neon'; sceneKey = 'night';
+      sceneType = 'Night streets / Neon lights'; sceneKey = 'night';
     } else if (greenR > 0.16) {
-      sceneType = 'Thiên nhiên & Lá xanh'; sceneKey = 'nature';
+      sceneType = 'Nature & greenery'; sceneKey = 'nature';
     } else if (warmth > 0.10 || (skinR > 0.22 && warmth > 0.04)) {
-      sceneType = 'Nắng ấm / Chân dung'; sceneKey = 'warm-portrait';
+      sceneType = 'Warm sun / Portrait'; sceneKey = 'warm-portrait';
     } else if (blueR > 0.18 && meanLum > 0.45) {
-      sceneType = 'Biển trời nắng sáng'; sceneKey = 'bright-sky';
+      sceneType = 'Sunny sea and sky'; sceneKey = 'bright-sky';
     }
 
     let suggestedPhoneId = 'auto-detect';
@@ -1673,29 +1700,29 @@
 
     const recsByScene = {
       night: [
-        { bodyId: 'leica-m6', lensId: 'voigtlander-40', filmId: 'cinestill-800t', title: 'CineStill 800T + Leica M6', reason: 'Tạo quầng đỏ Halation quanh đèn đêm & nền xanh điện ảnh.' },
-        { bodyId: 'olympus-mju', lensId: 'leitz-summicron-35', filmId: 'fuji-natura-1600', title: 'Fuji Natura 1600 + mju-II', reason: 'Giữ nét ấm ánh đèn phố đêm với hạt bạc giàu cảm xúc.' },
-        { bodyId: 'leica-m6', lensId: 'zeiss-sonnar-38', filmId: 'kodak-trix-400', title: 'Kodak Tri-X 400 + Zeiss 38', reason: 'Chuyển ánh sáng đêm sang đen trắng phóng sự gai góc.' }
+        { bodyId: 'leica-m6', lensId: 'voigtlander-40', filmId: 'cinestill-800t', title: 'CineStill 800T + Leica M6', reason: 'Creates red halation around night lights with cinematic teal shadows.' },
+        { bodyId: 'olympus-mju', lensId: 'leitz-summicron-35', filmId: 'fuji-natura-1600', title: 'Fuji Natura 1600 + mju-II', reason: 'Preserves warm streetlights with expressive film grain.' },
+        { bodyId: 'leica-m6', lensId: 'zeiss-sonnar-38', filmId: 'kodak-trix-400', title: 'Kodak Tri-X 400 + Zeiss 38', reason: 'Turns night light into gritty documentary black and white.' }
       ],
       nature: [
-        { bodyId: 'fuji-tx1', lensId: 'fujinon-35-14', filmId: 'fuji-pro-400h', title: 'Fuji Pro 400H + TX-1', reason: 'Đưa mảng cây lá sang xanh ngọc pastel đặc trưng Nhật Bản.' },
-        { bodyId: 'rollie-35', lensId: 'zeiss-sonnar-38', filmId: 'fuji-classic-neg', title: 'Fuji Classic Neg. + Rollie', reason: 'Vùng tối lục lạnh sâu thẳm tương phản ánh sáng ấm.' },
-        { bodyId: 'hasselblad-500', lensId: 'zeiss-sonnar-38', filmId: 'fuji-velvia-50', title: 'Fuji Velvia 50 + Hasselblad', reason: 'Tăng độ rực phong cảnh như phim slide dương bản.' }
+        { bodyId: 'fuji-tx1', lensId: 'fujinon-35-14', filmId: 'fuji-pro-400h', title: 'Fuji Pro 400H + TX-1', reason: 'Renders foliage in signature Japanese pastel teal.' },
+        { bodyId: 'rollie-35', lensId: 'zeiss-sonnar-38', filmId: 'fuji-classic-neg', title: 'Fuji Classic Neg. + Rollie', reason: 'Deep cool green shadows contrast with warm light.' },
+        { bodyId: 'hasselblad-500', lensId: 'zeiss-sonnar-38', filmId: 'fuji-velvia-50', title: 'Fuji Velvia 50 + Hasselblad', reason: 'Enhances landscape vibrance like a positive slide film.' }
       ],
       'warm-portrait': [
-        { bodyId: 'contax-t2', lensId: 'leitz-summicron-35', filmId: 'kodak-portra-400', title: 'Portra 400 + Contax T2', reason: 'Làm mịn vùng sáng & giữ tông da kem ấm nịnh mắt.' },
-        { bodyId: 'rollie-35', lensId: 'voigtlander-40', filmId: 'kodak-gold-200', title: 'Gold 200 + Rollie 35 S', reason: 'Đẩy chất nắng vàng hoài niệm thập niên 90.' },
-        { bodyId: 'hasselblad-500', lensId: 'fujinon-35-14', filmId: 'fuji-astia-100f', title: 'Fuji Astia 100F + Hasselblad', reason: 'Tông da hồng phấn dịu dàng chuẩn tạp chí Nhật.' }
+        { bodyId: 'contax-t2', lensId: 'leitz-summicron-35', filmId: 'kodak-portra-400', title: 'Portra 400 + Contax T2', reason: 'Smooths highlights while preserving flattering warm cream skin tones.' },
+        { bodyId: 'rollie-35', lensId: 'voigtlander-40', filmId: 'kodak-gold-200', title: 'Gold 200 + Rollie 35 S', reason: 'Brings out nostalgic 90s golden sunlight.' },
+        { bodyId: 'hasselblad-500', lensId: 'fujinon-35-14', filmId: 'fuji-astia-100f', title: 'Fuji Astia 100F + Hasselblad', reason: 'Gives skin a soft, rosy Japanese-editorial finish.' }
       ],
       'bright-sky': [
-        { bodyId: 'fuji-tx1', lensId: 'zeiss-sonnar-38', filmId: 'kodak-ultramax-400', title: 'UltraMax 400 + Fuji TX-1', reason: 'Làm bầu trời xanh sâu & nắng vàng rực rỡ.' },
-        { bodyId: 'contax-t2', lensId: 'fujinon-35-14', filmId: 'fuji-superia-400', title: 'Fuji Superia 400 + Contax', reason: 'Bầu trời xanh mát trong trẻo kiểu phim Nhật.' },
-        { bodyId: 'rollie-35', lensId: 'zeiss-sonnar-38', filmId: 'kodak-ektar-100', title: 'Ektar 100 + Zeiss 38mm', reason: 'Hạt siêu mịn, sắc xanh biển & đỏ nổi bật.' }
+        { bodyId: 'fuji-tx1', lensId: 'zeiss-sonnar-38', filmId: 'kodak-ultramax-400', title: 'UltraMax 400 + Fuji TX-1', reason: 'Deepens blue skies and enriches golden sunlight.' },
+        { bodyId: 'contax-t2', lensId: 'fujinon-35-14', filmId: 'fuji-superia-400', title: 'Fuji Superia 400 + Contax', reason: 'Clear, cool blue skies in a Japanese film style.' },
+        { bodyId: 'rollie-35', lensId: 'zeiss-sonnar-38', filmId: 'kodak-ektar-100', title: 'Ektar 100 + Zeiss 38mm', reason: 'Ultra-fine grain with bold ocean blues and reds.' }
       ],
       balanced: [
-        { bodyId: 'leica-m6', lensId: 'zeiss-sonnar-38', filmId: 'fuji-classic-chrome', title: 'Classic Chrome + Leica M6', reason: 'Tông màu tạp chí cổ điển trầm lắng, sang trọng.' },
-        { bodyId: 'contax-t2', lensId: 'leitz-summicron-35', filmId: 'kodak-portra-400', title: 'Portra 400 + Contax T2', reason: 'Hài hòa mọi ánh sáng với độ chuyển màu êm dịu.' },
-        { bodyId: 'rollie-35', lensId: 'helios-44', filmId: 'kodak-colorplus-200', title: 'ColorPlus 200 + Helios', reason: 'Tạo sắc vàng cát cổ điển & ánh viền mơ màng.' }
+        { bodyId: 'leica-m6', lensId: 'zeiss-sonnar-38', filmId: 'fuji-classic-chrome', title: 'Classic Chrome + Leica M6', reason: 'Muted, refined vintage editorial color.' },
+        { bodyId: 'contax-t2', lensId: 'leitz-summicron-35', filmId: 'kodak-portra-400', title: 'Portra 400 + Contax T2', reason: 'Balances all light with gentle tonal transitions.' },
+        { bodyId: 'rollie-35', lensId: 'helios-44', filmId: 'kodak-colorplus-200', title: 'ColorPlus 200 + Helios', reason: 'Creates classic sandy gold with dreamy edge light.' }
       ]
     };
 
@@ -1747,7 +1774,7 @@
       ctx.strokeStyle = '#1b1414'; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.moveTo(0, 130); ctx.quadraticCurveTo(450, 210, W, 115); ctx.stroke();
       addTex(ctx, 6);
-      scenes.push({ id: 'golden-street', title: 'Hoàng hôn', canvas: c });
+      scenes.push({ id: 'golden-street', title: 'Sunset', canvas: c });
     }
 
     // 2. Phố Đêm Neon
@@ -1770,7 +1797,7 @@
       drawNeon(410, 230, 80, 36, '#ffb703', 'rgba(255,183,3,0.55)');
       ctx.fillStyle = '#090e17'; ctx.fillRect(0, 440, W, 160);
       addTex(ctx, 5);
-      scenes.push({ id: 'neon-night', title: 'Đêm Neon', canvas: c });
+      scenes.push({ id: 'neon-night', title: 'Neon night', canvas: c });
     }
 
     // 3. Rừng Sương Mù
@@ -1789,7 +1816,7 @@
       ctx.fillStyle = '#3d7c3f';
       ctx.beginPath(); ctx.moveTo(0, 470); ctx.quadraticCurveTo(220, 440, 420, 600); ctx.lineTo(0, 600); ctx.closePath(); ctx.fill();
       addTex(ctx, 6);
-      scenes.push({ id: 'emerald-forest', title: 'Rừng thông', canvas: c });
+      scenes.push({ id: 'emerald-forest', title: 'Pine forest', canvas: c });
     }
 
     // 4. Chân Dung Nắng Chiều
@@ -1807,7 +1834,7 @@
       ctx.fillStyle = sg; ctx.beginPath(); ctx.ellipse(470, 260, 76, 98, 0, 0, Math.PI * 2); ctx.fill();
       ctx.fillStyle = '#231915'; ctx.beginPath(); ctx.ellipse(470, 205, 86, 65, -0.05, Math.PI * 0.9, Math.PI * 2.1); ctx.fill();
       addTex(ctx, 5);
-      scenes.push({ id: 'portrait-window', title: 'Chân dung', canvas: c });
+      scenes.push({ id: 'portrait-window', title: 'Portrait', canvas: c });
     }
 
     // 5. Cà Phê Sáng
@@ -1820,7 +1847,7 @@
       ctx.fillStyle = '#6f4528'; ctx.beginPath(); ctx.ellipse(480, 360, 75, 22, 0, 0, Math.PI * 2); ctx.fill();
       ctx.fillStyle = '#336b42'; ctx.beginPath(); ctx.ellipse(720, 240, 40, 85, -0.3, 0, Math.PI * 2); ctx.fill();
       addTex(ctx, 5);
-      scenes.push({ id: 'morning-cafe', title: 'Cà phê', canvas: c });
+      scenes.push({ id: 'morning-cafe', title: 'Coffee', canvas: c });
     }
 
     // 6. Biển Nắng Vàng
@@ -1835,7 +1862,7 @@
       ctx.fillStyle = '#f3d9ac'; ctx.fillRect(0, 475, W, H - 475);
       ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.moveTo(575, 295); ctx.lineTo(575, 195); ctx.lineTo(635, 295); ctx.closePath(); ctx.fill();
       addTex(ctx, 5);
-      scenes.push({ id: 'ocean-breeze', title: 'Biển xanh', canvas: c });
+      scenes.push({ id: 'ocean-breeze', title: 'Blue sea', canvas: c });
     }
 
     return scenes;
@@ -2377,7 +2404,7 @@
       banner.innerHTML = `<span>✅ <strong>${escapeHtml(exif.commercialModel)}</strong></span><span style="color:var(--text-secondary);font-family:var(--mono);font-size:10px;">${escapeHtml(specs || 'EXIF')}</span>`;
     } else {
       banner.className = 'exif-status-line fallback';
-      banner.innerHTML = `<span>🔍 Không có EXIF (Zalo/Mẫu)</span><span style="color:var(--kodak);font-size:10px;">Chọn máy hoặc gợi ý ↓</span>`;
+      banner.innerHTML = `<span>🔍 No EXIF (shared/sample)</span><span style="color:var(--kodak);font-size:10px;">Choose a camera or suggestion ↓</span>`;
     }
 
     const recList = document.getElementById('smartRecsList');
@@ -2388,36 +2415,25 @@
       card.innerHTML = `
         <div class="rec-chip-top">
           <div class="rec-chip-title">${rec.title}</div>
-          <button class="btn-pill btn-brass" style="height:22px;padding:0 8px;font-size:10.5px;">Dùng</button>
+          <button class="btn-pill btn-brass" style="height:22px;padding:0 8px;font-size:10.5px;">Use</button>
         </div>
         <div class="rec-chip-reason">${rec.reason}</div>
       `;
       card.querySelector('button').addEventListener('click', () => {
         applyGearPreset(rec.bodyId, rec.lensId, rec.filmId);
-        showToast(`Đã áp dụng: ${rec.title}`);
+        showToast(`Applied: ${rec.title}`);
       });
       recList.appendChild(card);
     });
   }
 
   function renderPhoneProfileGrid() {
-    const grid = document.getElementById('phoneProfileGrid');
-    grid.innerHTML = '';
+    const sel = document.getElementById('phoneProfileSelect');
     const hdrChip = document.getElementById('hdrPhoneChip');
     const activeProf = PHONE_PROFILES.find(p => p.id === state.phoneId) || PHONE_PROFILES[0];
     hdrChip.textContent = `${activeProf.icon} ${activeProf.name}`;
-
-    PHONE_PROFILES.forEach(prof => {
-      const btn = document.createElement('button');
-      btn.className = `phone-chip-btn ${state.phoneId === prof.id ? 'active' : ''}`;
-      btn.innerHTML = `<span>${prof.icon}</span><span>${prof.name}</span>`;
-      btn.addEventListener('click', () => {
-        state.phoneId = prof.id;
-        renderPhoneProfileGrid();
-        renderPreview();
-      });
-      grid.appendChild(btn);
-    });
+    sel.innerHTML = PHONE_PROFILES.map(p => `<option value="${p.id}">${p.icon} ${p.name}</option>`).join('');
+    sel.value = activeProf.id;
   }
 
   function renderSampleStrip() {
@@ -2437,52 +2453,24 @@
         renderSampleStrip();
         loadSourceCanvas(s.canvas, null);
         document.getElementById('sampleSheetBackdrop').classList.remove('open');
-        showToast(`Ảnh mẫu: ${s.title}`);
+        showToast(`Sample: ${s.title}`);
       });
       strip.appendChild(item);
     });
   }
 
   function renderGearRack() {
-    const bGrid = document.getElementById('bodyGrid');
-    bGrid.innerHTML = '';
-    CAMERA_BODIES.forEach(b => {
-      const btn = document.createElement('button');
-      btn.className = `gear-tile ${state.bodyId === b.id ? 'active' : ''}`;
-      btn.innerHTML = `<div class="gear-tile-name">${b.name}</div><div class="gear-tile-meta">${b.meta}</div>`;
-      btn.addEventListener('click', () => {
-        state.bodyId = b.id; renderGearRack(); syncCameraDropdowns(); renderPreview();
-      });
-      bGrid.appendChild(btn);
-    });
-
-    const lGrid = document.getElementById('lensGrid');
-    lGrid.innerHTML = '';
-    CAMERA_LENSES.forEach(l => {
-      const btn = document.createElement('button');
-      btn.className = `gear-tile ${state.lensId === l.id ? 'active' : ''}`;
-      btn.innerHTML = `<div class="gear-tile-name">${l.name}</div><div class="gear-tile-meta">${l.meta}</div>`;
-      btn.addEventListener('click', () => {
-        state.lensId = l.id; state.bloom = l.bloomBase; state.vignette = l.vignetteBase;
-        renderTweaksDock(); renderGearRack(); syncCameraDropdowns(); renderPreview();
-      });
-      lGrid.appendChild(btn);
-    });
-
-    const fGrid = document.getElementById('filmGrid');
-    fGrid.innerHTML = '';
-    const filtered = state.filmBrandFilter === 'all' ? FILM_STOCKS : FILM_STOCKS.filter(f => f.brand === state.filmBrandFilter);
-    filtered.forEach(f => {
-      const btn = document.createElement('button');
-      btn.className = `film-tile ${state.filmId === f.id ? 'active' : ''}`;
-      btn.innerHTML = `
-        <div class="canister-mini" style="background:${f.canisterColor}"><span>${f.iso}</span></div>
-        <div class="film-tile-name">${f.name}</div>
-        <div class="film-tile-iso">${f.subtitle}</div>
-      `;
-      btn.addEventListener('click', () => selectFilmStock(f.id));
-      fGrid.appendChild(btn);
-    });
+    const fill = (id, arr, cur, label) => {
+      const el = document.getElementById(id);
+      el.innerHTML = arr.map(x => `<option value="${x.id}">${label(x)}</option>`).join('');
+      el.value = cur;
+    };
+    fill('bodySelect', CAMERA_BODIES, state.bodyId, b => `${b.name} — ${b.meta}`);
+    fill('lensSelect', CAMERA_LENSES, state.lensId, l => `${l.name} — ${l.meta}`);
+    let filtered = state.filmBrandFilter === 'all' ? FILM_STOCKS : FILM_STOCKS.filter(f => f.brand === state.filmBrandFilter);
+    if (!filtered.some(f => f.id === state.filmId)) { state.filmBrandFilter = 'all'; filtered = FILM_STOCKS; }
+    document.getElementById('filmBrandSelect').value = state.filmBrandFilter;
+    fill('filmSelect', filtered, state.filmId, f => `${f.name} (ISO ${f.iso}) — ${f.subtitle}`);
   }
 
   function selectFilmStock(filmId) {
@@ -2507,46 +2495,27 @@
     const slider = document.getElementById('activeTweakSlider');
     slider.min = def.min; slider.max = def.max; slider.value = state[def.key];
 
-    const leakStrip = document.getElementById('leakTypeStrip');
-    if (def.key === 'leakAmt') {
-      leakStrip.style.display = 'flex';
-      leakStrip.innerHTML = '';
-      LEAK_TYPES.forEach(lt => {
-        const b = document.createElement('button');
-        b.className = `filter-chip ${state.leakType === lt.id ? 'active' : ''}`;
-        b.textContent = lt.name;
-        b.addEventListener('click', () => {
-          state.leakType = lt.id;
-          if (lt.id !== 'none' && state.leakAmt === 0) state.leakAmt = 45;
-          renderTweaksDock(); renderPreview();
-        });
-        leakStrip.appendChild(b);
-      });
-    } else {
-      leakStrip.style.display = 'none';
-    }
+    const tsel = document.getElementById('tweakSelect');
+    tsel.innerHTML = TWEAK_DEFS.map(t => `<option value="${t.key}">${t.label} — ${t.fmt(state[t.key])}</option>`).join('');
+    tsel.value = state.activeTweakKey;
 
-    const row = document.getElementById('tweakPillsRow');
-    row.innerHTML = '';
-    TWEAK_DEFS.forEach(t => {
-      const btn = document.createElement('button');
-      btn.className = `tweak-pill ${state.activeTweakKey === t.key ? 'active' : ''}`;
-      btn.innerHTML = `<span class="tweak-pill-name">${t.label}</span><span class="tweak-pill-val">${t.fmt(state[t.key])}</span>`;
-      btn.addEventListener('click', () => {
-        state.activeTweakKey = t.key;
-        renderTweaksDock();
-      });
-      row.appendChild(btn);
-    });
+    const lsel = document.getElementById('leakTypeSelect');
+    if (def.key === 'leakAmt') {
+      lsel.style.display = 'block';
+      lsel.innerHTML = LEAK_TYPES.map(lt => `<option value="${lt.id}">Light leak: ${lt.name}</option>`).join('');
+      lsel.value = state.leakType;
+    } else {
+      lsel.style.display = 'none';
+    }
   }
 
   function renderFrameAndRecipes() {
-    document.querySelectorAll('#frameSegGrid .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.frame === state.frameType));
-    document.querySelectorAll('#dateSegGrid .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.date === state.dateStamp));
+    document.getElementById('frameSelect').value = state.frameType;
+    document.getElementById('dateSelect').value = state.dateStamp;
 
     const list = document.getElementById('recipeList');
     if (state.recipes.length === 0) {
-      list.innerHTML = `<span style="font-size:11px;color:var(--text-muted);">Chưa có công thức đã lưu</span>`;
+      list.innerHTML = `<span style="font-size:11px;color:var(--text-muted);">No saved recipes yet</span>`;
       return;
     }
     list.innerHTML = '';
@@ -2562,7 +2531,7 @@
           leakType: r.leakType, leakAmt: r.leakAmt, frameType: r.frameType, dateStamp: r.dateStamp
         });
         renderPhoneProfileGrid(); renderGearRack(); renderTweaksDock(); renderFrameAndRecipes(); renderPreview();
-        showToast(`Đã dùng: ${r.name}`);
+        showToast(`Used: ${r.name}`);
       });
       chip.querySelector('.btn-del').addEventListener('click', () => {
         state.recipes.splice(idx, 1);
@@ -2586,8 +2555,8 @@
       chipLabel: f.brandLabel,
       title: `${f.name} (ISO ${f.iso})`,
       subtitle: f.subtitle,
-      colorNote: f.isBW ? `Đen trắng tỷ trọng RGB [${f.bwWeights.join('/')}] • Hạt ${f.grainBase}%` : `Shadow RGB(${f.shadowTint.join(',')}) • Highlight RGB(${f.highlightTint.join(',')})`,
-      bestFor: f.brand === 'fuji' ? 'Cây xanh, thiên nhiên, trời sáng dịu, da trong trẻo.' : (f.brand === 'kodak' ? 'Nắng vàng, chân dung, hoàng hôn, kỷ niệm ấm áp.' : (f.id === 'cinestill-800t' ? 'Phố đêm, biển Neon, ánh đèn.' : 'Đường phố, kiến trúc tương phản.')),
+      colorNote: f.isBW ? `Black-and-white RGB weights [${f.bwWeights.join('/')}] • Grain ${f.grainBase}%` : `Shadow RGB(${f.shadowTint.join(',')}) • Highlight RGB(${f.highlightTint.join(',')})`,
+      bestFor: f.brand === 'fuji' ? 'Greenery, nature, soft daylight, and clear skin.' : (f.brand === 'kodak' ? 'Golden sunlight, portraits, sunsets, and warm memories.' : (f.id === 'cinestill-800t' ? 'Night streets, neon scenes, and city lights.' : 'Street scenes and high-contrast architecture.')),
       tryGear: {
         bodyId: f.brand === 'fuji' ? 'fuji-tx1' : (f.id === 'cinestill-800t' ? 'leica-m6' : 'contax-t2'),
         lensId: f.brand === 'fuji' ? 'fujinon-35-14' : (f.id === 'cinestill-800t' ? 'voigtlander-40' : 'zeiss-sonnar-38'),
@@ -2595,38 +2564,38 @@
       }
     })),
     {
-      id: 'g-phone-iphone18', category: 'phone', icon: '🍎', chipClass: 'chip-phone', chipLabel: 'ĐIỆN THOẠI',
-      title: 'iPhone 16 / 17 / 18 Pro (Photonic Engine & Next-Gen HDR)', subtitle: 'Khử gắt nét vi mô 48MP & cân bằng dải sáng HDR thế hệ mới',
-      colorNote: 'Cảm biến 48MP Fusion trên iPhone 16–18 Pro đẩy micro-contrast và giữ sáng vùng tối rất mạnh.',
-      bestFor: 'Profile iPhone 16–18 Pro làm mềm biên 26%, hạ nhẹ sắc vàng HDR và trả lại độ sâu vùng tối tự nhiên.',
+      id: 'g-phone-iphone18', category: 'phone', icon: '🍎', chipClass: 'chip-phone', chipLabel: 'PHONE',
+      title: 'iPhone 16 / 17 / 18 Pro (Photonic Engine & Next-Gen HDR)', subtitle: 'Tames 48MP micro-sharpening and balances next-generation HDR range',
+      colorNote: 'The 48MP Fusion sensor on iPhone 16–18 Pro drives micro-contrast and holds shadow brightness strongly.',
+      bestFor: 'The iPhone 16–18 Pro profile softens edges by 26%, slightly reduces HDR yellow cast, and restores natural shadow depth.',
       phoneProfile: 'iphone-18'
     },
     {
-      id: 'g-phone-iphone', category: 'phone', icon: '📱', chipClass: 'chip-phone', chipLabel: 'ĐIỆN THOẠI',
-      title: 'iPhone 12 – 15 Series (Smart HDR / Deep Fusion)', subtitle: 'Làm dịu viền nét gắt Deep Fusion & hạ ám vàng',
-      colorNote: 'Thuật toán Smart HDR đẩy nét biên mạnh và nâng sáng vùng tối.',
-      bestFor: 'Profile iPhone 12–15 làm mềm biên 22% và trả lại chiều sâu như film.',
+      id: 'g-phone-iphone', category: 'phone', icon: '📱', chipClass: 'chip-phone', chipLabel: 'PHONE',
+      title: 'iPhone 12 – 15 Series (Smart HDR / Deep Fusion)', subtitle: 'Softens harsh Deep Fusion edges and reduces yellow cast',
+      colorNote: 'Smart HDR strongly sharpens edges and lifts shadow brightness.',
+      bestFor: 'The iPhone 12–15 profile softens edges by 22% and restores film-like depth.',
       phoneProfile: 'iphone-hdr'
     },
     {
-      id: 'g-phone-samsung', category: 'phone', icon: '🌌', chipClass: 'chip-phone', chipLabel: 'ĐIỆN THOẠI',
-      title: 'Samsung Galaxy S23 – S26 Ultra & Z Fold/Flip', subtitle: 'Giảm rực xanh dương & lá cây (De-Neon)',
-      colorNote: 'ISP Samsung đẩy độ bão hòa bầu trời và cỏ cây rất rực trên màn AMOLED.',
-      bestFor: 'Profile Samsung S23–S26 giảm 28% độ gắt xanh trước khi phủ film.',
+      id: 'g-phone-samsung', category: 'phone', icon: '🌌', chipClass: 'chip-phone', chipLabel: 'PHONE',
+      title: 'Samsung Galaxy S23 – S26 Ultra & Z Fold/Flip', subtitle: 'Reduces intense blue and green saturation (De-Neon)',
+      colorNote: 'Samsung ISP pushes sky and foliage saturation strongly on AMOLED displays.',
+      bestFor: 'The Samsung S23–S26 profile reduces blue intensity by 28% before applying film.',
       phoneProfile: 'samsung-vivid'
     },
     {
-      id: 'g-phone-flagship-cn', category: 'phone', icon: '🔴', chipClass: 'chip-phone', chipLabel: 'ĐIỆN THOẠI',
-      title: 'Xiaomi 13–17 Leica, Vivo X200–300 Zeiss & OPPO Find X8–9', subtitle: 'Cân bằng vùng tối Leica & làm dịu màu da AI',
-      colorNote: 'Các flagship cảm biến 1-inch có tương phản vùng tối mạnh hoặc làm sáng da AI.',
-      bestFor: 'Chọn Xiaomi 13–17 Leica hoặc OPPO/Vivo để mở chi tiết vùng tối trước khi áp màu Kodak/Fuji.',
+      id: 'g-phone-flagship-cn', category: 'phone', icon: '🔴', chipClass: 'chip-phone', chipLabel: 'PHONE',
+      title: 'Xiaomi 13–17 Leica, Vivo X200–300 Zeiss & OPPO Find X8–9', subtitle: 'Balances Leica shadows and softens AI skin color',
+      colorNote: 'Flagships with 1-inch sensors can have strong shadow contrast or AI skin brightening.',
+      bestFor: 'Choose Xiaomi 13–17 Leica or OPPO/Vivo to open shadow detail before applying Kodak or Fuji color.',
       phoneProfile: 'xiaomi-leica'
     },
     {
       id: 'g-phone-zalo', category: 'phone', icon: '🔍', chipClass: 'chip-phone', chipLabel: 'EXIF',
-      title: 'Khi ảnh mất EXIF qua Zalo / Messenger', subtitle: 'Cách Tee\'s Lab tự động gợi ý cuộn film',
-      colorNote: 'Ứng dụng chat xóa EXIF thiết bị khi gửi ảnh thường.',
-      bestFor: 'App tự đo độ sáng, màu trời/lá/da để gợi ý 3 combo film hợp nhất.',
+      title: 'When a photo loses EXIF through chat apps', subtitle: 'How Tee\'s Lab automatically suggests film stocks',
+      colorNote: 'Chat apps commonly strip device EXIF when sending photos.',
+      bestFor: 'The app measures brightness, sky, foliage, and skin colors to suggest the three best film combinations.',
       tryGear: null
     }
   ];
@@ -2653,10 +2622,10 @@
           <span class="acc-arrow">${isOpen ? '▴' : '▾'}</span>
         </button>
         <div class="accordion-body">
-          <div class="acc-bullet"><strong>🎨 Sắc độ:</strong> ${item.colorNote}</div>
-          <div class="acc-bullet"><strong>🌤️ Hợp chụp:</strong> ${item.bestFor}</div>
-          ${item.tryGear ? `<button class="btn-pill btn-brass btn-try" style="margin-top:6px;height:28px;">🎞️ Thử ngay trong Phòng Tối</button>` : ''}
-          ${item.phoneProfile ? `<button class="btn-pill btn-ghost btn-phone" style="margin-top:6px;height:28px;">📱 Bật Profile này</button>` : ''}
+          <div class="acc-bullet"><strong>🎨 Color:</strong> ${item.colorNote}</div>
+          <div class="acc-bullet"><strong>🌤️ Best for:</strong> ${item.bestFor}</div>
+          ${item.tryGear ? `<button class="btn-pill btn-brass btn-try" style="margin-top:6px;height:28px;">🎞️ Try in Darkroom</button>` : ''}
+          ${item.phoneProfile ? `<button class="btn-pill btn-ghost btn-phone" style="margin-top:6px;height:28px;">📱 Enable this profile</button>` : ''}
         </div>
       `;
       card.querySelector('.accordion-header').addEventListener('click', () => {
@@ -2665,9 +2634,9 @@
         renderGuideAccordion();
       });
       const btnT = card.querySelector('.btn-try');
-      if (btnT) btnT.addEventListener('click', () => { applyGearPreset(item.tryGear.bodyId, item.tryGear.lensId, item.tryGear.filmId); switchMainTab('darkroom'); showToast(`Đang thử ${item.title}`); });
+      if (btnT) btnT.addEventListener('click', () => { applyGearPreset(item.tryGear.bodyId, item.tryGear.lensId, item.tryGear.filmId); switchMainTab('darkroom'); showToast(`Trying ${item.title}`); });
       const btnP = card.querySelector('.btn-phone');
-      if (btnP) btnP.addEventListener('click', () => { state.phoneId = item.phoneProfile; renderPhoneProfileGrid(); renderPreview(); switchMainTab('darkroom'); showToast(`Đã bật ${item.title}`); });
+      if (btnP) btnP.addEventListener('click', () => { state.phoneId = item.phoneProfile; renderPhoneProfileGrid(); renderPreview(); switchMainTab('darkroom'); showToast(`Enabled ${item.title}`); });
       container.appendChild(card);
     });
   }
@@ -2714,11 +2683,11 @@
       state.camStream = stream;
       camVideo.srcObject = stream;
       await camVideo.play();
-      document.getElementById('camSourceStatus').textContent = state.camFacing === 'environment' ? 'Cam Sau' : 'Cam Trước';
-      showToast('Đã bật Camera trực tiếp');
+      document.getElementById('camSourceStatus').textContent = state.camFacing === 'environment' ? 'Rear camera' : 'Front camera';
+      showToast('Live camera enabled');
     } catch (e) {
-      document.getElementById('camSourceStatus').textContent = 'Giả lập';
-      showToast('Đang dùng ống ngắm giả lập');
+      document.getElementById('camSourceStatus').textContent = 'Simulated';
+      showToast('Using simulated viewfinder');
     }
   }
 
@@ -2757,7 +2726,7 @@
   }
 
   function captureCameraShot() {
-    if (state.camShotCount >= state.camMaxShots) { showToast('Hết cuộn 36 kiểu! Bấm Cuộn mới'); return; }
+    if (state.camShotCount >= state.camMaxShots) { showToast('36-shot roll finished! Tap New roll'); return; }
     const fl = document.getElementById('shutterFlash');
     fl.classList.add('active'); setTimeout(() => fl.classList.remove('active'), 110);
     playShutterSound();
@@ -2794,7 +2763,7 @@
     document.getElementById('contactCount').textContent = state.camRollShots.length;
     const grid = document.getElementById('contactSheetGrid');
     if (state.camRollShots.length === 0) {
-      grid.innerHTML = `<div style="grid-column:1/-1;color:var(--text-muted);font-size:11.5px;padding:12px 0;">Chưa có ảnh nào trong cuộn này.</div>`;
+      grid.innerHTML = `<div style="grid-column:1/-1;color:var(--text-muted);font-size:11.5px;padding:12px 0;">There are no photos on this roll yet.</div>`;
       return;
     }
     grid.innerHTML = '';
@@ -2806,8 +2775,8 @@
         <div class="shot-foot">
           <span>#${String(s.num).padStart(2, '0')}</span>
           <div style="display:flex;gap:4px;">
-            <button class="btn-pill btn-ghost btn-edit" style="height:24px;padding:0 7px;font-size:10.5px;">Chỉnh</button>
-            <a class="btn-pill btn-primary" style="height:24px;padding:0 7px;font-size:10.5px;text-decoration:none;" href="${s.dataUrl}" download="tees-lab-shot-${s.num}.jpg">Lưu</a>
+            <button class="btn-pill btn-ghost btn-edit" style="height:24px;padding:0 7px;font-size:10.5px;">Edit</button>
+            <a class="btn-pill btn-primary" style="height:24px;padding:0 7px;font-size:10.5px;text-decoration:none;" href="${s.dataUrl}" download="tees-lab-shot-${s.num}.jpg">Save</a>
           </div>
         </div>
       `;
@@ -2815,7 +2784,7 @@
         document.getElementById('contactSheetBackdrop').classList.remove('open');
         loadSourceCanvas(s.rawCanvas, null);
         switchMainTab('darkroom');
-        showToast(`Đã đưa kiểu #${s.num} vào Phòng Tối`);
+        showToast(`Shot #${s.num} moved to Darkroom`);
       });
       grid.appendChild(card);
     });
@@ -2856,18 +2825,18 @@
         loadSourceCanvas(c, exif);
         switchMainTab('darkroom');
         switchDockTab('phone');
-        showToast(exif ? `📱 Nhận diện: ${exif.commercialModel}` : 'Đã tải ảnh — Xem gợi ý màu Film');
+        showToast(exif ? `📱 Detected: ${exif.commercialModel}` : 'Photo loaded — see film suggestions');
       };
-      img.onerror = () => { URL.revokeObjectURL(url); showToast('❌ Định dạng ảnh chưa được hỗ trợ'); };
+      img.onerror = () => { URL.revokeObjectURL(url); showToast('❌ Unsupported image format'); };
       img.src = url;
     } catch (e) {
-      showToast('❌ Lỗi đọc file ảnh');
+      showToast('❌ Could not read the image file');
     }
   }
 
   function exportFullResolution() {
     if (!state.fullSourceCanvas) return;
-    showToast('⏳ Đang lưu ảnh chất lượng cao...');
+    showToast('⏳ Saving high-quality image...');
     setTimeout(() => {
       const src = state.fullSourceCanvas;
       const { phone, body, lens, film } = getSelectedGear();
@@ -2880,7 +2849,7 @@
         const u = URL.createObjectURL(blob), a = document.createElement('a');
         a.href = u; a.download = `tees-lab-${film.id}-${Date.now()}.jpg`; a.click();
         setTimeout(() => URL.revokeObjectURL(u), 1000);
-        showToast('✅ Đã lưu ảnh Film về máy!');
+        showToast('✅ Film image saved!');
       }, 'image/jpeg', 0.94);
     }, 30);
   }
@@ -2938,14 +2907,38 @@
   btnHold.addEventListener('pointercancel', () => setHold(false));
   btnHold.addEventListener('pointerleave', () => setHold(false));
 
-  // Brand Filter
-  document.querySelectorAll('#filmBrandPills .filter-chip').forEach(b => {
-    b.addEventListener('click', () => {
-      document.querySelectorAll('#filmBrandPills .filter-chip').forEach(x => x.classList.remove('active'));
-      b.classList.add('active');
-      state.filmBrandFilter = b.dataset.brand;
-      renderGearRack();
-    });
+  // Dropdown selects
+  document.getElementById('phoneProfileSelect').addEventListener('change', e => {
+    state.phoneId = e.target.value; renderPhoneProfileGrid(); renderPreview();
+  });
+  document.getElementById('filmBrandSelect').addEventListener('change', e => {
+    state.filmBrandFilter = e.target.value;
+    const list = state.filmBrandFilter === 'all' ? FILM_STOCKS : FILM_STOCKS.filter(f => f.brand === state.filmBrandFilter);
+    if (!list.some(f => f.id === state.filmId)) selectFilmStock(list[0].id);
+    else renderGearRack();
+  });
+  document.getElementById('filmSelect').addEventListener('change', e => selectFilmStock(e.target.value));
+  document.getElementById('bodySelect').addEventListener('change', e => {
+    state.bodyId = e.target.value; renderGearRack(); syncCameraDropdowns(); renderPreview();
+  });
+  document.getElementById('lensSelect').addEventListener('change', e => {
+    const l = CAMERA_LENSES.find(x => x.id === e.target.value);
+    state.lensId = l.id; state.bloom = l.bloomBase; state.vignette = l.vignetteBase;
+    renderTweaksDock(); renderGearRack(); syncCameraDropdowns(); renderPreview();
+  });
+  document.getElementById('tweakSelect').addEventListener('change', e => {
+    state.activeTweakKey = e.target.value; renderTweaksDock();
+  });
+  document.getElementById('leakTypeSelect').addEventListener('change', e => {
+    state.leakType = e.target.value;
+    if (state.leakType !== 'none' && state.leakAmt === 0) state.leakAmt = 45;
+    renderTweaksDock(); renderPreview();
+  });
+  document.getElementById('frameSelect').addEventListener('change', e => {
+    state.frameType = e.target.value; renderFrameAndRecipes(); renderPreview();
+  });
+  document.getElementById('dateSelect').addEventListener('change', e => {
+    state.dateStamp = e.target.value; renderFrameAndRecipes(); renderPreview();
   });
 
   // Random Gear
@@ -2970,16 +2963,10 @@
     state.bloom = lens.bloomBase; state.vignette = lens.vignetteBase;
     state.leakType = 'none'; state.leakAmt = 0;
     renderTweaksDock(); renderPreview();
-    showToast('↺ Đã đặt lại thông số');
+    showToast('↺ Settings reset');
   });
 
   // Frame, Date & Recipes
-  document.querySelectorAll('#frameSegGrid .seg-btn').forEach(b => b.addEventListener('click', () => {
-    state.frameType = b.dataset.frame; renderFrameAndRecipes(); renderPreview();
-  }));
-  document.querySelectorAll('#dateSegGrid .seg-btn').forEach(b => b.addEventListener('click', () => {
-    state.dateStamp = b.dataset.date; renderFrameAndRecipes(); renderPreview();
-  }));
   document.getElementById('btnSaveRecipe').addEventListener('click', () => {
     const inp = document.getElementById('recipeNameInput');
     const name = inp.value.trim() || `${getSelectedGear().film.name}`;
@@ -2992,7 +2979,7 @@
     localStorage.setItem('tees_lab_recipes_v1', JSON.stringify(state.recipes));
     inp.value = '';
     renderFrameAndRecipes();
-    showToast(`💾 Đã lưu "${name}"`);
+    showToast(`💾 Saved "${name}"`);
   });
 
   // Bottom Sheets (Samples & Contact Sheet)
@@ -3011,7 +2998,7 @@
   document.getElementById('btnFlipCam').addEventListener('click', () => {
     state.camFacing = state.camFacing === 'environment' ? 'user' : 'environment';
     if (state.camStream) startRealCamera();
-    else showToast(state.camFacing === 'environment' ? 'Cam Sau' : 'Cam Trước');
+    else showToast(state.camFacing === 'environment' ? 'Rear camera' : 'Front camera');
   });
   document.getElementById('btnToggleSound').addEventListener('click', e => {
     state.camSound = !state.camSound;
@@ -3019,7 +3006,7 @@
   });
   document.getElementById('btnNewRoll').addEventListener('click', () => {
     state.camShotCount = 0; document.getElementById('btnShutter').disabled = false;
-    syncCameraDropdowns(); showToast('🎞️ Đã nạp cuộn 36 kiểu mới');
+    syncCameraDropdowns(); showToast('🎞️ New 36-shot roll loaded');
   });
   document.getElementById('btnClearRollShots').addEventListener('click', () => { state.camRollShots = []; renderContactSheet(); });
   document.getElementById('btnShutter').addEventListener('click', captureCameraShot);
