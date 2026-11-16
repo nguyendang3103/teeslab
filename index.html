@@ -1490,18 +1490,18 @@
   const normalizePhoneProfileId = id => LEGACY_PHONE_PROFILE_IDS[id] || id;
 
   const CAMERA_BODIES = [
-    { id: 'rollie-35', name: 'Rollie 35 S', meta: 'Warm nostalgia', blackLift: 0.035, contrast: 1.04, highlightRolloff: 0.18, bodyWarmth: 4, bodyTint: 0 },
-    { id: 'fuji-tx1', name: 'Fuji TX-1', meta: 'Rich color depth', blackLift: 0.025, contrast: 1.08, highlightRolloff: 0.15, bodyWarmth: -2, bodyTint: -2 },
-    { id: 'leica-m6', name: 'Leica M6', meta: 'Deep 3D rendering', blackLift: 0.015, contrast: 1.13, highlightRolloff: 0.14, bodyWarmth: 1, bodyTint: 0 },
-    { id: 'contax-t2', name: 'Contax T2', meta: 'Smooth skin & bright', blackLift: 0.045, contrast: 0.98, highlightRolloff: 0.25, bodyWarmth: 3, bodyTint: 2 },
-    { id: 'hasselblad-500', name: 'Hasselblad', meta: 'Gentle tonal roll-off', blackLift: 0.02, contrast: 0.95, highlightRolloff: 0.28, bodyWarmth: 0, bodyTint: 0 },
-    { id: 'olympus-mju', name: 'Olympus mju', meta: '90s street mood', blackLift: 0.04, contrast: 1.12, highlightRolloff: 0.10, bodyWarmth: 2, bodyTint: -1 },
-    { id: 'nikon-f2', name: 'Nikon F2', meta: 'Classic documentary', blackLift: 0.025, contrast: 1.10, highlightRolloff: 0.16, bodyWarmth: 0, bodyTint: 0 },
-    { id: 'nikon-fm2', name: 'Nikon FM2', meta: 'Crisp everyday 35mm', blackLift: 0.03, contrast: 1.08, highlightRolloff: 0.18, bodyWarmth: 0, bodyTint: 0 },
-    { id: 'canon-ae1', name: 'Canon AE-1', meta: 'Warm 70s color', blackLift: 0.04, contrast: 1.02, highlightRolloff: 0.21, bodyWarmth: 2, bodyTint: 1 },
-    { id: 'pentax-k1000', name: 'Pentax K1000', meta: 'Natural classic tones', blackLift: 0.035, contrast: 1.04, highlightRolloff: 0.20, bodyWarmth: 1, bodyTint: 0 },
-    { id: 'olympus-om1', name: 'Olympus OM-1', meta: 'Compact gentle contrast', blackLift: 0.04, contrast: 0.99, highlightRolloff: 0.23, bodyWarmth: 0, bodyTint: -1 },
-    { id: 'minolta-srt101', name: 'Minolta SRT-101', meta: 'Soft vintage warmth', blackLift: 0.045, contrast: 1.01, highlightRolloff: 0.22, bodyWarmth: 2, bodyTint: 0 }
+    { id: 'rollie-35', name: 'Rollie 35 S', meta: 'Warm nostalgia', defaultLensId: 'rollei-sonnar-40', blackLift: 0.035, contrast: 1.04, highlightRolloff: 0.18, bodyWarmth: 4, bodyTint: 0 },
+    { id: 'fuji-tx1', name: 'Fuji TX-1', meta: 'Rich color depth', defaultLensId: 'fuji-xpan-45', blackLift: 0.025, contrast: 1.08, highlightRolloff: 0.15, bodyWarmth: -2, bodyTint: -2 },
+    { id: 'leica-m6', name: 'Leica M6', meta: 'Deep 3D rendering', defaultLensId: 'leica-summilux-35', blackLift: 0.015, contrast: 1.13, highlightRolloff: 0.14, bodyWarmth: 1, bodyTint: 0 },
+    { id: 'contax-t2', name: 'Contax T2', meta: 'Smooth skin & bright', defaultLensId: 'contax-t2-sonnar', blackLift: 0.045, contrast: 0.98, highlightRolloff: 0.25, bodyWarmth: 3, bodyTint: 2 },
+    { id: 'hasselblad-500', name: 'Hasselblad', meta: 'Gentle tonal roll-off', defaultLensId: 'hasselblad-planar-80', blackLift: 0.02, contrast: 0.95, highlightRolloff: 0.28, bodyWarmth: 0, bodyTint: 0 },
+    { id: 'olympus-mju', name: 'Olympus mju', meta: '90s street mood', defaultLensId: 'olympus-mju-35', blackLift: 0.04, contrast: 1.12, highlightRolloff: 0.10, bodyWarmth: 2, bodyTint: -1 },
+    { id: 'nikon-f2', name: 'Nikon F2', meta: 'Classic documentary', defaultLensId: 'nikon-50-18', blackLift: 0.025, contrast: 1.10, highlightRolloff: 0.16, bodyWarmth: 0, bodyTint: 0 },
+    { id: 'nikon-fm2', name: 'Nikon FM2', meta: 'Crisp everyday 35mm', defaultLensId: 'nikon-50-18', blackLift: 0.03, contrast: 1.08, highlightRolloff: 0.18, bodyWarmth: 0, bodyTint: 0 },
+    { id: 'canon-ae1', name: 'Canon AE-1', meta: 'Warm 70s color', defaultLensId: 'canon-fd-50', blackLift: 0.04, contrast: 1.02, highlightRolloff: 0.21, bodyWarmth: 2, bodyTint: 1 },
+    { id: 'pentax-k1000', name: 'Pentax K1000', meta: 'Natural classic tones', defaultLensId: 'pentax-k-50-12', blackLift: 0.035, contrast: 1.04, highlightRolloff: 0.20, bodyWarmth: 1, bodyTint: 0 },
+    { id: 'olympus-om1', name: 'Olympus OM-1', meta: 'Compact gentle contrast', defaultLensId: 'olympus-zuiko-50', blackLift: 0.04, contrast: 0.99, highlightRolloff: 0.23, bodyWarmth: 0, bodyTint: -1 },
+    { id: 'minolta-srt101', name: 'Minolta SRT-101', meta: 'Soft vintage warmth', defaultLensId: 'minolta-rokkor-58-12', blackLift: 0.045, contrast: 1.01, highlightRolloff: 0.22, bodyWarmth: 2, bodyTint: 0 }
   ];
 
   const CAMERA_LENSES = [
@@ -2309,7 +2309,7 @@
 
     phoneId: 'auto-detect',
     bodyId: 'rollie-35',
-    lensId: 'zeiss-sonnar-38',
+    lensId: 'rollei-sonnar-40',
     filmId: 'fuji-pro-400h',
     filmBrandFilter: 'all',
     activeTweakKey: 'strength',
@@ -2936,6 +2936,21 @@
     document.getElementById('camRollCounter').textContent = `${String(Math.min(state.camShotCount + 1, state.camMaxShots)).padStart(2, '0')} / ${state.camMaxShots}`;
   }
 
+  function selectCameraBody(bodyId) {
+    state.bodyId = bodyId;
+    const body = CAMERA_BODIES.find(item => item.id === bodyId);
+    const matchedLens = body && CAMERA_LENSES.find(item => item.id === body.defaultLensId);
+    if (matchedLens) {
+      state.lensId = matchedLens.id;
+      state.bloom = matchedLens.bloomBase;
+      state.vignette = matchedLens.vignetteBase;
+    }
+    renderTweaksDock();
+    renderGearRack();
+    syncCameraDropdowns();
+    renderPreview();
+  }
+
   async function startRealCamera() {
     if (state.camStream) { state.camStream.getTracks().forEach(t => t.stop()); state.camStream = null; }
     try {
@@ -3257,7 +3272,7 @@
   });
   document.getElementById('btnClearRollShots').addEventListener('click', () => { state.camRollShots = []; renderContactSheet(); });
   document.getElementById('btnShutter').addEventListener('click', captureCameraShot);
-  document.getElementById('camSelBody').addEventListener('change', e => { state.bodyId = e.target.value; renderGearRack(); syncCameraDropdowns(); renderPreview(); });
+  document.getElementById('camSelBody').addEventListener('change', e => selectCameraBody(e.target.value));
   document.getElementById('camSelLens').addEventListener('change', e => { state.lensId = e.target.value; renderGearRack(); syncCameraDropdowns(); renderPreview(); });
   document.getElementById('camSelFilm').addEventListener('change', e => { selectFilmStock(e.target.value); syncCameraDropdowns(); });
 
