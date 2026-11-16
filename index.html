@@ -205,26 +205,21 @@
     }
 
     /* Primary header actions stay large and legible on touch devices. */
-    #btnUpload, #btnExport {
+    #btnGuideTop {
       height: 36px;
       border-radius: 12px;
       font-size: 12px;
       font-weight: 800;
       letter-spacing: 0.1px;
-    }
-    #btnUpload {
-      min-width: 82px;
-      padding: 0 11px;
-      border-color: var(--border-light);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
-    }
-    #btnExport {
-      min-width: 70px;
+      min-width: 78px;
       padding: 0 12px;
-      box-shadow: 0 3px 12px rgba(232, 106, 51, 0.46);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border-light);
+      box-shadow: none;
     }
-    #btnUpload:active, #btnExport:active { transform: scale(0.97); }
-    #btnUpload:focus-visible, #btnExport:focus-visible {
+    #btnGuideTop:active { transform: scale(0.97); }
+    #btnGuideTop:focus-visible {
       outline: 2px solid var(--cyan);
       outline-offset: 2px;
     }
@@ -234,8 +229,7 @@
       .brand-logo-wrap { width: 28px; height: 28px; }
       .hdr-phone-chip { display: none; }
       .topbar-actions { gap: 5px; }
-      #btnUpload { min-width: 82px; padding: 0 10px; }
-      #btnExport { min-width: 70px; padding: 0 11px; }
+      #btnGuideTop { min-width: 72px; padding: 0 10px; }
     }
 
     /* MAIN VIEWS */
@@ -252,14 +246,15 @@
 
     /* ==================== TAB 1: DARKROOM (FIXED STAGE + BOTTOM DOCK) ==================== */
     .stage-area {
-      flex: 1;
+      flex: 1 1 auto;
       min-height: 0;
+      min-width: 0;
       position: relative;
       background: #07080b;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 34px 8px 36px;
+      padding: 38px 8px 40px;
       overflow: hidden;
       user-select: none;
     }
@@ -269,6 +264,7 @@
       display: inline-flex;
       max-width: 100%;
       max-height: 100%;
+      min-width: 0;
       align-items: center;
       justify-content: center;
     }
@@ -394,6 +390,15 @@
       color: var(--brass);
       border-color: rgba(212, 163, 89, 0.55);
     }
+    .stage-save-button {
+      width: 30px;
+      height: 28px;
+      padding: 0;
+      justify-content: center;
+      color: var(--brass);
+      border-color: rgba(212, 163, 89, 0.55);
+      font-size: 14px;
+    }
 
     .hist-floating {
       position: absolute;
@@ -451,13 +456,14 @@
 
     .dock-tabs {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       border-bottom: 1px solid var(--border);
       background: #101318;
     }
     .dock-tab {
-      height: 36px;
-      font-size: 10.5px;
+      min-width: 0;
+      height: 40px;
+      font-size: 11px;
       font-weight: 700;
       color: var(--text-muted);
       display: flex;
@@ -466,6 +472,8 @@
       gap: 3px;
       border-bottom: 2px solid transparent;
       white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .dock-tab.active {
       color: var(--brass);
@@ -474,10 +482,13 @@
     }
 
     .dock-body {
-      height: 220px;
-      overflow: hidden;
-      padding: 9px 10px;
+      height: clamp(218px, 32dvh, 270px);
+      overflow-x: hidden;
+      overflow-y: auto;
+      scrollbar-width: none;
+      padding: 8px 10px;
     }
+    .dock-body::-webkit-scrollbar { display: none; }
     .dock-panel {
       display: none;
       flex-direction: column;
@@ -485,7 +496,20 @@
     }
     .dock-panel.active {
       display: flex;
+      min-width: 0;
     }
+    .adjust-frame-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+    #dock-tweak { gap: 6px; }
+    #dock-tweak .adjust-frame-grid { margin-top: 0; }
+    #dock-tweak .recipe-row { min-width: 0; }
+    #dock-tweak .recipe-row .dark-input { min-width: 0; }
+    #recipeList { min-height: 20px; }
+    .adjust-frame-grid .mini-label { margin-bottom: 4px; }
+    .adjust-frame-grid .dark-select { font-size: 11px; }
 
     /* Dock 1: Phone Match & Smart Recs */
     .exif-status-line {
@@ -507,6 +531,13 @@
       border-color: rgba(245, 158, 11, 0.35);
       background: rgba(245, 158, 11, 0.07);
     }
+    .film-stock-row { display: grid; grid-template-columns: minmax(112px, 0.82fr) minmax(0, 1.4fr); gap: 7px; }
+    .film-stock-row .dark-select { min-width: 0; width: 100%; }
+    .sensor-wrap { width: 100%; max-width: 520px; margin: 0 auto; padding: 14px; overflow-y: auto; }
+    .sensor-card { display: flex; flex-direction: column; gap: 9px; padding: 12px; margin-bottom: 10px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg-dock); }
+    .sensor-card-title { font-size: 11px; font-weight: 800; color: var(--brass); font-family: var(--mono); text-transform: uppercase; letter-spacing: .4px; }
+    .sensor-card .dark-select { width: 100%; min-height: 40px; font-size: 13px; }
+    .sensor-help { color: var(--text-muted); font-size: 11px; }
 
     .mini-label {
       font-family: var(--mono);
@@ -553,6 +584,20 @@
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
+    }
+    @media (max-height: 720px) {
+      .topbar { min-height: 52px; }
+      .dock-body { height: clamp(200px, 30dvh, 225px); }
+      .dock-tab { height: 36px; }
+      .stage-area { padding-top: 34px; padding-bottom: 36px; }
+      .dock-panel { gap: 6px; }
+    }
+    @media (max-width: 380px) {
+      .dock-tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .dock-tab { font-size: 11px; }
+      .rec-chip-card { width: min(215px, 78vw); }
+      .adjust-frame-grid { gap: 6px; }
+      .adjust-frame-grid .dark-select { padding: 6px 5px; }
     }
 
     .phone-chip-btn {
@@ -1021,12 +1066,16 @@
       padding-bottom: env(safe-area-inset-bottom);
       flex-shrink: 0;
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       background: #0d0f13;
       border-top: 1px solid var(--border);
       z-index: 30;
     }
     .bnav-btn {
+      min-width: 0;
+      width: 100%;
+      height: 54px;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -1036,7 +1085,8 @@
       font-size: 10.5px;
       font-weight: 600;
     }
-    .bnav-btn .ico { font-size: 16px; line-height: 1; }
+    .bnav-btn .ico { display: block; width: 100%; font-size: 16px; line-height: 1; text-align: center; }
+    .bnav-btn > span:last-child { display: block; width: 100%; line-height: 14px; text-align: center; }
     .bnav-btn.active {
       color: var(--cyan);
     }
@@ -1189,9 +1239,7 @@
 
       <div class="topbar-actions">
         <input type="file" id="fileInput" accept="image/*" hidden />
-        <button class="btn-pill btn-ghost" id="btnCloudSync" title="Set up cloud sync" aria-label="Set up cloud sync">☁️</button>
-        <button class="btn-pill btn-ghost" id="btnUpload" title="Add a photo" aria-label="Add a photo">➕ Photo</button>
-        <button class="btn-pill btn-primary" id="btnExport" title="Save edited photo to your library" aria-label="Save edited photo">⬇️ Save</button>
+        <button class="btn-pill btn-primary" id="btnGuideTop" title="Open film guide" aria-label="Open film guide">📔 Guide</button>
       </div>
     </header>
 
@@ -1200,12 +1248,7 @@
       <div class="stage-area" id="previewDropZone">
         <div class="stage-overlay-top">
           <div class="float-pill gear" id="liveGearBadge">Phone photo • Pro 400H</div>
-          <button class="float-pill" id="btnToggleHist">📈 RGB</button>
-        </div>
-
-        <div class="hist-floating" id="histFloatingOverlay">
-          <div class="hist-meta"><span>RGB</span><span id="renderTimeMs">0ms</span></div>
-          <canvas id="histogramCanvas" width="120" height="32"></canvas>
+          <button class="float-pill stage-save-button" id="btnExport" title="Save edited photo to your library" aria-label="Save edited photo">💾</button>
         </div>
 
         <div class="canvas-stack" id="canvasStack">
@@ -1231,15 +1274,25 @@
       <!-- BOTTOM THUMB DOCK -->
       <div class="tool-dock">
         <div class="dock-tabs">
-          <button class="dock-tab active" data-dock="phone">✨ Suggested</button>
-          <button class="dock-tab" data-dock="film">🎞️ Film</button>
-          <button class="dock-tab" data-dock="tweak">🎚️ Adjust</button>
-          <button class="dock-tab" data-dock="frame">🖼️ Frame</button>
+          <button class="dock-tab active" data-dock="phone">Film Roll</button>
+          <button class="dock-tab" data-dock="tweak">Adjust</button>
         </div>
 
         <div class="dock-body">
-          <!-- Dock Panel 1: Phone Detection & Top 3 Recommendations -->
+          <!-- Film Roll: film selection and suggestions -->
           <div class="dock-panel active" id="dock-phone">
+            <div class="mini-label"><span>Choose film</span><span id="activeFilmName" style="color:var(--brass);text-transform:none;"></span></div>
+            <div class="film-stock-row">
+              <select class="dark-select" id="filmBrandSelect" aria-label="Film brand">
+                <option value="all">All (20)</option>
+                <option value="fuji">Fujifilm (7)</option>
+                <option value="kodak">Kodak (8)</option>
+                <option value="cinema">CineStill (2)</option>
+                <option value="bw">Black &amp; white (3)</option>
+              </select>
+              <select class="dark-select" id="filmSelect" aria-label="Film stock"></select>
+            </div>
+
             <div class="exif-status-line" id="phoneStatusBanner">Analyzing photo...</div>
 
             <div class="mini-label">
@@ -1248,22 +1301,6 @@
             </div>
             <div class="h-scroll" id="smartRecsList"></div>
 
-            <div class="mini-label"><span>📱 Phone sensor balancing</span></div>
-            <select class="dd-full dark-select" id="phoneProfileSelect"></select>
-          </div>
-
-          <!-- Dock Panel 2: 20 Film Stocks -->
-          <div class="dock-panel" id="dock-film">
-            <div class="mini-label"><span>Film brand</span></div>
-            <select class="dd-full dark-select" id="filmBrandSelect">
-              <option value="all">All (20)</option>
-              <option value="fuji">Fujifilm (7)</option>
-              <option value="kodak">Kodak (8)</option>
-              <option value="cinema">CineStill (2)</option>
-              <option value="bw">Black &amp; white (3)</option>
-            </select>
-            <div class="mini-label"><span>Film stock</span></div>
-            <select class="dd-full dark-select" id="filmSelect"></select>
           </div>
 
           <!-- Dock Panel 3: Single-Slider Smart Tweaks -->
@@ -1281,24 +1318,25 @@
 
             <select class="dd-full dark-select" id="leakTypeSelect" style="display:none;"></select>
 
-          </div>
-
-          <!-- Dock Panel 4: Frame, Date Stamp & Recipes -->
-          <div class="dock-panel" id="dock-frame">
-            <div class="mini-label"><span>35mm frame</span></div>
-            <select class="dd-full dark-select" id="frameSelect">
-              <option value="none">No frame</option>
-              <option value="35mm-sprocket">35mm sprocket</option>
-              <option value="darkroom-white">White border</option>
-              <option value="polaroid">Polaroid</option>
-            </select>
-
-            <div class="mini-label"><span>LED date stamp</span></div>
-            <select class="dd-full dark-select" id="dateSelect">
-              <option value="off">Off</option>
-              <option value="retro98">'98 style</option>
-              <option value="exif-or-today">Photo date</option>
-            </select>
+            <div class="adjust-frame-grid">
+              <div>
+                <div class="mini-label"><span>35mm frame</span></div>
+                <select class="dd-full dark-select" id="frameSelect">
+                  <option value="none">No frame</option>
+                  <option value="35mm-sprocket">35mm sprocket</option>
+                  <option value="darkroom-white">White border</option>
+                  <option value="polaroid">Polaroid</option>
+                </select>
+              </div>
+              <div>
+                <div class="mini-label"><span>Date stamp</span></div>
+                <select class="dd-full dark-select" id="dateSelect">
+                  <option value="off">Off</option>
+                  <option value="retro98">'98 style</option>
+                  <option value="exif-or-today">Photo date</option>
+                </select>
+              </div>
+            </div>
 
             <div class="recipe-row">
               <input type="text" class="dark-input" id="recipeNameInput" placeholder="Saved recipe name..." style="flex:1;" />
@@ -1381,10 +1419,28 @@
       </div>
     </section>
 
+    <section id="view-sensor" class="view-section">
+      <div class="sensor-wrap">
+        <div class="sensor-card">
+          <div class="sensor-card-title">Phone sensor balancing</div>
+          <select class="dark-select" id="phoneProfileSelect" aria-label="Phone sensor profile"></select>
+          <div class="sensor-help">Choose a profile for your phone camera sensor.</div>
+        </div>
+        <div class="sensor-card">
+          <div class="sensor-card-title">Film camera body</div>
+          <select class="dark-select" id="bodySelect" aria-label="Film camera body"></select>
+          <div class="sensor-card-title">Lens</div>
+          <select class="dark-select" id="lensSelect" aria-label="Lens"></select>
+          <div class="sensor-help">Camera body and lens profiles shape the film rendering.</div>
+        </div>
+      </div>
+    </section>
+
     <nav class="bottom-nav" role="tablist">
       <button class="bnav-btn active" data-tab="darkroom"><span class="ico">🎞️</span><span>Darkroom</span></button>
+      <button class="bnav-btn" data-tab="sensor"><span class="ico">🎛️</span><span>Sensor</span></button>
+      <button class="bnav-btn" id="btnBottomPhoto" type="button"><span class="ico">➕</span><span>Photo</span></button>
       <button class="bnav-btn" data-tab="camera"><span class="ico">📷</span><span>Camera</span></button>
-      <button class="bnav-btn" data-tab="guide"><span class="ico">📔</span><span>Guide</span></button>
     </nav>
 
     <!-- BOTTOM SHEET: SAMPLE SCENES -->
@@ -1460,7 +1516,13 @@
     { id: 'leica-m6', name: 'Leica M6', meta: 'Deep 3D rendering', blackLift: 0.015, contrast: 1.13, highlightRolloff: 0.14, bodyWarmth: 1, bodyTint: 0 },
     { id: 'contax-t2', name: 'Contax T2', meta: 'Smooth skin & bright', blackLift: 0.045, contrast: 0.98, highlightRolloff: 0.25, bodyWarmth: 3, bodyTint: 2 },
     { id: 'hasselblad-500', name: 'Hasselblad', meta: 'Gentle tonal roll-off', blackLift: 0.02, contrast: 0.95, highlightRolloff: 0.28, bodyWarmth: 0, bodyTint: 0 },
-    { id: 'olympus-mju', name: 'Olympus mju', meta: '90s street mood', blackLift: 0.04, contrast: 1.12, highlightRolloff: 0.10, bodyWarmth: 2, bodyTint: -1 }
+    { id: 'olympus-mju', name: 'Olympus mju', meta: '90s street mood', blackLift: 0.04, contrast: 1.12, highlightRolloff: 0.10, bodyWarmth: 2, bodyTint: -1 },
+    { id: 'nikon-f2', name: 'Nikon F2', meta: 'Classic documentary', blackLift: 0.025, contrast: 1.10, highlightRolloff: 0.16, bodyWarmth: 0, bodyTint: 0 },
+    { id: 'nikon-fm2', name: 'Nikon FM2', meta: 'Crisp everyday 35mm', blackLift: 0.03, contrast: 1.08, highlightRolloff: 0.18, bodyWarmth: 0, bodyTint: 0 },
+    { id: 'canon-ae1', name: 'Canon AE-1', meta: 'Warm 70s color', blackLift: 0.04, contrast: 1.02, highlightRolloff: 0.21, bodyWarmth: 2, bodyTint: 1 },
+    { id: 'pentax-k1000', name: 'Pentax K1000', meta: 'Natural classic tones', blackLift: 0.035, contrast: 1.04, highlightRolloff: 0.20, bodyWarmth: 1, bodyTint: 0 },
+    { id: 'olympus-om1', name: 'Olympus OM-1', meta: 'Compact gentle contrast', blackLift: 0.04, contrast: 0.99, highlightRolloff: 0.23, bodyWarmth: 0, bodyTint: -1 },
+    { id: 'minolta-srt101', name: 'Minolta SRT-101', meta: 'Soft vintage warmth', blackLift: 0.045, contrast: 1.01, highlightRolloff: 0.22, bodyWarmth: 2, bodyTint: 0 }
   ];
 
   const CAMERA_LENSES = [
@@ -1469,7 +1531,31 @@
     { id: 'fujinon-35-14', name: 'Fujinon EBC 35', meta: 'f/1.4 • Clear', coatingWarmth: -2, coatingTint: -2, bloomBase: 16, vignetteBase: 18, chromaticAb: 0.2, edgeSoft: 0.02 },
     { id: 'voigtlander-40', name: 'Voigtländer 40', meta: 'f/1.4 • Classic warmth', coatingWarmth: 5, coatingTint: 1, bloomBase: 38, vignetteBase: 35, chromaticAb: 0.8, edgeSoft: 0.10 },
     { id: 'helios-44', name: 'Helios 44-2', meta: '58mm • Dreamy', coatingWarmth: 4, coatingTint: -4, bloomBase: 48, vignetteBase: 38, chromaticAb: 1.4, edgeSoft: 0.18 },
-    { id: 'holga-plastic', name: 'Holga 60 Lo-Fi', meta: 'f/8 • Raw color shift', coatingWarmth: 6, coatingTint: -3, bloomBase: 44, vignetteBase: 68, chromaticAb: 2.8, edgeSoft: 0.32 }
+    { id: 'holga-plastic', name: 'Holga 60 Lo-Fi', meta: 'f/8 • Raw color shift', coatingWarmth: 6, coatingTint: -3, bloomBase: 44, vignetteBase: 68, chromaticAb: 2.8, edgeSoft: 0.32 },
+    { id: 'nikon-50-18', name: 'Nikkor 50mm f/1.8', meta: 'Natural standard lens', coatingWarmth: 0, coatingTint: 0, bloomBase: 14, vignetteBase: 20, chromaticAb: 0.3, edgeSoft: 0.03 },
+    { id: 'nikon-105-25', name: 'Nikkor 105mm f/2.5', meta: 'Portrait compression', coatingWarmth: 1, coatingTint: 0, bloomBase: 20, vignetteBase: 18, chromaticAb: 0.25, edgeSoft: 0.03 },
+    { id: 'canon-fd-50', name: 'Canon FD 50mm f/1.4', meta: 'Warm classic rendering', coatingWarmth: 2, coatingTint: 1, bloomBase: 22, vignetteBase: 23, chromaticAb: 0.4, edgeSoft: 0.05 },
+    { id: 'pentax-55-2', name: 'Super-Takumar 55mm f/2', meta: 'Gentle vintage glow', coatingWarmth: 3, coatingTint: 1, bloomBase: 28, vignetteBase: 25, chromaticAb: 0.5, edgeSoft: 0.07 },
+    { id: 'olympus-zuiko-50', name: 'Zuiko 50mm f/1.8', meta: 'Compact clear standard', coatingWarmth: 0, coatingTint: -1, bloomBase: 16, vignetteBase: 19, chromaticAb: 0.3, edgeSoft: 0.03 },
+    { id: 'nikon-noct-58', name: 'Nikkor 58mm f/1.2 Noct', meta: 'Nikon F • legendary night lens', coatingWarmth: 2, coatingTint: 0, bloomBase: 34, vignetteBase: 24, chromaticAb: 0.35, edgeSoft: 0.04 },
+    { id: 'nikon-105-25-ai', name: 'Nikkor 105mm f/2.5 AI-S', meta: 'Nikon F • classic portrait', coatingWarmth: 1, coatingTint: 0, bloomBase: 20, vignetteBase: 18, chromaticAb: 0.25, edgeSoft: 0.03 },
+    { id: 'canon-fd-85-12l', name: 'Canon FD 85mm f/1.2L', meta: 'Canon FD • portrait L glass', coatingWarmth: 2, coatingTint: 1, bloomBase: 40, vignetteBase: 22, chromaticAb: 0.35, edgeSoft: 0.05 },
+    { id: 'canon-fd-50-12l', name: 'Canon FD 50mm f/1.2L', meta: 'Canon FD • fast standard prime', coatingWarmth: 2, coatingTint: 1, bloomBase: 32, vignetteBase: 22, chromaticAb: 0.3, edgeSoft: 0.04 },
+    { id: 'pentax-k-50-12', name: 'SMC Pentax 50mm f/1.2', meta: 'Pentax K • bright standard prime', coatingWarmth: 2, coatingTint: 1, bloomBase: 30, vignetteBase: 22, chromaticAb: 0.35, edgeSoft: 0.04 },
+    { id: 'pentax-k-43-19', name: 'SMC Pentax-FA 43mm f/1.9 Limited', meta: 'Pentax K • celebrated compact prime', coatingWarmth: 1, coatingTint: 0, bloomBase: 22, vignetteBase: 18, chromaticAb: 0.25, edgeSoft: 0.03 },
+    { id: 'olympus-zuiko-50-12', name: 'G.Zuiko 50mm f/1.2', meta: 'Olympus OM • fast standard prime', coatingWarmth: 2, coatingTint: 0, bloomBase: 32, vignetteBase: 22, chromaticAb: 0.3, edgeSoft: 0.04 },
+    { id: 'olympus-zuiko-90-2', name: 'Zuiko 90mm f/2 Macro', meta: 'Olympus OM • legendary macro portrait', coatingWarmth: 0, coatingTint: 0, bloomBase: 18, vignetteBase: 18, chromaticAb: 0.2, edgeSoft: 0.02 },
+    { id: 'minolta-rokkor-58-12', name: 'MC Rokkor 58mm f/1.2', meta: 'Minolta SR • famous portrait glow', coatingWarmth: 4, coatingTint: 1, bloomBase: 42, vignetteBase: 26, chromaticAb: 0.45, edgeSoft: 0.06 },
+    { id: 'minolta-rokkor-85-17', name: 'MC Rokkor 85mm f/1.7', meta: 'Minolta SR • classic portrait', coatingWarmth: 2, coatingTint: 0, bloomBase: 28, vignetteBase: 20, chromaticAb: 0.3, edgeSoft: 0.04 },
+    { id: 'leica-summilux-35', name: 'Leica Summilux-M 35mm f/1.4', meta: 'Leica M • iconic fast wide angle', coatingWarmth: 2, coatingTint: 0, bloomBase: 30, vignetteBase: 20, chromaticAb: 0.25, edgeSoft: 0.03 },
+    { id: 'leica-noctilux-50', name: 'Leica Noctilux-M 50mm f/1.0', meta: 'Leica M • ultra-fast classic portrait', coatingWarmth: 3, coatingTint: 0, bloomBase: 44, vignetteBase: 26, chromaticAb: 0.35, edgeSoft: 0.05 },
+    { id: 'hasselblad-planar-80', name: 'Zeiss Planar 80mm f/2.8 CFE', meta: 'Hasselblad V • standard prime', coatingWarmth: 0, coatingTint: 0, bloomBase: 18, vignetteBase: 16, chromaticAb: 0.15, edgeSoft: 0.02 },
+    { id: 'hasselblad-sonnar-150', name: 'Zeiss Sonnar 150mm f/4 CFi', meta: 'Hasselblad V • portrait telephoto', coatingWarmth: 1, coatingTint: 0, bloomBase: 20, vignetteBase: 18, chromaticAb: 0.2, edgeSoft: 0.025 },
+    { id: 'fuji-xpan-45', name: 'Fujinon 45mm f/4', meta: 'Fuji TX-1 / XPan • panoramic standard', coatingWarmth: 0, coatingTint: -1, bloomBase: 16, vignetteBase: 18, chromaticAb: 0.2, edgeSoft: 0.02 },
+    { id: 'fuji-xpan-90', name: 'Fujinon 90mm f/4', meta: 'Fuji TX-1 / XPan • panoramic portrait', coatingWarmth: 1, coatingTint: 0, bloomBase: 20, vignetteBase: 17, chromaticAb: 0.2, edgeSoft: 0.02 },
+    { id: 'contax-t2-sonnar', name: 'Carl Zeiss Sonnar 38mm f/2.8', meta: 'Contax T2 • built-in autofocus lens', coatingWarmth: 1, coatingTint: 0, bloomBase: 24, vignetteBase: 19, chromaticAb: 0.2, edgeSoft: 0.025 },
+    { id: 'rollei-sonnar-40', name: 'Carl Zeiss Sonnar 40mm f/2.8 HFT', meta: 'Rollei 35 S • built-in lens', coatingWarmth: 2, coatingTint: 0, bloomBase: 24, vignetteBase: 22, chromaticAb: 0.25, edgeSoft: 0.03 },
+    { id: 'olympus-mju-35', name: 'Zuiko 35mm f/2.8', meta: 'Olympus mju • built-in lens', coatingWarmth: 1, coatingTint: 0, bloomBase: 18, vignetteBase: 20, chromaticAb: 0.25, edgeSoft: 0.025 }
   ];
 
   const FILM_STOCKS = [
@@ -2433,6 +2519,7 @@
   }
   function updateSyncButton() {
     const button = document.getElementById('btnCloudSync');
+    if (!button) return;
     const cfg = getGhConfig();
     button.textContent = cfg.token ? '☁️✓' : '☁️';
     button.title = cfg.token ? `GitHub sync connected${cfg.user ? ` (@${cfg.user})` : ''}` : 'Set up cloud sync';
@@ -2443,7 +2530,6 @@
     document.getElementById('syncTokenInput').value = getGhConfig().token || '';
     syncModal.classList.add('open');
   }
-  document.getElementById('btnCloudSync').addEventListener('click', openSyncModal);
   document.getElementById('syncModalClose').addEventListener('click', () => syncModal.classList.remove('open'));
   syncModal.addEventListener('click', e => { if (e.target === syncModal) syncModal.classList.remove('open'); });
   document.getElementById('syncDisconnect').addEventListener('click', () => {
@@ -2473,7 +2559,6 @@
   const originalOverlayCanvas = document.getElementById('originalOverlayCanvas');
   const canvasStack = document.getElementById('canvasStack');
   const splitDivider = document.getElementById('splitDivider');
-  const histogramCanvas = document.getElementById('histogramCanvas');
 
   function showToast(msg) {
     const el = document.getElementById('toastBox');
@@ -2581,30 +2666,7 @@
       oCtx.drawImage(state.previewSourceCanvas, sx, sy);
     }
 
-    drawHistogram(outCanvas);
-    document.getElementById('renderTimeMs').textContent = `${Math.round(performance.now() - t0)}ms`;
     document.getElementById('liveGearBadge').textContent = `Phone photo • ${film.name}`;
-  }
-
-  function drawHistogram(canvas) {
-    const w = canvas.width, h = canvas.height, step = Math.max(3, Math.floor((w * h) / 14000));
-    const data = canvas.getContext('2d').getImageData(0, 0, w, h).data;
-    const rH = new Uint32Array(48), gH = new Uint32Array(48), bH = new Uint32Array(48);
-    for (let i = 0; i < data.length; i += 4 * step) {
-      rH[(data[i] * 47 / 255) | 0]++; gH[(data[i+1] * 47 / 255) | 0]++; bH[(data[i+2] * 47 / 255) | 0]++;
-    }
-    let maxV = 1;
-    for (let i = 1; i < 47; i++) { if (rH[i] > maxV) maxV = rH[i]; if (gH[i] > maxV) maxV = gH[i]; if (bH[i] > maxV) maxV = bH[i]; }
-    const hCtx = histogramCanvas.getContext('2d'), hw = histogramCanvas.width, hh = histogramCanvas.height;
-    hCtx.clearRect(0, 0, hw, hh);
-    hCtx.globalCompositeOperation = 'screen';
-    const drawCh = (arr, col) => {
-      hCtx.fillStyle = col; hCtx.beginPath(); hCtx.moveTo(0, hh);
-      for (let i = 0; i < 48; i++) hCtx.lineTo((i / 47) * hw, hh - Math.min(1, arr[i] / maxV) * (hh - 2));
-      hCtx.lineTo(hw, hh); hCtx.closePath(); hCtx.fill();
-    };
-    drawCh(rH, 'rgba(239,68,68,0.75)'); drawCh(gH, 'rgba(16,185,129,0.75)'); drawCh(bH, 'rgba(59,130,246,0.75)');
-    hCtx.globalCompositeOperation = 'source-over';
   }
 
   /* ==========================================================================
@@ -2685,13 +2747,18 @@
   function renderGearRack() {
     const fill = (id, arr, cur, label) => {
       const el = document.getElementById(id);
+      if (!el) return;
       el.innerHTML = arr.map(x => `<option value="${x.id}">${label(x)}</option>`).join('');
       el.value = cur;
     };
+    fill('bodySelect', CAMERA_BODIES, state.bodyId, b => `${b.name} — ${b.meta}`);
+    fill('lensSelect', CAMERA_LENSES, state.lensId, l => `${l.name} — ${l.meta}`);
     let filtered = state.filmBrandFilter === 'all' ? FILM_STOCKS : FILM_STOCKS.filter(f => f.brand === state.filmBrandFilter);
     if (!filtered.some(f => f.id === state.filmId)) { state.filmBrandFilter = 'all'; filtered = FILM_STOCKS; }
     document.getElementById('filmBrandSelect').value = state.filmBrandFilter;
     fill('filmSelect', filtered, state.filmId, f => `${f.name} (ISO ${f.iso}) — ${f.subtitle}`);
+    const activeFilmName = document.getElementById('activeFilmName');
+    if (activeFilmName) activeFilmName.textContent = FILM_STOCKS.find(f => f.id === state.filmId)?.name || '';
   }
 
   function selectFilmStock(filmId) {
@@ -3086,21 +3153,14 @@
   // Wire Nav & Dock
   document.querySelectorAll('.bnav-btn').forEach(b => b.addEventListener('click', () => switchMainTab(b.dataset.tab)));
   document.querySelectorAll('.dock-tab').forEach(b => b.addEventListener('click', () => switchDockTab(b.dataset.dock)));
-  document.getElementById('hdrPhoneChip').addEventListener('click', () => { switchMainTab('darkroom'); switchDockTab('phone'); });
+  document.getElementById('hdrPhoneChip').addEventListener('click', () => switchMainTab('sensor'));
 
   // File & Export
   const fileInput = document.getElementById('fileInput');
-  document.getElementById('btnUpload').addEventListener('click', () => fileInput.click());
+  document.getElementById('btnBottomPhoto').addEventListener('click', () => fileInput.click());
   fileInput.addEventListener('change', e => { if (e.target.files[0]) handleImageFile(e.target.files[0]); e.target.value = ''; });
   document.getElementById('btnExport').addEventListener('click', exportFullResolution);
-
-  // Histogram toggle
-  document.getElementById('btnToggleHist').addEventListener('click', (e) => {
-    const h = document.getElementById('histFloatingOverlay');
-    const on = !h.classList.contains('open');
-    h.classList.toggle('open', on);
-    e.currentTarget.classList.toggle('active', on);
-  });
+  document.getElementById('btnGuideTop').addEventListener('click', () => switchMainTab('guide'));
 
   // Split & Hold Original
   document.getElementById('btnToggleSplit').addEventListener('click', (e) => {
@@ -3135,6 +3195,15 @@
   // Dropdown selects
   document.getElementById('phoneProfileSelect').addEventListener('change', e => {
     state.phoneId = e.target.value; renderPhoneProfileGrid(); renderPreview();
+  });
+  document.getElementById('bodySelect').addEventListener('change', e => {
+    state.bodyId = e.target.value; renderGearRack(); syncCameraDropdowns(); renderPreview();
+  });
+  document.getElementById('lensSelect').addEventListener('change', e => {
+    const lens = CAMERA_LENSES.find(item => item.id === e.target.value);
+    if (!lens) return;
+    state.lensId = lens.id; state.bloom = lens.bloomBase; state.vignette = lens.vignetteBase;
+    renderTweaksDock(); renderGearRack(); syncCameraDropdowns(); renderPreview();
   });
   document.getElementById('filmBrandSelect').addEventListener('change', e => {
     state.filmBrandFilter = e.target.value;
