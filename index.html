@@ -456,7 +456,7 @@
 
     .dock-tabs {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       border-bottom: 1px solid var(--border);
       background: #101318;
     }
@@ -533,12 +533,6 @@
     }
     .film-stock-row { display: grid; grid-template-columns: minmax(112px, 0.82fr) minmax(0, 1.4fr); gap: 7px; }
     .film-stock-row .dark-select { min-width: 0; width: 100%; }
-    .sensor-wrap { width: 100%; max-width: 520px; margin: 0 auto; padding: 14px; overflow-y: auto; }
-    .sensor-card { display: flex; flex-direction: column; gap: 9px; padding: 12px; margin-bottom: 10px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg-dock); }
-    .sensor-card-title { font-size: 11px; font-weight: 800; color: var(--brass); font-family: var(--mono); text-transform: uppercase; letter-spacing: .4px; }
-    .sensor-card .dark-select { width: 100%; min-height: 40px; font-size: 13px; }
-    .sensor-help { color: var(--text-muted); font-size: 11px; }
-
     .mini-label {
       font-family: var(--mono);
       font-size: 10px;
@@ -593,7 +587,7 @@
       .dock-panel { gap: 6px; }
     }
     @media (max-width: 380px) {
-      .dock-tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .dock-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .dock-tab { font-size: 11px; }
       .rec-chip-card { width: min(215px, 78vw); }
       .adjust-frame-grid { gap: 6px; }
@@ -1276,7 +1270,6 @@
         <div class="dock-tabs">
           <button class="dock-tab active" data-dock="phone">Film Roll</button>
           <button class="dock-tab" data-dock="tweak">Adjust</button>
-          <button class="dock-tab" data-dock="sensor">Sensor</button>
         </div>
 
         <div class="dock-body">
@@ -1293,6 +1286,9 @@
               </select>
               <select class="dark-select" id="filmSelect" aria-label="Film stock"></select>
             </div>
+
+            <div class="mini-label"><span>Phone Sensor Balancing</span></div>
+            <select class="dark-select" id="phoneProfileSelect" aria-label="Phone sensor profile"></select>
 
             <div class="exif-status-line" id="phoneStatusBanner">Analyzing photo...</div>
 
@@ -1344,21 +1340,6 @@
               <button class="btn-pill btn-brass" id="btnSaveRecipe" style="height:29px;">+ Save</button>
             </div>
             <div class="h-scroll" id="recipeList"></div>
-          </div>
-
-          <div class="dock-panel" id="dock-sensor">
-            <div class="sensor-card">
-              <div class="sensor-card-title">Phone sensor balancing</div>
-              <select class="dark-select" id="phoneProfileSelect" aria-label="Phone sensor profile"></select>
-              <div class="sensor-help">Choose a profile for your phone camera sensor.</div>
-            </div>
-            <div class="sensor-card">
-              <div class="sensor-card-title">Film camera body</div>
-              <select class="dark-select" id="bodySelect" aria-label="Film camera body"></select>
-              <div class="sensor-card-title">Lens</div>
-              <select class="dark-select" id="lensSelect" aria-label="Lens"></select>
-              <div class="sensor-help">Camera body and lens profiles shape the film rendering.</div>
-            </div>
           </div>
 
         </div>
@@ -3151,7 +3132,7 @@
   // Wire Nav & Dock
   document.querySelectorAll('.bnav-btn').forEach(b => b.addEventListener('click', () => switchMainTab(b.dataset.tab)));
   document.querySelectorAll('.dock-tab').forEach(b => b.addEventListener('click', () => switchDockTab(b.dataset.dock)));
-  document.getElementById('hdrPhoneChip').addEventListener('click', () => { switchMainTab('darkroom'); switchDockTab('sensor'); });
+  document.getElementById('hdrPhoneChip').addEventListener('click', () => { switchMainTab('darkroom'); switchDockTab('phone'); });
 
   // File & Export
   const fileInput = document.getElementById('fileInput');
@@ -3193,15 +3174,6 @@
   // Dropdown selects
   document.getElementById('phoneProfileSelect').addEventListener('change', e => {
     state.phoneId = e.target.value; renderPhoneProfileGrid(); renderPreview();
-  });
-  document.getElementById('bodySelect').addEventListener('change', e => {
-    state.bodyId = e.target.value; renderGearRack(); syncCameraDropdowns(); renderPreview();
-  });
-  document.getElementById('lensSelect').addEventListener('change', e => {
-    const lens = CAMERA_LENSES.find(item => item.id === e.target.value);
-    if (!lens) return;
-    state.lensId = lens.id; state.bloom = lens.bloomBase; state.vignette = lens.vignetteBase;
-    renderTweaksDock(); renderGearRack(); syncCameraDropdowns(); renderPreview();
   });
   document.getElementById('filmBrandSelect').addEventListener('change', e => {
     state.filmBrandFilter = e.target.value;
