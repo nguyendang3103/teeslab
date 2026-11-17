@@ -1,5 +1,13 @@
-const CACHE_NAME = 'tees-lab-shell-v1';
-const APP_FILES = ['./index.html', './manifest.json', './logo.jpg', './version.json'];
+const CACHE_NAME = 'tees-lab-shell-v2';
+const APP_FILES = [
+  './index.html', './manifest.json', './logo.jpg', './version.json',
+  './assets/samples/golden-hour.jpg',
+  './assets/samples/neon-street.jpg',
+  './assets/samples/forest.jpg',
+  './assets/samples/portrait.jpg',
+  './assets/samples/coffee.jpg',
+  './assets/samples/ocean.jpg'
+];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_FILES)).then(() => self.skipWaiting()));

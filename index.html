@@ -1429,6 +1429,7 @@
           <span>🖼️ Choose a sample photo</span>
           <button class="btn-pill btn-ghost" id="btnCloseSampleSheet" style="height:26px;">✕</button>
         </div>
+        <p style="margin:0 0 10px;color:var(--text-muted);font-size:10px;">Real photos from <a href="https://unsplash.com/license" target="_blank" rel="noreferrer" style="color:var(--brass);">Unsplash</a> · available offline</p>
         <div class="sample-grid-3" id="sampleStrip"></div>
       </div>
     </div>
@@ -1464,7 +1465,7 @@
   </div>
 
 <script>
-(() => {
+(async () => {
   'use strict';
 
   /* ==========================================================================
@@ -1831,140 +1832,31 @@
      ========================================================================== */
 
   function generateSampleScenes() {
-    const W = 900, H = 600;
-    const makeCanvas = () => { const c = document.createElement('canvas'); c.width = W; c.height = H; return { c, ctx: c.getContext('2d') }; };
-    const addTex = (ctx, amt) => {
-      const img = ctx.getImageData(0, 0, W, H), d = img.data;
-      let s = 1337;
-      for (let i = 0; i < d.length; i += 4) {
-        s = (s * 1664525 + 1013904223) | 0;
-        const n = ((s >> 24) / 128) * amt;
-        d[i] = Math.max(0, Math.min(255, d[i] + n));
-        d[i+1] = Math.max(0, Math.min(255, d[i+1] + n));
-        d[i+2] = Math.max(0, Math.min(255, d[i+2] + n));
-      }
-      ctx.putImageData(img, 0, 0);
-    };
-
-    const scenes = [];
-
-    // 1. Hoàng hôn Phố
-    {
-      const { c, ctx } = makeCanvas();
-      const sky = ctx.createLinearGradient(0, 0, 0, H * 0.65);
-      sky.addColorStop(0, '#2a4d7a'); sky.addColorStop(0.45, '#d97a54'); sky.addColorStop(1, '#fbd07c');
-      ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
-      const sun = ctx.createRadialGradient(W * 0.68, H * 0.34, 8, W * 0.68, H * 0.34, 240);
-      sun.addColorStop(0, '#fffbe6'); sun.addColorStop(0.18, 'rgba(255,214,120,0.85)'); sun.addColorStop(1, 'rgba(255,160,80,0)');
-      ctx.fillStyle = sun; ctx.fillRect(0, 0, W, H);
-      ctx.fillStyle = '#3b2c2a'; ctx.fillRect(0, H * 0.68, W, H * 0.32);
-      ctx.fillStyle = '#a85d44'; ctx.fillRect(0, H * 0.22, W * 0.32, H * 0.56);
-      ctx.fillStyle = '#733b2c'; ctx.fillRect(W * 0.32, H * 0.26, W * 0.08, H * 0.52);
-      ctx.fillStyle = '#d49a5a'; ctx.fillRect(W * 0.72, H * 0.18, W * 0.28, H * 0.62);
-      for (let r = 0; r < 3; r++) for (let col = 0; col < 2; col++) {
-        ctx.fillStyle = (r + col) % 2 === 0 ? '#ffd27d' : '#2d221e';
-        ctx.fillRect(50 + col * 95, 165 + r * 90, 54, 65);
-        ctx.fillStyle = '#472a20'; ctx.fillRect(W * 0.76 + col * 85, 145 + r * 95, 48, 62);
-      }
-      ctx.fillStyle = '#253c28'; ctx.beginPath(); ctx.arc(W * 0.46, H * 0.55, 70, 0, Math.PI * 2); ctx.fill();
-      ctx.beginPath(); ctx.arc(W * 0.52, H * 0.50, 55, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = '#1b1414'; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.moveTo(0, 130); ctx.quadraticCurveTo(450, 210, W, 115); ctx.stroke();
-      addTex(ctx, 6);
-      scenes.push({ id: 'golden-street', title: 'Sunset', canvas: c });
-    }
-
-    // 2. Phố Đêm Neon
-    {
-      const { c, ctx } = makeCanvas();
-      const bg = ctx.createLinearGradient(0, 0, 0, H);
-      bg.addColorStop(0, '#070b14'); bg.addColorStop(0.65, '#101d2e'); bg.addColorStop(1, '#080b12');
-      ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
-      ctx.fillStyle = '#0e131d'; ctx.fillRect(0, 40, 250, 440); ctx.fillRect(650, 20, 250, 460);
-      ctx.fillStyle = '#151c29'; ctx.fillRect(280, 120, 340, 320);
-      const drawNeon = (x, y, w, h, core, glow) => {
-        const g = ctx.createRadialGradient(x + w/2, y + h/2, 5, x + w/2, y + h/2, Math.max(w, h) * 1.4);
-        g.addColorStop(0, glow); g.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = g; ctx.fillRect(x - w, y - h, w * 3, h * 3);
-        ctx.fillStyle = core; ctx.fillRect(x, y, w, h);
-        ctx.fillStyle = '#fff'; ctx.fillRect(x + 4, y + 4, w - 8, h - 8);
-      };
-      drawNeon(90, 150, 120, 44, '#ff2e63', 'rgba(255,46,99,0.55)');
-      drawNeon(700, 120, 110, 56, '#08d9d6', 'rgba(8,217,214,0.5)');
-      drawNeon(410, 230, 80, 36, '#ffb703', 'rgba(255,183,3,0.55)');
-      ctx.fillStyle = '#090e17'; ctx.fillRect(0, 440, W, 160);
-      addTex(ctx, 5);
-      scenes.push({ id: 'neon-night', title: 'Neon night', canvas: c });
-    }
-
-    // 3. Rừng Sương Mù
-    {
-      const { c, ctx } = makeCanvas();
-      const sky = ctx.createLinearGradient(0, 0, 0, H * 0.55);
-      sky.addColorStop(0, '#6a98b0'); sky.addColorStop(0.6, '#b8d1d8'); sky.addColorStop(1, '#e4eceb');
-      ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
-      ctx.fillStyle = '#4e6f73';
-      ctx.beginPath(); ctx.moveTo(0, 270); ctx.lineTo(240, 165); ctx.lineTo(520, 250); ctx.lineTo(780, 150); ctx.lineTo(W, 230); ctx.lineTo(W, 400); ctx.lineTo(0, 400); ctx.closePath(); ctx.fill();
-      ctx.fillStyle = '#264446'; ctx.fillRect(0, 320, W, H - 320);
-      for (let x = 20; x < W; x += 50) {
-        ctx.fillStyle = '#2e5d40';
-        ctx.beginPath(); ctx.moveTo(x, 220); ctx.lineTo(x - 28, 345); ctx.lineTo(x + 28, 345); ctx.closePath(); ctx.fill();
-      }
-      ctx.fillStyle = '#3d7c3f';
-      ctx.beginPath(); ctx.moveTo(0, 470); ctx.quadraticCurveTo(220, 440, 420, 600); ctx.lineTo(0, 600); ctx.closePath(); ctx.fill();
-      addTex(ctx, 6);
-      scenes.push({ id: 'emerald-forest', title: 'Pine forest', canvas: c });
-    }
-
-    // 4. Chân Dung Nắng Chiều
-    {
-      const { c, ctx } = makeCanvas();
-      const wall = ctx.createLinearGradient(0, 0, W, H);
-      wall.addColorStop(0, '#282320'); wall.addColorStop(0.5, '#59473d'); wall.addColorStop(1, '#1e1917');
-      ctx.fillStyle = wall; ctx.fillRect(0, 0, W, H);
-      ctx.fillStyle = 'rgba(255,210,145,0.26)';
-      ctx.beginPath(); ctx.moveTo(0, 80); ctx.lineTo(540, 200); ctx.lineTo(540, 560); ctx.lineTo(0, 420); ctx.closePath(); ctx.fill();
-      ctx.fillStyle = '#7c5338'; ctx.beginPath(); ctx.ellipse(470, 580, 180, 160, 0, Math.PI, 0); ctx.fill();
-      ctx.fillStyle = '#d89b78'; ctx.fillRect(435, 340, 70, 90);
-      const sg = ctx.createRadialGradient(455, 250, 15, 470, 260, 115);
-      sg.addColorStop(0, '#f3bfa0'); sg.addColorStop(0.65, '#da9a77'); sg.addColorStop(1, '#9e6246');
-      ctx.fillStyle = sg; ctx.beginPath(); ctx.ellipse(470, 260, 76, 98, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#231915'; ctx.beginPath(); ctx.ellipse(470, 205, 86, 65, -0.05, Math.PI * 0.9, Math.PI * 2.1); ctx.fill();
-      addTex(ctx, 5);
-      scenes.push({ id: 'portrait-window', title: 'Portrait', canvas: c });
-    }
-
-    // 5. Cà Phê Sáng
-    {
-      const { c, ctx } = makeCanvas();
-      ctx.fillStyle = '#dcd2c4'; ctx.fillRect(0, 0, W, 320);
-      ctx.fillStyle = '#b49473'; ctx.fillRect(0, 320, W, 280);
-      ctx.fillStyle = '#f5efe6'; ctx.beginPath(); ctx.ellipse(480, 435, 108, 36, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#e9e1d4'; ctx.beginPath(); ctx.moveTo(405, 360); ctx.lineTo(555, 360); ctx.lineTo(535, 435); ctx.lineTo(425, 435); ctx.closePath(); ctx.fill();
-      ctx.fillStyle = '#6f4528'; ctx.beginPath(); ctx.ellipse(480, 360, 75, 22, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#336b42'; ctx.beginPath(); ctx.ellipse(720, 240, 40, 85, -0.3, 0, Math.PI * 2); ctx.fill();
-      addTex(ctx, 5);
-      scenes.push({ id: 'morning-cafe', title: 'Coffee', canvas: c });
-    }
-
-    // 6. Biển Nắng Vàng
-    {
-      const { c, ctx } = makeCanvas();
-      const sky = ctx.createLinearGradient(0, 0, 0, 310);
-      sky.addColorStop(0, '#1256a0'); sky.addColorStop(0.6, '#3991d4'); sky.addColorStop(1, '#a9daf2');
-      ctx.fillStyle = sky; ctx.fillRect(0, 0, W, 310);
-      const sea = ctx.createLinearGradient(0, 310, 0, 485);
-      sea.addColorStop(0, '#0a658c'); sea.addColorStop(0.6, '#1497ab'); sea.addColorStop(1, '#7de0df');
-      ctx.fillStyle = sea; ctx.fillRect(0, 310, W, 175);
-      ctx.fillStyle = '#f3d9ac'; ctx.fillRect(0, 475, W, H - 475);
-      ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.moveTo(575, 295); ctx.lineTo(575, 195); ctx.lineTo(635, 295); ctx.closePath(); ctx.fill();
-      addTex(ctx, 5);
-      scenes.push({ id: 'ocean-breeze', title: 'Blue sea', canvas: c });
-    }
-
-    return scenes;
+    const scenes = [
+      { id: 'golden-street', title: 'Golden hour', src: './assets/samples/golden-hour.jpg' },
+      { id: 'neon-night', title: 'Neon night', src: './assets/samples/neon-street.jpg' },
+      { id: 'emerald-forest', title: 'Forest', src: './assets/samples/forest.jpg' },
+      { id: 'portrait-window', title: 'Portrait', src: './assets/samples/portrait.jpg' },
+      { id: 'morning-cafe', title: 'Coffee', src: './assets/samples/coffee.jpg' },
+      { id: 'ocean-breeze', title: 'Ocean', src: './assets/samples/ocean.jpg' }
+    ];
+    return scenes.map(scene => ({ ...scene, canvas: Object.assign(document.createElement('canvas'), { width: 900, height: 600 }) }));
   }
 
+  async function loadSampleScenePhotos() {
+    await Promise.all(SAMPLES.map(scene => new Promise((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => {
+        const canvas = scene.canvas, ctx = canvas.getContext('2d');
+        const scale = Math.max(canvas.width / image.width, canvas.height / image.height);
+        const width = image.width * scale, height = image.height * scale;
+        ctx.drawImage(image, (canvas.width - width) / 2, (canvas.height - height) / 2, width, height);
+        resolve();
+      };
+      image.onerror = () => reject(new Error(`Could not load sample photo: ${scene.title}`));
+      image.src = scene.src;
+    })));
+  }
   /* ==========================================================================
      4. GRAIN TEXTURE, OPTICAL BLUR & FILM COLOR ENGINE
      ========================================================================== */
@@ -3679,6 +3571,7 @@
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
     navigator.serviceWorker.register('./sw.js').catch(() => {});
   }
+  await loadSampleScenePhotos();
   renderSampleStrip();
   renderPhoneProfileGrid();
   renderGearRack();
