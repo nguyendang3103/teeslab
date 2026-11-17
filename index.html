@@ -3027,6 +3027,18 @@
     document.getElementById('btnStartCam').textContent = '📷 Enable camera';
   }
 
+  function pauseCameraWhenHidden() {
+    stopCameraLoop();
+    if (state.camStream) stopRealCamera();
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) pauseCameraWhenHidden();
+    else if (document.getElementById('view-camera').classList.contains('active')) startCameraLoop();
+  });
+  window.addEventListener('pagehide', pauseCameraWhenHidden);
+  window.addEventListener('beforeunload', pauseCameraWhenHidden);
+
   function captureCameraShot() {
     if (state.camShotCount >= state.camMaxShots) { showToast('36-shot roll finished! Tap New roll'); return; }
     if (!state.camStream || camVideo.readyState < 2) { showToast('Camera is not ready yet'); return; }
@@ -3074,7 +3086,7 @@
           <span>#${String(s.num).padStart(2, '0')}</span>
           <div style="display:flex;gap:4px;">
             <button class="btn-pill btn-ghost btn-edit" style="height:24px;padding:0 7px;font-size:10.5px;">Edit</button>
-            <a class="btn-pill btn-primary" style="height:24px;padding:0 7px;font-size:10.5px;text-decoration:none;" href="${s.dataUrl}" download="tees-lab-shot-${s.num}.jpg">Save</a>
+            <button class="btn-pill btn-primary btn-save-shot" type="button" style="height:24px;padding:0 7px;font-size:10.5px;">Save</button>
           </div>
         </div>
       `;
@@ -3084,8 +3096,34 @@
         switchMainTab('darkroom');
         showToast(`Shot #${s.num} moved to Darkroom`);
       });
+      card.querySelector('.btn-save-shot').addEventListener('click', () => saveRollPhoto(s));
       grid.appendChild(card);
     });
+  }
+
+  async function saveRollPhoto(shot) {
+    const filename = `tees-lab-shot-${String(shot.num).padStart(2, '0')}.jpg`;
+    try {
+      const base64 = shot.dataUrl.split(',')[1];
+      const binary = atob(base64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      const blob = new Blob([bytes], { type: 'image/jpeg' });
+      const imageFile = new File([blob], filename, { type: 'image/jpeg' });
+      if (navigator.share && (!navigator.canShare || navigator.canShare({ files: [imageFile] }))) {
+        showToast('Choose “Save Image” in the share sheet to save to Photos');
+        await navigator.share({ files: [imageFile], title: `Tee's Lab shot #${shot.num}` });
+        return;
+      }
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url; link.download = filename; link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      showToast('Image downloaded — move it to Photos from Downloads');
+    } catch (error) {
+      if (error?.name === 'AbortError') { showToast('Save cancelled'); return; }
+      showToast('Could not save this photo');
+    }
   }
 
   /* ==========================================================================
