@@ -2913,13 +2913,44 @@
     try {
       if (!state.audioCtx) state.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       const ctx = state.audioCtx;
-      if (ctx.state === 'suspended') ctx.resume();
-      const now = ctx.currentTime, bs = ctx.sampleRate * 0.045, buf = ctx.createBuffer(1, bs, ctx.sampleRate), d = buf.getChannelData(0);
-      for (let i = 0; i < bs; i++) d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bs * 0.22));
-      const n = ctx.createBufferSource(); n.buffer = buf;
-      const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 1800;
-      const g = ctx.createGain(); g.gain.setValueAtTime(0.6, now); g.gain.exponentialRampToValueAtTime(0.01, now + 0.045);
-      n.connect(f); f.connect(g); g.connect(ctx.destination); n.start(now);
+      const play = () => {
+        const now = ctx.currentTime + 0.004;
+        const quietBody = ['leica-m6', 'contax-t2', 'olympus-mju', 'rollie-35'].includes(state.bodyId);
+        const level = quietBody ? 0.62 : 1;
+        const noiseClick = (offset, duration, frequency, q, peak) => {
+          const length = Math.max(1, Math.floor(ctx.sampleRate * duration));
+          const buffer = ctx.createBuffer(1, length, ctx.sampleRate);
+          const samples = buffer.getChannelData(0);
+          for (let i = 0; i < length; i++) samples[i] = Math.random() * 2 - 1;
+          const source = ctx.createBufferSource(); source.buffer = buffer;
+          const filter = ctx.createBiquadFilter(); filter.type = 'bandpass'; filter.frequency.value = frequency; filter.Q.value = q;
+          const gain = ctx.createGain(), start = now + offset;
+          gain.gain.setValueAtTime(0.0001, start);
+          gain.gain.exponentialRampToValueAtTime(Math.max(0.0002, peak * level), start + Math.min(0.0025, duration * 0.2));
+          gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+          source.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+          source.start(start); source.stop(start + duration + 0.005);
+        };
+
+        // A mechanical shutter has a sharp release, a heavier mirror/body clack,
+        // then a lighter return click. Separate bands give the clicks some body.
+        noiseClick(0, 0.016, 3400, 0.8, 0.16);
+        noiseClick(0.006, 0.058, 820, 0.55, 0.42);
+        noiseClick(0.018, 0.032, 2450, 1.1, 0.20);
+        noiseClick(0.092, 0.024, 2900, 0.9, 0.13);
+
+        const resonance = ctx.createOscillator(), bodyGain = ctx.createGain();
+        resonance.type = 'triangle';
+        resonance.frequency.setValueAtTime(142, now + 0.006);
+        resonance.frequency.exponentialRampToValueAtTime(96, now + 0.085);
+        bodyGain.gain.setValueAtTime(0.0001, now + 0.006);
+        bodyGain.gain.exponentialRampToValueAtTime(0.105 * level, now + 0.014);
+        bodyGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.09);
+        resonance.connect(bodyGain); bodyGain.connect(ctx.destination);
+        resonance.start(now + 0.006); resonance.stop(now + 0.095);
+      };
+      if (ctx.state === 'suspended') ctx.resume().then(play).catch(() => {});
+      else play();
     } catch (e) {}
   }
 
