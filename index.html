@@ -1355,7 +1355,7 @@
             <span style="font-size:10.5px;color:var(--text-secondary);" id="camSourceStatus">Simulated</span>
           </div>
           <div style="display:flex;gap:5px;">
-            <button class="btn-pill btn-ghost" id="btnStartCam" style="height:28px;font-size:11px;">📷 Start camera</button>
+            <button class="btn-pill btn-ghost" id="btnStartCam" style="height:28px;font-size:11px;">📷 Enable camera</button>
             <button class="btn-pill btn-ghost" id="btnFlipCam" style="height:28px;font-size:11px;">🔄</button>
             <button class="btn-pill btn-ghost" id="btnToggleSound" style="height:28px;font-size:11px;">🔊</button>
           </div>
@@ -2952,17 +2952,29 @@
   }
 
   async function startRealCamera() {
-    if (state.camStream) { state.camStream.getTracks().forEach(t => t.stop()); state.camStream = null; }
+    if (state.camStream?.getTracks().some(track => track.readyState === 'live')) {
+      document.getElementById('camSourceStatus').textContent = state.camFacing === 'environment' ? 'Rear camera' : 'Front camera';
+      return;
+    }
+    document.getElementById('camSourceStatus').textContent = 'Opening camera…';
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: state.camFacing, width: { ideal: 1280 }, height: { ideal: 960 } }, audio: false });
+      if (!document.getElementById('view-camera').classList.contains('active')) {
+        stream.getTracks().forEach(track => track.stop());
+        return;
+      }
       state.camStream = stream;
       camVideo.srcObject = stream;
       await camVideo.play();
       document.getElementById('camSourceStatus').textContent = state.camFacing === 'environment' ? 'Rear camera' : 'Front camera';
-      showToast('Live camera enabled');
+      document.getElementById('btnStartCam').textContent = '📷 Restart camera';
     } catch (e) {
-      document.getElementById('camSourceStatus').textContent = 'Simulated';
-      showToast('Using simulated viewfinder');
+      if (state.camStream) state.camStream.getTracks().forEach(track => track.stop());
+      state.camStream = null;
+      camVideo.srcObject = null;
+      document.getElementById('camSourceStatus').textContent = 'Camera unavailable';
+      document.getElementById('btnStartCam').textContent = '📷 Enable camera';
+      showToast('Allow camera access, then tap Enable camera');
     }
   }
 
@@ -2982,8 +2994,15 @@
         if (sr > tr) { sw = vh * tr; sx = (vw - sw) / 2; } else { sh = vw / tr; sy = (vh - sh) / 2; }
         tCtx.drawImage(camVideo, sx, sy, sw, sh, 0, 0, 420, 280);
       } else {
-        const s = SAMPLES.find(x => x.id === state.activeSampleId) || SAMPLES[0];
-        tCtx.drawImage(s.canvas, 35 + Math.sin(ts * 0.0006) * 16, 20 + Math.cos(ts * 0.0005) * 10, 820, 546, 0, 0, 420, 280);
+        tCtx.fillStyle = '#090a0c';
+        tCtx.fillRect(0, 0, 420, 280);
+        tCtx.fillStyle = '#a1aab8';
+        tCtx.textAlign = 'center';
+        tCtx.font = 'bold 15px sans-serif';
+        const status = document.getElementById('camSourceStatus').textContent;
+        tCtx.fillText(status === 'Opening camera…' ? 'Opening camera…' : 'Enable camera access to begin', 210, 145);
+        vfCtx.drawImage(tmp, 0, 0);
+        return;
       }
       const { phone, body, lens, film } = getSelectedGear();
       const proc = processFilmCanvas(tCtx.getImageData(0, 0, 420, 280), 420, 280, {
@@ -3000,25 +3019,29 @@
     if (state.camAnimId) { cancelAnimationFrame(state.camAnimId); state.camAnimId = null; }
   }
 
+  function stopRealCamera() {
+    if (state.camStream) state.camStream.getTracks().forEach(track => track.stop());
+    state.camStream = null;
+    camVideo.srcObject = null;
+    document.getElementById('camSourceStatus').textContent = 'Camera off';
+    document.getElementById('btnStartCam').textContent = '📷 Enable camera';
+  }
+
   function captureCameraShot() {
     if (state.camShotCount >= state.camMaxShots) { showToast('36-shot roll finished! Tap New roll'); return; }
+    if (!state.camStream || camVideo.readyState < 2) { showToast('Camera is not ready yet'); return; }
     const fl = document.getElementById('shutterFlash');
     fl.classList.add('active'); setTimeout(() => fl.classList.remove('active'), 110);
     playShutterSound();
 
-    const capW = (state.camStream && camVideo.videoWidth) ? Math.min(1280, camVideo.videoWidth) : 900;
+    const capW = Math.min(1280, camVideo.videoWidth);
     const capH = Math.round(capW * (2 / 3));
     const capC = document.createElement('canvas'); capC.width = capW; capC.height = capH;
     const cCtx = capC.getContext('2d');
-    if (state.camStream && camVideo.readyState >= 2) {
-      const vw = camVideo.videoWidth, vh = camVideo.videoHeight, tr = 3/2, sr = vw/vh;
-      let sx = 0, sy = 0, sw = vw, sh = vh;
-      if (sr > tr) { sw = vh * tr; sx = (vw - sw) / 2; } else { sh = vw / tr; sy = (vh - sh) / 2; }
-      cCtx.drawImage(camVideo, sx, sy, sw, sh, 0, 0, capW, capH);
-    } else {
-      const s = SAMPLES.find(x => x.id === state.activeSampleId) || SAMPLES[0];
-      cCtx.drawImage(s.canvas, 0, 0, capW, capH);
-    }
+    const vw = camVideo.videoWidth, vh = camVideo.videoHeight, tr = 3/2, sr = vw/vh;
+    let sx = 0, sy = 0, sw = vw, sh = vh;
+    if (sr > tr) { sw = vh * tr; sx = (vw - sw) / 2; } else { sh = vw / tr; sy = (vh - sh) / 2; }
+    cCtx.drawImage(camVideo, sx, sy, sw, sh, 0, 0, capW, capH);
     const { phone, body, lens, film } = getSelectedGear();
     const cf = document.getElementById('camSelFrame').value;
     const numStr = `${String(state.camShotCount + 1).padStart(2, '0')}A`;
@@ -3072,8 +3095,8 @@
   function switchMainTab(tabId) {
     document.querySelectorAll('.bnav-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tabId));
     document.querySelectorAll('.view-section').forEach(s => s.classList.toggle('active', s.id === `view-${tabId}`));
-    if (tabId === 'camera') { syncCameraDropdowns(); startCameraLoop(); }
-    else stopCameraLoop();
+    if (tabId === 'camera') { syncCameraDropdowns(); startCameraLoop(); startRealCamera(); }
+    else { stopCameraLoop(); if (state.camStream) stopRealCamera(); }
   }
 
   function switchDockTab(dockId) {
@@ -3256,10 +3279,10 @@
   contactSheet.addEventListener('click', e => { if (e.target === contactSheet) contactSheet.classList.remove('open'); });
 
   // Camera Events
-  document.getElementById('btnStartCam').addEventListener('click', startRealCamera);
+  document.getElementById('btnStartCam').addEventListener('click', () => { if (state.camStream) stopRealCamera(); startRealCamera(); });
   document.getElementById('btnFlipCam').addEventListener('click', () => {
     state.camFacing = state.camFacing === 'environment' ? 'user' : 'environment';
-    if (state.camStream) startRealCamera();
+    if (state.camStream) { stopRealCamera(); startRealCamera(); }
     else showToast(state.camFacing === 'environment' ? 'Rear camera' : 'Front camera');
   });
   document.getElementById('btnToggleSound').addEventListener('click', e => {
