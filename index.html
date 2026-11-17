@@ -109,13 +109,6 @@
       border-right: 1px solid #181c24;
       padding-top: env(safe-area-inset-top);
     }
-    @media (display-mode: standalone) {
-      html, body { height: 100lvh; }
-      .app-shell { height: 100lvh; max-height: 100lvh; }
-    }
-    html.home-screen-app, html.home-screen-app body { height: 100lvh; }
-    .home-screen-app .app-shell { height: 100lvh; max-height: 100lvh; }
-
     /* 1. MOBILE TOPBAR */
     .topbar {
       min-height: 64px;
@@ -273,7 +266,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 38px 8px 40px;
+      padding: 12px 8px 14px;
       overflow: hidden;
       user-select: none;
     }
@@ -602,7 +595,7 @@
       .topbar { min-height: 60px; }
       .dock-body { height: clamp(200px, 30dvh, 225px); }
       .dock-tab { height: 34px; }
-      .stage-area { padding-top: 34px; padding-bottom: 36px; }
+      .stage-area { padding-top: 10px; padding-bottom: 12px; }
       .dock-panel { gap: 6px; }
     }
     @media (max-width: 380px) {
@@ -1486,10 +1479,6 @@
 <script>
 (async () => {
   'use strict';
-
-  if (window.matchMedia?.('(display-mode: standalone)').matches || window.navigator.standalone === true) {
-    document.documentElement.classList.add('home-screen-app');
-  }
 
   /* ==========================================================================
      1. CATALOG DATA (CONCISE MOBILE LABELS + FULL COLOR SCIENCE)
