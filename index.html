@@ -109,6 +109,12 @@
       border-right: 1px solid #181c24;
       padding-top: env(safe-area-inset-top);
     }
+    @media (display-mode: standalone) {
+      html, body { height: 100lvh; }
+      .app-shell { height: 100lvh; max-height: 100lvh; }
+    }
+    html.home-screen-app, html.home-screen-app body { height: 100lvh; }
+    .home-screen-app .app-shell { height: 100lvh; max-height: 100lvh; }
 
     /* 1. MOBILE TOPBAR */
     .topbar {
@@ -1480,6 +1486,10 @@
 <script>
 (async () => {
   'use strict';
+
+  if (window.matchMedia?.('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+    document.documentElement.classList.add('home-screen-app');
+  }
 
   /* ==========================================================================
      1. CATALOG DATA (CONCISE MOBILE LABELS + FULL COLOR SCIENCE)
