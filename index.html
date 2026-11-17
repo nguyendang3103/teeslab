@@ -2574,7 +2574,9 @@
     state.fullSourceCanvas = srcCanvas;
     state.exif = exifData;
 
-    const maxDim = 860;
+    // Keep interactive pixel processing lighter on phones; export still uses
+    // state.fullSourceCanvas at its full (up to 2400px) source size.
+    const maxDim = window.matchMedia('(max-width: 700px)').matches ? 680 : 860;
     const scale = Math.min(1, maxDim / Math.max(srcCanvas.width, srcCanvas.height));
     const pw = Math.max(100, Math.round(srcCanvas.width * scale));
     const ph = Math.max(100, Math.round(srcCanvas.height * scale));
@@ -2602,7 +2604,6 @@
 
   function renderPreview() {
     if (!state.previewSourceData) return;
-    const t0 = performance.now();
     const { phone, body, lens, film } = getSelectedGear();
 
     const outCanvas = processFilmCanvas(
