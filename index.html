@@ -940,6 +940,38 @@
       font-size: 10.5px;
       padding: 5px 4px;
     }
+    .cam-controls {
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: var(--bg-card);
+      overflow: hidden;
+    }
+    .cam-controls summary {
+      min-height: 32px;
+      padding: 6px 9px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      cursor: pointer;
+      color: var(--text-primary);
+      font-weight: 700;
+      font-size: 11px;
+      list-style: none;
+    }
+    .cam-controls summary::-webkit-details-marker { display: none; }
+    .cam-controls summary span { color: var(--text-muted); font-size: 9px; font-weight: 600; }
+    .cam-control-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 7px;
+      padding: 0 8px 8px;
+    }
+    .cam-control { min-width: 0; display: flex; flex-direction: column; gap: 3px; color: var(--text-secondary); font-size: 9px; }
+    .cam-control select { width: 100%; height: 29px; padding: 3px 6px; font-size: 10px; }
+    .cam-control input[type="range"] { width: 100%; height: 29px; margin: 0; accent-color: var(--brass); }
+    .cam-control input:disabled, .cam-control select:disabled { opacity: .48; }
+    .cam-controls-note { grid-column: 1 / -1; color: var(--text-muted); font-size: 9px; line-height: 1.35; }
 
     .cam-shutter-deck {
       display: flex;
@@ -1394,6 +1426,17 @@
             <option value="polaroid">Polaroid</option>
           </select>
         </div>
+
+        <details class="cam-controls">
+          <summary>⚙ Exposure &amp; camera controls <span id="camControlSupport">Connect camera for hardware controls</span></summary>
+          <div class="cam-control-grid">
+            <label class="cam-control">Exposure compensation <input id="camExposureControl" type="range" min="-2" max="2" step="0.1" value="0" /><span id="camExposureValue">0 EV · app</span></label>
+            <label class="cam-control">ISO <select class="dark-select" id="camIsoControl"><option value="auto">Auto</option></select><span id="camIsoMode">Hardware if supported</span></label>
+            <label class="cam-control">Shutter speed <select class="dark-select" id="camShutterControl"><option value="auto">Auto</option></select><span id="camShutterMode">Hardware if supported</span></label>
+            <label class="cam-control">White balance <select class="dark-select" id="camWhiteBalanceControl"><option value="auto">Auto</option><option value="daylight">Daylight</option><option value="cloudy">Cloudy</option><option value="shade">Shade</option><option value="tungsten">Tungsten</option><option value="fluorescent">Fluorescent</option></select><span id="camWhiteBalanceMode">App simulation until camera connects</span></label>
+            <div class="cam-controls-note">Aperture is fixed by the phone’s active camera module; the film lens selector only changes the render. ISO and shutter are enabled only when the phone/browser exposes hardware controls. Exposure and white balance fall back to the saved film render.</div>
+          </div>
+        </details>
 
         <div class="cam-shutter-deck">
           <button class="btn-pill btn-ghost" id="btnOpenContactSheet" style="height:38px;">
@@ -2351,6 +2394,11 @@
     camFacing: 'environment',
     camAnimId: null,
     camSound: true,
+    camExposureEV: 0,
+    camIso: 'auto',
+    camShutter: 'auto',
+    camWhiteBalance: 'auto',
+    camTrackCapabilities: null,
     camShotCount: 0,
     camMaxShots: 36,
     camRollId: '',
@@ -2438,7 +2486,7 @@
       transaction.onabort = () => reject(transaction.error || new Error('Camera roll clear was interrupted'));
     });
   }
-  const SYNC_FIELDS = ['phoneId', 'bodyId', 'lensId', 'filmId', 'filmBrandFilter', 'strength', 'exposure', 'warmth', 'grain', 'halation', 'bloom', 'vignette', 'leakType', 'leakAmt', 'frameType', 'dateStamp', 'camFacing', 'camSound'];
+  const SYNC_FIELDS = ['phoneId', 'bodyId', 'lensId', 'filmId', 'filmBrandFilter', 'strength', 'exposure', 'warmth', 'grain', 'halation', 'bloom', 'vignette', 'leakType', 'leakAmt', 'frameType', 'dateStamp', 'camFacing', 'camSound', 'camExposureEV', 'camIso', 'camShutter', 'camWhiteBalance'];
   function getGhConfig() {
     try { return JSON.parse(localStorage.getItem(GH_CONFIG_KEY)) || { token: '', gistId: '', user: '' }; }
     catch (e) { return { token: '', gistId: '', user: '' }; }
@@ -3094,8 +3142,107 @@
     fill('camSelFilm', FILM_STOCKS, state.filmId);
     const { body, film } = getSelectedGear();
     document.getElementById('camGearSummary').textContent = `${body.name} • ${film.name}`;
-    document.getElementById('vfHudLeft').textContent = `f/2.8 • 1/125s • ISO ${film.iso}`;
+    updateCameraHud();
     document.getElementById('camRollCounter').textContent = `${String(Math.min(state.camShotCount + 1, state.camMaxShots)).padStart(2, '0')} / ${state.camMaxShots}`;
+  }
+
+  function cameraTrack() { return state.camStream?.getVideoTracks?.()[0] || null; }
+  function formatCameraShutter(seconds) {
+    if (!Number.isFinite(seconds) || seconds <= 0) return 'Auto';
+    return seconds >= 1 ? `${seconds.toFixed(1)}s` : `1/${Math.round(1 / seconds)}s`;
+  }
+  function updateCameraHud() {
+    const settings = cameraTrack()?.getSettings?.() || {};
+    const shutter = settings.exposureTime ? formatCameraShutter(settings.exposureTime) : (state.camShutter === 'auto' ? 'Auto' : `1/${state.camShutter}s`);
+    const iso = Number.isFinite(settings.iso) ? Math.round(settings.iso) : (state.camIso === 'auto' ? 'Auto' : state.camIso);
+    document.getElementById('vfHudLeft').textContent = `Aperture fixed • ${shutter} • ISO ${iso}`;
+  }
+  function cameraWhiteBalanceShift() {
+    const kelvin = { daylight: 5600, cloudy: 6800, shade: 7800, tungsten: 3200, fluorescent: 4300 }[state.camWhiteBalance];
+    return kelvin ? Math.round((kelvin - 5600) / 260) : 0;
+  }
+  function cameraWhiteBalanceUsesHardware() {
+    const capabilities = state.camTrackCapabilities;
+    if (!capabilities) return false;
+    if (state.camWhiteBalance === 'auto') return capabilities.whiteBalanceMode?.includes('continuous') || false;
+    return !!capabilities.colorTemperature && (!capabilities.whiteBalanceMode || capabilities.whiteBalanceMode.includes('manual'));
+  }
+  let cameraSettingsTimer = 0;
+  function scheduleCameraSettingsApply() {
+    window.clearTimeout(cameraSettingsTimer);
+    cameraSettingsTimer = window.setTimeout(() => applyCameraHardwareSettings(), 140);
+  }
+  function populateCameraHardwareControls() {
+    const track = cameraTrack();
+    let capabilities = null;
+    try { capabilities = track?.getCapabilities?.() || null; } catch (error) {}
+    state.camTrackCapabilities = capabilities;
+    const iso = document.getElementById('camIsoControl');
+    const shutter = document.getElementById('camShutterControl');
+    const exposure = document.getElementById('camExposureControl');
+    const range = capabilities?.iso;
+    iso.innerHTML = '<option value="auto">Auto</option>';
+    if (range && Number.isFinite(range.min) && Number.isFinite(range.max)) {
+      [50, 100, 200, 400, 800, 1600, 3200, 6400].filter(value => value >= range.min && value <= range.max).forEach(value => iso.add(new Option(String(value), String(value))));
+      if (state.camIso !== 'auto' && ![...iso.options].some(option => option.value === state.camIso)) state.camIso = 'auto';
+    } else state.camIso = 'auto';
+    iso.value = state.camIso;
+    iso.disabled = !range || !track;
+
+    const shutterRange = capabilities?.exposureTime;
+    shutter.innerHTML = '<option value="auto">Auto</option>';
+    if (shutterRange && Number.isFinite(shutterRange.min) && Number.isFinite(shutterRange.max)) {
+      [30, 60, 125, 250, 500, 1000, 2000].filter(speed => 1 / speed >= shutterRange.min && 1 / speed <= shutterRange.max).forEach(speed => shutter.add(new Option(`1/${speed}s`, String(speed))));
+      if (state.camShutter !== 'auto' && ![...shutter.options].some(option => option.value === state.camShutter)) state.camShutter = 'auto';
+    } else state.camShutter = 'auto';
+    shutter.value = state.camShutter;
+    shutter.disabled = !shutterRange || !track;
+
+    const exposureRange = capabilities?.exposureCompensation;
+    if (exposureRange && Number.isFinite(exposureRange.min) && Number.isFinite(exposureRange.max)) {
+      exposure.min = Math.max(-4, exposureRange.min);
+      exposure.max = Math.min(4, exposureRange.max);
+      exposure.step = exposureRange.step > 0 ? exposureRange.step : 0.1;
+    } else { exposure.min = -2; exposure.max = 2; exposure.step = 0.1; }
+    state.camExposureEV = Math.max(Number(exposure.min), Math.min(Number(exposure.max), Number(state.camExposureEV) || 0));
+    exposure.value = state.camExposureEV;
+    document.getElementById('camExposureValue').textContent = `${state.camExposureEV > 0 ? '+' : ''}${state.camExposureEV.toFixed(1)} EV · ${exposureRange ? 'camera' : 'app'}`;
+    document.getElementById('camIsoMode').textContent = range ? 'Camera sensor' : 'Not exposed by camera';
+    document.getElementById('camShutterMode').textContent = shutterRange ? 'Camera sensor' : 'Not exposed by camera';
+
+    const wb = document.getElementById('camWhiteBalanceControl');
+    const canSetWb = !!track && !!capabilities?.colorTemperature;
+    wb.value = state.camWhiteBalance;
+    document.getElementById('camWhiteBalanceMode').textContent = canSetWb && cameraWhiteBalanceUsesHardware() ? 'Camera sensor' : 'Film render simulation';
+    document.getElementById('camControlSupport').textContent = track
+      ? `${[range && 'ISO', shutterRange && 'shutter', exposureRange && 'EV', canSetWb && 'WB'].filter(Boolean).join(' · ') || 'App simulation only'}`
+      : 'App simulation · camera off';
+    updateCameraHud();
+  }
+  async function applyCameraHardwareSettings() {
+    const track = cameraTrack(), capabilities = state.camTrackCapabilities;
+    if (!track || !capabilities || !track.applyConstraints) { updateCameraHud(); return; }
+    const advanced = {};
+    if (capabilities.exposureCompensation) advanced.exposureCompensation = Number(state.camExposureEV);
+    if (capabilities.iso && state.camIso !== 'auto') advanced.iso = Number(state.camIso);
+    if (capabilities.exposureMode?.length) advanced.exposureMode = state.camShutter === 'auto' ? 'continuous' : 'manual';
+    if (capabilities.exposureTime && state.camShutter !== 'auto') advanced.exposureTime = 1 / Number(state.camShutter);
+    if (state.camWhiteBalance === 'auto') {
+      if (capabilities.whiteBalanceMode?.includes('continuous')) advanced.whiteBalanceMode = 'continuous';
+    } else if (capabilities.colorTemperature && (!capabilities.whiteBalanceMode || capabilities.whiteBalanceMode.includes('manual'))) {
+      if (capabilities.whiteBalanceMode?.includes('manual')) advanced.whiteBalanceMode = 'manual';
+      advanced.colorTemperature = { daylight: 5600, cloudy: 6800, shade: 7800, tungsten: 3200, fluorescent: 4300 }[state.camWhiteBalance];
+    }
+    if (Object.keys(advanced).length) {
+      try { await track.applyConstraints({ advanced: [advanced] }); }
+      catch (error) {
+        // Try independently so one unsupported setting does not block the rest.
+        for (const [key, value] of Object.entries(advanced)) {
+          try { await track.applyConstraints({ advanced: [{ [key]: value }] }); } catch (ignored) {}
+        }
+      }
+    }
+    populateCameraHardwareControls();
   }
 
   function selectCameraBody(bodyId) {
@@ -3128,6 +3275,8 @@
       state.camStream = stream;
       camVideo.srcObject = stream;
       await camVideo.play();
+      populateCameraHardwareControls();
+      await applyCameraHardwareSettings();
       document.getElementById('camSourceStatus').textContent = state.camFacing === 'environment' ? 'Rear camera' : 'Front camera';
       document.getElementById('btnStartCam').textContent = '📷 Restart camera';
     } catch (e) {
@@ -3136,6 +3285,7 @@
       camVideo.srcObject = null;
       document.getElementById('camSourceStatus').textContent = 'Camera unavailable';
       document.getElementById('btnStartCam').textContent = '📷 Enable camera';
+      populateCameraHardwareControls();
       showToast('Allow camera access, then tap Enable camera');
     }
   }
@@ -3169,7 +3319,7 @@
       const { phone, body, lens, film } = getSelectedGear();
       const version = ++cameraPreviewFrameVersion;
       processFilmImage(tCtx.getImageData(0, 0, 420, 280), 420, 280, {
-        phone, body, lens, film, strength: 100, exposureEV: state.exposure / 100, warmth: state.warmth,
+        phone, body, lens, film, strength: 100, exposureEV: state.exposure / 100 + (state.camTrackCapabilities?.exposureCompensation ? 0 : state.camExposureEV), warmth: state.warmth + (cameraWhiteBalanceUsesHardware() ? 0 : cameraWhiteBalanceShift()),
         grainAmt: Math.round(film.grainBase * 0.65), halationAmt: Math.round(film.halationBase * 0.6),
         bloomAmt: lens.bloomBase, vignetteAmt: lens.vignetteBase, leakType: 'none', leakAmt: 0, frameType: 'none', dateStampText: '', frameNumberStr: ''
       }, { output: 'bitmap', coalesceKey: 'camera-preview' }).then(output => {
@@ -3188,9 +3338,11 @@
   function stopRealCamera() {
     if (state.camStream) state.camStream.getTracks().forEach(track => track.stop());
     state.camStream = null;
+    state.camTrackCapabilities = null;
     camVideo.srcObject = null;
     document.getElementById('camSourceStatus').textContent = 'Camera off';
     document.getElementById('btnStartCam').textContent = '📷 Enable camera';
+    populateCameraHardwareControls();
   }
 
   function pauseCameraWhenHidden() {
@@ -3242,7 +3394,7 @@
     const cf = document.getElementById('camSelFrame').value;
     const numStr = `${String(shotNumber).padStart(2, '0')}A`;
     const processed = await processFilmImage(cCtx.getImageData(0, 0, capW, capH), capW, capH, {
-      phone, body, lens, film, strength: 100, exposureEV: state.exposure / 100, warmth: state.warmth,
+      phone, body, lens, film, strength: 100, exposureEV: state.exposure / 100 + (state.camTrackCapabilities?.exposureCompensation ? 0 : state.camExposureEV), warmth: state.warmth + (cameraWhiteBalanceUsesHardware() ? 0 : cameraWhiteBalanceShift()),
       grainAmt: film.grainBase, halationAmt: film.halationBase, bloomAmt: lens.bloomBase, vignetteAmt: lens.vignetteBase,
       leakType: state.leakType, leakAmt: state.leakAmt, frameType: cf, dateStampText: formatDateStamp(), frameNumberStr: numStr
     }, { output: 'blob', quality: 0.92 });
@@ -3542,6 +3694,15 @@
   contactSheet.addEventListener('click', e => { if (e.target === contactSheet) contactSheet.classList.remove('open'); });
 
   // Camera Events
+  const camExposureControl = document.getElementById('camExposureControl');
+  camExposureControl.addEventListener('input', e => {
+    state.camExposureEV = Number(e.target.value);
+    document.getElementById('camExposureValue').textContent = `${state.camExposureEV > 0 ? '+' : ''}${state.camExposureEV.toFixed(1)} EV · ${state.camTrackCapabilities?.exposureCompensation ? 'camera' : 'app'}`;
+    scheduleCameraSettingsApply();
+  });
+  document.getElementById('camIsoControl').addEventListener('change', e => { state.camIso = e.target.value; scheduleCameraSettingsApply(); });
+  document.getElementById('camShutterControl').addEventListener('change', e => { state.camShutter = e.target.value; scheduleCameraSettingsApply(); });
+  document.getElementById('camWhiteBalanceControl').addEventListener('change', e => { state.camWhiteBalance = e.target.value; scheduleCameraSettingsApply(); renderPreview(); });
   document.getElementById('btnStartCam').addEventListener('click', () => { if (state.camStream) stopRealCamera(); startRealCamera(); });
   document.getElementById('btnFlipCam').addEventListener('click', () => {
     state.camFacing = state.camFacing === 'environment' ? 'user' : 'environment';
@@ -3598,6 +3759,7 @@
   renderFrameAndRecipes();
   renderContactSheet();
   cameraRollReady = restoreCameraRoll();
+  populateCameraHardwareControls();
   renderGuideAccordion();
   loadSourceCanvas(SAMPLES[0].canvas, null);
   updateSyncButton();
