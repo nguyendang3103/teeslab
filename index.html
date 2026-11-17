@@ -1495,7 +1495,6 @@
     { id: 'leica-m6', name: 'Leica M6', meta: 'Deep 3D rendering', defaultLensId: 'leica-summilux-35', blackLift: 0.015, contrast: 1.13, highlightRolloff: 0.14, bodyWarmth: 1, bodyTint: 0 },
     { id: 'contax-t2', name: 'Contax T2', meta: 'Smooth skin & bright', defaultLensId: 'contax-t2-sonnar', blackLift: 0.045, contrast: 0.98, highlightRolloff: 0.25, bodyWarmth: 3, bodyTint: 2 },
     { id: 'hasselblad-500', name: 'Hasselblad', meta: 'Gentle tonal roll-off', defaultLensId: 'hasselblad-planar-80', blackLift: 0.02, contrast: 0.95, highlightRolloff: 0.28, bodyWarmth: 0, bodyTint: 0 },
-    { id: 'olympus-mju', name: 'Olympus mju', meta: '90s street mood', defaultLensId: 'olympus-mju-35', blackLift: 0.04, contrast: 1.12, highlightRolloff: 0.10, bodyWarmth: 2, bodyTint: -1 },
     { id: 'nikon-f2', name: 'Nikon F2', meta: 'Classic documentary', defaultLensId: 'nikon-50-18', blackLift: 0.025, contrast: 1.10, highlightRolloff: 0.16, bodyWarmth: 0, bodyTint: 0 },
     { id: 'nikon-fm2', name: 'Nikon FM2', meta: 'Crisp everyday 35mm', defaultLensId: 'nikon-50-18', blackLift: 0.03, contrast: 1.08, highlightRolloff: 0.18, bodyWarmth: 0, bodyTint: 0 },
     { id: 'canon-ae1', name: 'Canon AE-1', meta: 'Warm 70s color', defaultLensId: 'canon-fd-50', blackLift: 0.04, contrast: 1.02, highlightRolloff: 0.21, bodyWarmth: 2, bodyTint: 1 },
@@ -1533,8 +1532,7 @@
     { id: 'fuji-xpan-45', name: 'Fujinon 45mm f/4', meta: 'Fuji TX-1 / XPan • panoramic standard', coatingWarmth: 0, coatingTint: -1, bloomBase: 16, vignetteBase: 18, chromaticAb: 0.2, edgeSoft: 0.02 },
     { id: 'fuji-xpan-90', name: 'Fujinon 90mm f/4', meta: 'Fuji TX-1 / XPan • panoramic portrait', coatingWarmth: 1, coatingTint: 0, bloomBase: 20, vignetteBase: 17, chromaticAb: 0.2, edgeSoft: 0.02 },
     { id: 'contax-t2-sonnar', name: 'Carl Zeiss Sonnar 38mm f/2.8', meta: 'Contax T2 • built-in autofocus lens', coatingWarmth: 1, coatingTint: 0, bloomBase: 24, vignetteBase: 19, chromaticAb: 0.2, edgeSoft: 0.025 },
-    { id: 'rollei-sonnar-40', name: 'Carl Zeiss Sonnar 40mm f/2.8 HFT', meta: 'Rollei 35 S • built-in lens', coatingWarmth: 2, coatingTint: 0, bloomBase: 24, vignetteBase: 22, chromaticAb: 0.25, edgeSoft: 0.03 },
-    { id: 'olympus-mju-35', name: 'Zuiko 35mm f/2.8', meta: 'Olympus mju • built-in lens', coatingWarmth: 1, coatingTint: 0, bloomBase: 18, vignetteBase: 20, chromaticAb: 0.25, edgeSoft: 0.025 }
+    { id: 'rollei-sonnar-40', name: 'Carl Zeiss Sonnar 40mm f/2.8 HFT', meta: 'Rollei 35 S • built-in lens', coatingWarmth: 2, coatingTint: 0, bloomBase: 24, vignetteBase: 22, chromaticAb: 0.25, edgeSoft: 0.03 }
   ];
 
   const FILM_STOCKS = [
@@ -1800,7 +1798,7 @@
     const recsByScene = {
       night: [
         { bodyId: 'leica-m6', lensId: 'voigtlander-40', filmId: 'cinestill-800t', title: 'CineStill 800T + Leica M6', reason: 'Creates red halation around night lights with cinematic teal shadows.' },
-        { bodyId: 'olympus-mju', lensId: 'leitz-summicron-35', filmId: 'fuji-natura-1600', title: 'Fuji Natura 1600 + mju-II', reason: 'Preserves warm streetlights with expressive film grain.' },
+        { bodyId: 'contax-t2', lensId: 'contax-t2-sonnar', filmId: 'fuji-natura-1600', title: 'Fuji Natura 1600 + Contax T2', reason: 'Preserves warm streetlights with expressive film grain.' },
         { bodyId: 'leica-m6', lensId: 'zeiss-sonnar-38', filmId: 'kodak-trix-400', title: 'Kodak Tri-X 400 + Zeiss 38', reason: 'Turns night light into gritty documentary black and white.' }
       ],
       nature: [
@@ -2381,6 +2379,13 @@
     SYNC_FIELDS.forEach(key => {
       if (Object.prototype.hasOwnProperty.call(settings, key)) state[key] = settings[key];
     });
+    if (state.bodyId === 'olympus-mju') {
+      state.bodyId = 'contax-t2'; state.lensId = 'contax-t2-sonnar';
+    }
+    if (!CAMERA_BODIES.some(item => item.id === state.bodyId)) state.bodyId = 'contax-t2';
+    if (!CAMERA_LENSES.some(item => item.id === state.lensId)) {
+      state.lensId = CAMERA_BODIES.find(item => item.id === state.bodyId)?.defaultLensId || CAMERA_LENSES[0].id;
+    }
     if (Array.isArray(snapshot.recipes)) state.recipes = snapshot.recipes;
     try {
       localStorage.setItem(APP_STATE_KEY, JSON.stringify(snapshot));
@@ -2749,10 +2754,15 @@
   }
 
   function applyGearPreset(bodyId, lensId, filmId) {
+    if (bodyId === 'olympus-mju') { bodyId = 'contax-t2'; lensId = 'contax-t2-sonnar'; }
+    const body = CAMERA_BODIES.find(item => item.id === bodyId) || CAMERA_BODIES[0];
+    const lens = CAMERA_LENSES.find(item => item.id === lensId);
+    bodyId = body.id;
+    lensId = lens ? lens.id : (body.defaultLensId || CAMERA_LENSES[0].id);
     state.bodyId = bodyId; state.lensId = lensId; state.filmId = filmId;
-    const lens = CAMERA_LENSES.find(l => l.id === lensId);
+    const selectedLens = CAMERA_LENSES.find(l => l.id === lensId);
     const film = FILM_STOCKS.find(f => f.id === filmId);
-    if (lens) { state.bloom = lens.bloomBase; state.vignette = lens.vignetteBase; }
+    if (selectedLens) { state.bloom = selectedLens.bloomBase; state.vignette = selectedLens.vignetteBase; }
     if (film) { state.grain = film.grainBase; state.halation = film.halationBase; }
     renderTweaksDock(); renderGearRack(); syncCameraDropdowns(); renderPreview();
   }
@@ -2909,6 +2919,23 @@
   const vfCanvas = document.getElementById('cameraViewfinderCanvas');
   const camVideo = document.getElementById('camVideo');
 
+  // Distinct shutter timbres modeled around each camera's mechanism:
+  // leaf shutters are short/snappy, rangefinder curtains lack mirror slap,
+  // while SLRs and the Hasselblad add a heavier body/mirror impact.
+  const SHUTTER_SOUND_PROFILES = {
+    'rollie-35': { level: 1.0, clickFreq: 3300, clickLevel: 0.18, impactDelay: 0.004, impactDuration: 0.038, impactFreq: 1450, impactLevel: 0.30, curtainDelay: 0.014, curtainFreq: 2550, curtainLevel: 0.16, returnDelay: 0.070, returnFreq: 3100, returnLevel: 0.12, bodyFreq: 168, bodyLevel: 0.07, bodyTail: 0.075 },
+    'fuji-tx1': { level: 0.98, clickFreq: 3700, clickLevel: 0.20, impactDelay: 0.003, impactDuration: 0.032, impactFreq: 1750, impactLevel: 0.26, curtainDelay: 0.012, curtainFreq: 2850, curtainLevel: 0.17, returnDelay: 0.062, returnFreq: 3400, returnLevel: 0.10, bodyFreq: 185, bodyLevel: 0.055, bodyTail: 0.065 },
+    'leica-m6': { level: 1.02, clickFreq: 3100, clickLevel: 0.15, impactDelay: 0.008, impactDuration: 0.052, impactFreq: 680, impactLevel: 0.31, curtainDelay: 0.030, curtainFreq: 2050, curtainLevel: 0.20, returnDelay: 0.098, returnFreq: 2750, returnLevel: 0.11, bodyFreq: 118, bodyLevel: 0.075, bodyTail: 0.11 },
+    'contax-t2': { level: 0.98, clickFreq: 3900, clickLevel: 0.18, impactDelay: 0.003, impactDuration: 0.034, impactFreq: 1950, impactLevel: 0.25, curtainDelay: 0.017, curtainFreq: 3200, curtainLevel: 0.18, returnDelay: 0.075, returnFreq: 3600, returnLevel: 0.09, bodyFreq: 205, bodyLevel: 0.05, bodyTail: 0.062 },
+    'hasselblad-500': { level: 1.42, clickFreq: 2800, clickLevel: 0.19, impactDelay: 0.004, impactDuration: 0.075, impactFreq: 560, impactLevel: 0.48, curtainDelay: 0.022, curtainFreq: 2250, curtainLevel: 0.23, returnDelay: 0.115, returnFreq: 2450, returnLevel: 0.22, bodyFreq: 104, bodyLevel: 0.15, bodyTail: 0.17 },
+    'nikon-f2': { level: 1.34, clickFreq: 3050, clickLevel: 0.18, impactDelay: 0.004, impactDuration: 0.067, impactFreq: 720, impactLevel: 0.48, curtainDelay: 0.020, curtainFreq: 2380, curtainLevel: 0.25, returnDelay: 0.096, returnFreq: 2950, returnLevel: 0.19, bodyFreq: 126, bodyLevel: 0.13, bodyTail: 0.14 },
+    'nikon-fm2': { level: 1.30, clickFreq: 3900, clickLevel: 0.22, impactDelay: 0.003, impactDuration: 0.048, impactFreq: 1120, impactLevel: 0.40, curtainDelay: 0.014, curtainFreq: 3500, curtainLevel: 0.31, returnDelay: 0.073, returnFreq: 3800, returnLevel: 0.16, bodyFreq: 154, bodyLevel: 0.10, bodyTail: 0.10 },
+    'canon-ae1': { level: 1.22, clickFreq: 3250, clickLevel: 0.18, impactDelay: 0.006, impactDuration: 0.060, impactFreq: 760, impactLevel: 0.42, curtainDelay: 0.024, curtainFreq: 2350, curtainLevel: 0.22, returnDelay: 0.102, returnFreq: 2950, returnLevel: 0.14, bodyFreq: 112, bodyLevel: 0.12, bodyTail: 0.14 },
+    'pentax-k1000': { level: 1.20, clickFreq: 3000, clickLevel: 0.19, impactDelay: 0.004, impactDuration: 0.065, impactFreq: 640, impactLevel: 0.45, curtainDelay: 0.018, curtainFreq: 2250, curtainLevel: 0.24, returnDelay: 0.094, returnFreq: 2700, returnLevel: 0.18, bodyFreq: 108, bodyLevel: 0.13, bodyTail: 0.14 },
+    'olympus-om1': { level: 1.08, clickFreq: 3500, clickLevel: 0.18, impactDelay: 0.004, impactDuration: 0.052, impactFreq: 880, impactLevel: 0.34, curtainDelay: 0.016, curtainFreq: 2750, curtainLevel: 0.20, returnDelay: 0.082, returnFreq: 3250, returnLevel: 0.14, bodyFreq: 145, bodyLevel: 0.09, bodyTail: 0.105 },
+    'minolta-srt101': { level: 1.24, clickFreq: 2950, clickLevel: 0.17, impactDelay: 0.006, impactDuration: 0.069, impactFreq: 620, impactLevel: 0.46, curtainDelay: 0.026, curtainFreq: 2200, curtainLevel: 0.24, returnDelay: 0.108, returnFreq: 2800, returnLevel: 0.17, bodyFreq: 110, bodyLevel: 0.14, bodyTail: 0.15 }
+  };
+
   function playShutterSound() {
     if (!state.camSound) return;
     try {
@@ -2916,8 +2943,7 @@
       const ctx = state.audioCtx;
       const play = () => {
         const now = ctx.currentTime + 0.004;
-        const quietBody = ['leica-m6', 'contax-t2', 'olympus-mju', 'rollie-35'].includes(state.bodyId);
-        const level = quietBody ? 0.86 : 1.45;
+        const sound = SHUTTER_SOUND_PROFILES[state.bodyId] || SHUTTER_SOUND_PROFILES['nikon-fm2'];
         const noiseClick = (offset, duration, frequency, q, peak) => {
           const length = Math.max(1, Math.floor(ctx.sampleRate * duration));
           const buffer = ctx.createBuffer(1, length, ctx.sampleRate);
@@ -2927,7 +2953,7 @@
           const filter = ctx.createBiquadFilter(); filter.type = 'bandpass'; filter.frequency.value = frequency; filter.Q.value = q;
           const gain = ctx.createGain(), start = now + offset;
           gain.gain.setValueAtTime(0.0001, start);
-          gain.gain.exponentialRampToValueAtTime(Math.max(0.0002, peak * level), start + Math.min(0.0025, duration * 0.2));
+          gain.gain.exponentialRampToValueAtTime(Math.max(0.0002, peak * sound.level), start + Math.min(0.0025, duration * 0.2));
           gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
           source.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
           source.start(start); source.stop(start + duration + 0.005);
@@ -2935,20 +2961,20 @@
 
         // A mechanical shutter has a sharp release, a heavier mirror/body clack,
         // then a lighter return click. Separate bands give the clicks some body.
-        noiseClick(0, 0.016, 3400, 0.8, 0.16);
-        noiseClick(0.006, 0.058, 820, 0.55, 0.42);
-        noiseClick(0.018, 0.032, 2450, 1.1, 0.20);
-        noiseClick(0.092, 0.024, 2900, 0.9, 0.13);
+        noiseClick(0, 0.016, sound.clickFreq, 0.8, sound.clickLevel);
+        noiseClick(sound.impactDelay, sound.impactDuration, sound.impactFreq, 0.55, sound.impactLevel);
+        noiseClick(sound.curtainDelay, 0.032, sound.curtainFreq, 1.1, sound.curtainLevel);
+        noiseClick(sound.returnDelay, 0.024, sound.returnFreq, 0.9, sound.returnLevel);
 
         const resonance = ctx.createOscillator(), bodyGain = ctx.createGain();
         resonance.type = 'triangle';
-        resonance.frequency.setValueAtTime(142, now + 0.006);
-        resonance.frequency.exponentialRampToValueAtTime(96, now + 0.085);
+        resonance.frequency.setValueAtTime(sound.bodyFreq, now + 0.006);
+        resonance.frequency.exponentialRampToValueAtTime(sound.bodyFreq * 0.68, now + sound.bodyTail);
         bodyGain.gain.setValueAtTime(0.0001, now + 0.006);
-        bodyGain.gain.exponentialRampToValueAtTime(0.13 * level, now + 0.014);
-        bodyGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.09);
+        bodyGain.gain.exponentialRampToValueAtTime(sound.bodyLevel * sound.level, now + 0.014);
+        bodyGain.gain.exponentialRampToValueAtTime(0.0001, now + sound.bodyTail);
         resonance.connect(bodyGain); bodyGain.connect(ctx.destination);
-        resonance.start(now + 0.006); resonance.stop(now + 0.095);
+        resonance.start(now + 0.006); resonance.stop(now + sound.bodyTail + 0.005);
       };
       if (ctx.state === 'suspended') ctx.resume().then(play).catch(() => {});
       else play();
