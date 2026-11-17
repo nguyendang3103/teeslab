@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tees-lab-shell-v2';
+const CACHE_NAME = 'tees-lab-shell-v3';
 const APP_FILES = [
   './index.html', './manifest.json', './logo.jpg', './version.json',
   './assets/samples/golden-hour.jpg',
@@ -6,7 +6,8 @@ const APP_FILES = [
   './assets/samples/forest.jpg',
   './assets/samples/portrait.jpg',
   './assets/samples/coffee.jpg',
-  './assets/samples/ocean.jpg'
+  './assets/samples/ocean.jpg',
+  './assets/fonts/Caveat-TeeLab.woff2'
 ];
 
 self.addEventListener('install', event => {
