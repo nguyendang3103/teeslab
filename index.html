@@ -1437,7 +1437,7 @@
     <div class="sheet-backdrop" id="contactSheetBackdrop">
       <div class="sheet-card">
         <div class="sheet-head">
-          <span>🎞️ Photos on this roll</span>
+          <span>🎞️ Roll photos</span>
           <div style="display:flex;gap:6px;">
             <button class="btn-pill btn-ghost" id="btnClearRollShots" style="height:26px;font-size:11px;">🗑️ Clear all</button>
             <button class="btn-pill btn-ghost" id="btnCloseContactSheet" style="height:26px;">✕</button>
@@ -2292,6 +2292,121 @@
     ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
   }
 
+  let filmWorker = null, filmWorkerUrl = '', filmWorkerReady = false, filmWorkerUnavailable = false;
+  let filmWorkerActiveJob = null, filmWorkerJobId = 0;
+  let cameraPreviewFrameVersion = 0;
+  const filmWorkerQueue = [];
+
+  function createFilmWorker() {
+    if (filmWorker || filmWorkerUnavailable || !window.Worker || !window.OffscreenCanvas) return filmWorker;
+    try {
+      const workerProcess = processFilmCanvas.toString()
+        .replace("const photoCanvas = document.createElement('canvas');", 'const photoCanvas = new OffscreenCanvas(width, height);')
+        .replace("const framed = document.createElement('canvas'), fCtx = framed.getContext('2d');", 'const framed = new OffscreenCanvas(1, 1), fCtx = framed.getContext(\'2d\');');
+      if (workerProcess.includes('document.')) throw new Error('Image processing requires unsupported canvas APIs');
+      const workerCode = `
+        const GRAIN_SIZE = ${GRAIN_SIZE};
+        let GRAIN_TILE = null;
+        ${clamp255.toString()}
+        ${buildToneLUT.toString()}
+        ${fastBoxBlurRGB.toString()}
+        ${roundRect.toString()}
+        ${workerProcess}
+        self.onmessage = async event => {
+          const message = event.data;
+          if (message.type === 'init') { GRAIN_TILE = new Float32Array(message.grainTile); self.postMessage({ type: 'ready' }); return; }
+          try {
+            const pixels = new Uint8ClampedArray(message.pixels);
+            const result = processFilmCanvas(new ImageData(pixels, message.width, message.height), message.width, message.height, message.config);
+            if (message.output === 'blob') {
+              const blob = await result.convertToBlob({ type: 'image/jpeg', quality: message.quality || 0.94 });
+              self.postMessage({ type: 'result', id: message.id, output: 'blob', blob });
+            } else {
+              const bitmap = result.transferToImageBitmap();
+              self.postMessage({ type: 'result', id: message.id, output: 'bitmap', bitmap }, [bitmap]);
+            }
+          } catch (error) { self.postMessage({ type: 'error', id: message.id, message: error.message || 'Image worker failed' }); }
+        };
+      `;
+      filmWorkerUrl = URL.createObjectURL(new Blob([workerCode], { type: 'text/javascript' }));
+      filmWorker = new Worker(filmWorkerUrl);
+      filmWorker.onmessage = event => {
+        const message = event.data;
+        if (message.type === 'ready') {
+          filmWorkerReady = true;
+          URL.revokeObjectURL(filmWorkerUrl); filmWorkerUrl = '';
+          pumpFilmWorker(); return;
+        }
+        const job = filmWorkerActiveJob;
+        if (!job || job.id !== message.id) return;
+        filmWorkerActiveJob = null;
+        if (message.type === 'error') {
+          filmWorkerUnavailable = true; filmWorkerReady = false;
+          const queued = filmWorkerQueue.splice(0);
+          filmWorker.terminate(); filmWorker = null;
+          runFilmJobFallback(job).then(job.resolve, job.reject);
+          queued.forEach(item => runFilmJobFallback(item).then(item.resolve, item.reject));
+          return;
+        }
+        job.resolve(message.output === 'blob' ? { blob: message.blob } : { bitmap: message.bitmap });
+        pumpFilmWorker();
+      };
+      filmWorker.onerror = () => {
+        filmWorkerUnavailable = true; filmWorkerReady = false;
+        if (filmWorkerUrl) { URL.revokeObjectURL(filmWorkerUrl); filmWorkerUrl = ''; }
+        const failed = [filmWorkerActiveJob, ...filmWorkerQueue].filter(Boolean);
+        filmWorkerActiveJob = null; filmWorkerQueue.length = 0;
+        failed.forEach(job => runFilmJobFallback(job).then(job.resolve, job.reject));
+        filmWorker.terminate(); filmWorker = null;
+      };
+      const grainTile = GRAIN_TILE.slice().buffer;
+      filmWorker.postMessage({ type: 'init', grainTile }, [grainTile]);
+      return filmWorker;
+    } catch (error) {
+      filmWorkerUnavailable = true;
+      if (filmWorkerUrl) { URL.revokeObjectURL(filmWorkerUrl); filmWorkerUrl = ''; }
+      filmWorker = null;
+      return null;
+    }
+  }
+
+  function canvasToJpegBlob(canvas, quality = 0.92) {
+    return new Promise((resolve, reject) => canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Could not encode image')), 'image/jpeg', quality));
+  }
+
+  async function runFilmJobFallback(job) {
+    const canvas = processFilmCanvas(job.imageData, job.width, job.height, job.config);
+    if (job.output === 'blob') return { blob: await canvasToJpegBlob(canvas, job.quality || 0.94) };
+    return { canvas };
+  }
+
+  function pumpFilmWorker() {
+    if (!filmWorker || !filmWorkerReady || filmWorkerActiveJob || !filmWorkerQueue.length) return;
+    const job = filmWorkerQueue.shift();
+    filmWorkerActiveJob = job;
+    try {
+      const pixels = job.imageData.data.slice().buffer;
+      filmWorker.postMessage({ id: job.id, width: job.width, height: job.height, pixels, config: job.config, output: job.output, quality: job.quality }, [pixels]);
+    } catch (error) {
+      filmWorkerActiveJob = null;
+      runFilmJobFallback(job).then(job.resolve, job.reject).finally(pumpFilmWorker);
+    }
+  }
+
+  function processFilmImage(imageData, width, height, config, { output = 'bitmap', quality = 0.94, coalesceKey = null } = {}) {
+    createFilmWorker();
+    if (!filmWorker) return runFilmJobFallback({ imageData, width, height, config, output, quality });
+    return new Promise((resolve, reject) => {
+      const job = { id: ++filmWorkerJobId, imageData, width, height, config, output, quality, coalesceKey, resolve, reject };
+      if (coalesceKey) {
+        const queuedAt = filmWorkerQueue.findIndex(item => item.coalesceKey === coalesceKey);
+        if (queuedAt >= 0) { filmWorkerQueue[queuedAt].resolve(null); filmWorkerQueue.splice(queuedAt, 1); }
+      }
+      filmWorkerQueue.push(job);
+      pumpFilmWorker();
+    });
+  }
+
   /* ==========================================================================
      5. STATE & CORE CONTROLLERS
      ========================================================================== */
@@ -2334,9 +2449,27 @@
     camSound: true,
     camShotCount: 0,
     camMaxShots: 36,
+    camRollId: '',
+    camRollNumber: 1,
     camRollShots: [],
     audioCtx: null
   };
+
+  const CAMERA_ROLL_META_KEY = 'tees-lab-camera-roll-meta-v1';
+  function createRollId() { return globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`; }
+  try {
+    const rollMeta = JSON.parse(localStorage.getItem(CAMERA_ROLL_META_KEY) || 'null');
+    if (rollMeta) {
+      state.camRollId = rollMeta.id || createRollId();
+      state.camRollNumber = Math.max(1, Number(rollMeta.number) || 1);
+      state.camShotCount = Math.max(0, Number(rollMeta.shotCount) || 0);
+    }
+  } catch (error) {}
+  if (!state.camRollId) state.camRollId = createRollId();
+  function saveCameraRollMeta() {
+    try { localStorage.setItem(CAMERA_ROLL_META_KEY, JSON.stringify({ id: state.camRollId, number: state.camRollNumber, shotCount: state.camShotCount })); }
+    catch (error) {}
+  }
 
   try {
     const saved = localStorage.getItem('tees_lab_recipes_v1') || localStorage.getItem('rollies_lab_recipes_v1');
@@ -2346,6 +2479,61 @@
   const APP_STATE_KEY = 'tees-lab-state-v1';
   const GH_CONFIG_KEY = 'tees-lab-github-sync-v1';
   const GH_SYNC = { timer: 0, running: false };
+  let rollDatabasePromise = null;
+  function openRollDatabase() {
+    if (!('indexedDB' in window)) return Promise.reject(new Error('IndexedDB is unavailable'));
+    if (!rollDatabasePromise) rollDatabasePromise = new Promise((resolve, reject) => {
+      const request = indexedDB.open('tees-lab-media-v1', 1);
+      request.onupgradeneeded = () => {
+        const database = request.result;
+        if (!database.objectStoreNames.contains('camera-roll')) database.createObjectStore('camera-roll', { keyPath: 'id' });
+        if (!database.objectStoreNames.contains('camera-roll-files')) database.createObjectStore('camera-roll-files', { keyPath: 'id' });
+      };
+      request.onsuccess = () => { request.result.onversionchange = () => request.result.close(); resolve(request.result); };
+      request.onerror = () => { rollDatabasePromise = null; reject(request.error || new Error('Could not open photo storage')); };
+      request.onblocked = () => { rollDatabasePromise = null; reject(new Error('Photo storage upgrade is blocked')); };
+    });
+    return rollDatabasePromise;
+  }
+  async function loadCameraRollFromStorage() {
+    const database = await openRollDatabase();
+    return new Promise((resolve, reject) => {
+      const request = database.transaction('camera-roll', 'readonly').objectStore('camera-roll').getAll();
+      request.onsuccess = () => resolve(request.result.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0)));
+      request.onerror = () => reject(request.error || new Error('Could not read camera roll'));
+    });
+  }
+  async function storeCameraRollShot(shot) {
+    const database = await openRollDatabase();
+    return new Promise((resolve, reject) => {
+      const transaction = database.transaction(['camera-roll', 'camera-roll-files'], 'readwrite');
+      const { id, rollId, rollNumber, num, createdAt, filmName, thumbnailBlob, rawBlob, photoBlob } = shot;
+      transaction.objectStore('camera-roll').put({ id, rollId, rollNumber, num, createdAt, filmName, thumbnailBlob });
+      transaction.objectStore('camera-roll-files').put({ id, rawBlob, photoBlob });
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error || new Error('Could not save camera roll photo'));
+      transaction.onabort = () => reject(transaction.error || new Error('Camera roll save was interrupted'));
+    });
+  }
+  async function loadCameraRollFiles(id) {
+    const database = await openRollDatabase();
+    return new Promise((resolve, reject) => {
+      const request = database.transaction('camera-roll-files', 'readonly').objectStore('camera-roll-files').get(id);
+      request.onsuccess = () => resolve(request.result || null);
+      request.onerror = () => reject(request.error || new Error('Could not read photo data'));
+    });
+  }
+  async function clearCameraRollStorage() {
+    const database = await openRollDatabase();
+    return new Promise((resolve, reject) => {
+      const transaction = database.transaction(['camera-roll', 'camera-roll-files'], 'readwrite');
+      transaction.objectStore('camera-roll').clear();
+      transaction.objectStore('camera-roll-files').clear();
+      transaction.oncomplete = resolve;
+      transaction.onerror = () => reject(transaction.error || new Error('Could not clear camera roll'));
+      transaction.onabort = () => reject(transaction.error || new Error('Camera roll clear was interrupted'));
+    });
+  }
   const SYNC_FIELDS = ['phoneId', 'bodyId', 'lensId', 'filmId', 'filmBrandFilter', 'strength', 'exposure', 'warmth', 'grain', 'halation', 'bloom', 'vignette', 'leakType', 'leakAmt', 'frameType', 'dateStamp', 'camFacing', 'camSound'];
   function getGhConfig() {
     try { return JSON.parse(localStorage.getItem(GH_CONFIG_KEY)) || { token: '', gistId: '', user: '' }; }
@@ -2602,20 +2790,22 @@
   }
 
   let renderRaf = null;
+  let previewRequestVersion = 0;
   function scheduleRender() {
     if (renderRaf) return;
     renderRaf = requestAnimationFrame(() => { renderRaf = null; renderPreview(); });
   }
 
-  function renderPreview() {
+  async function renderPreview() {
     if (!state.previewSourceData) return;
+    const requestVersion = ++previewRequestVersion;
+    const sourceCanvas = state.previewSourceCanvas;
+    const sourceData = state.previewSourceData;
+    const frameType = state.frameType;
     const { phone, body, lens, film } = getSelectedGear();
 
-    const outCanvas = processFilmCanvas(
-      state.previewSourceData,
-      state.previewSourceCanvas.width,
-      state.previewSourceCanvas.height,
-      {
+    try {
+      const output = await processFilmImage(sourceData, sourceCanvas.width, sourceCanvas.height, {
         phone, body, lens, film,
         strength: state.strength,
         exposureEV: state.exposure / 100,
@@ -2626,32 +2816,35 @@
         vignetteAmt: state.vignette,
         leakType: state.leakType,
         leakAmt: state.leakAmt,
-        frameType: state.frameType,
+        frameType,
         dateStampText: formatDateStamp(),
         frameNumberStr: '24A'
+      }, { output: 'bitmap', coalesceKey: 'preview' });
+      if (!output || requestVersion !== previewRequestVersion) { output?.bitmap?.close(); return; }
+      const image = output.bitmap || output.canvas;
+
+      previewCanvas.width = image.width;
+      previewCanvas.height = image.height;
+      previewCanvas.getContext('2d').drawImage(image, 0, 0);
+
+      originalOverlayCanvas.width = image.width;
+      originalOverlayCanvas.height = image.height;
+      const oCtx = originalOverlayCanvas.getContext('2d');
+      oCtx.fillStyle = '#07080b';
+      oCtx.fillRect(0, 0, image.width, image.height);
+      if (frameType === 'none') {
+        oCtx.drawImage(sourceCanvas, 0, 0, image.width, image.height);
+      } else {
+        const sx = (image.width - sourceCanvas.width) / 2;
+        const sy = frameType === 'polaroid'
+          ? Math.round(sourceCanvas.width * 0.055)
+          : (image.height - sourceCanvas.height) / 2;
+        oCtx.drawImage(sourceCanvas, sx, sy);
       }
-    );
 
-    previewCanvas.width = outCanvas.width;
-    previewCanvas.height = outCanvas.height;
-    previewCanvas.getContext('2d').drawImage(outCanvas, 0, 0);
-
-    originalOverlayCanvas.width = outCanvas.width;
-    originalOverlayCanvas.height = outCanvas.height;
-    const oCtx = originalOverlayCanvas.getContext('2d');
-    oCtx.fillStyle = '#07080b';
-    oCtx.fillRect(0, 0, outCanvas.width, outCanvas.height);
-    if (state.frameType === 'none') {
-      oCtx.drawImage(state.previewSourceCanvas, 0, 0, outCanvas.width, outCanvas.height);
-    } else {
-      const sx = (outCanvas.width - state.previewSourceCanvas.width) / 2;
-      const sy = state.frameType === 'polaroid'
-        ? Math.round(state.previewSourceCanvas.width * 0.055)
-        : (outCanvas.height - state.previewSourceCanvas.height) / 2;
-      oCtx.drawImage(state.previewSourceCanvas, sx, sy);
-    }
-
-    document.getElementById('liveGearBadge').textContent = `Phone photo • ${film.name}`;
+      document.getElementById('liveGearBadge').textContent = `Phone photo • ${film.name}`;
+      output.bitmap?.close();
+    } catch (error) { console.error('Preview rendering failed', error); }
   }
 
   /* ==========================================================================
@@ -3063,12 +3256,16 @@
         return;
       }
       const { phone, body, lens, film } = getSelectedGear();
-      const proc = processFilmCanvas(tCtx.getImageData(0, 0, 420, 280), 420, 280, {
+      const version = ++cameraPreviewFrameVersion;
+      processFilmImage(tCtx.getImageData(0, 0, 420, 280), 420, 280, {
         phone, body, lens, film, strength: 100, exposureEV: state.exposure / 100, warmth: state.warmth,
         grainAmt: Math.round(film.grainBase * 0.65), halationAmt: Math.round(film.halationBase * 0.6),
         bloomAmt: lens.bloomBase, vignetteAmt: lens.vignetteBase, leakType: 'none', leakAmt: 0, frameType: 'none', dateStampText: '', frameNumberStr: ''
-      });
-      vfCtx.drawImage(proc, 0, 0);
+      }, { output: 'bitmap', coalesceKey: 'camera-preview' }).then(output => {
+        if (!output || version !== cameraPreviewFrameVersion || !state.camStream) { output?.bitmap?.close(); return; }
+        vfCtx.drawImage(output.bitmap || output.canvas, 0, 0);
+        output.bitmap?.close();
+      }).catch(() => {});
     };
     state.camAnimId = requestAnimationFrame(loop);
   }
@@ -3097,13 +3294,30 @@
   window.addEventListener('pagehide', pauseCameraWhenHidden);
   window.addEventListener('beforeunload', pauseCameraWhenHidden);
 
-  function captureCameraShot() {
-    if (state.camShotCount >= state.camMaxShots) { showToast('36-shot roll finished! Tap New roll'); return; }
+  async function createShotThumbnail(blob) {
+    const bitmap = await createImageBitmap(blob);
+    const scale = Math.min(1, 360 / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+    canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+    canvas.getContext('2d').drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close();
+    return canvasToJpegBlob(canvas, 0.72);
+  }
+
+  let cameraRollReady = Promise.resolve();
+  async function captureCameraShot() {
     if (!state.camStream || camVideo.readyState < 2) { showToast('Camera is not ready yet'); return; }
+    const shutterButton = document.getElementById('btnShutter');
+    shutterButton.disabled = true;
+    await cameraRollReady;
+    if (state.camShotCount >= state.camMaxShots) { showToast('36-shot roll finished! Tap New roll'); return; }
     const fl = document.getElementById('shutterFlash');
     fl.classList.add('active'); setTimeout(() => fl.classList.remove('active'), 110);
     playShutterSound();
 
+    try {
+    const shotNumber = state.camShotCount + 1;
     const capW = Math.min(1280, camVideo.videoWidth);
     const capH = Math.round(capW * (2 / 3));
     const capC = document.createElement('canvas'); capC.width = capW; capC.height = capH;
@@ -3112,22 +3326,39 @@
     let sx = 0, sy = 0, sw = vw, sh = vh;
     if (sr > tr) { sw = vh * tr; sx = (vw - sw) / 2; } else { sh = vw / tr; sy = (vh - sh) / 2; }
     cCtx.drawImage(camVideo, sx, sy, sw, sh, 0, 0, capW, capH);
+    const rawBlob = await canvasToJpegBlob(capC, 0.9);
     const { phone, body, lens, film } = getSelectedGear();
     const cf = document.getElementById('camSelFrame').value;
-    const numStr = `${String(state.camShotCount + 1).padStart(2, '0')}A`;
-    const dev = processFilmCanvas(cCtx.getImageData(0, 0, capW, capH), capW, capH, {
+    const numStr = `${String(shotNumber).padStart(2, '0')}A`;
+    const processed = await processFilmImage(cCtx.getImageData(0, 0, capW, capH), capW, capH, {
       phone, body, lens, film, strength: 100, exposureEV: state.exposure / 100, warmth: state.warmth,
       grainAmt: film.grainBase, halationAmt: film.halationBase, bloomAmt: lens.bloomBase, vignetteAmt: lens.vignetteBase,
       leakType: state.leakType, leakAmt: state.leakAmt, frameType: cf, dateStampText: formatDateStamp(), frameNumberStr: numStr
-    });
-    state.camShotCount++;
-    state.camRollShots.unshift({ num: state.camShotCount, filmName: film.name, rawCanvas: capC, dataUrl: dev.toDataURL('image/jpeg', 0.92) });
-    if (state.camShotCount >= state.camMaxShots) document.getElementById('btnShutter').disabled = true;
+    }, { output: 'blob', quality: 0.92 });
+    const photoBlob = processed.blob;
+    const thumbnailBlob = await createShotThumbnail(photoBlob);
+    const shot = { id: createRollId(), rollId: state.camRollId, rollNumber: state.camRollNumber, num: shotNumber, createdAt: Date.now(), filmName: film.name, rawBlob, photoBlob, thumbnailBlob };
+    let persisted = true;
+    try { await storeCameraRollShot(shot); } catch (error) { persisted = false; }
+    state.camShotCount = shotNumber;
+    saveCameraRollMeta();
+    state.camRollShots.unshift(persisted
+      ? { id: shot.id, rollId: shot.rollId, rollNumber: shot.rollNumber, num: shot.num, createdAt: shot.createdAt, filmName: shot.filmName, thumbnailBlob: shot.thumbnailBlob }
+      : shot);
     syncCameraDropdowns();
     renderContactSheet();
+    if (!persisted) showToast('Photo added for this session, but could not be kept after closing');
+    } catch (error) {
+      showToast('Could not process this shot');
+    } finally {
+      shutterButton.disabled = state.camShotCount >= state.camMaxShots;
+    }
   }
 
+  const cameraThumbUrls = new Set();
   function renderContactSheet() {
+    cameraThumbUrls.forEach(url => URL.revokeObjectURL(url));
+    cameraThumbUrls.clear();
     document.getElementById('contactCount').textContent = state.camRollShots.length;
     const grid = document.getElementById('contactSheetGrid');
     if (state.camRollShots.length === 0) {
@@ -3138,35 +3369,56 @@
     state.camRollShots.forEach(s => {
       const card = document.createElement('div');
       card.className = 'shot-card';
+      const thumbnailUrl = URL.createObjectURL(s.thumbnailBlob);
+      cameraThumbUrls.add(thumbnailUrl);
       card.innerHTML = `
-        <img src="${s.dataUrl}" alt="Shot ${s.num}" />
+        <img src="${thumbnailUrl}" alt="Shot ${s.num}" />
         <div class="shot-foot">
-          <span>#${String(s.num).padStart(2, '0')}</span>
+          <span>R${s.rollNumber || 1} · #${String(s.num).padStart(2, '0')}</span>
           <div style="display:flex;gap:4px;">
             <button class="btn-pill btn-ghost btn-edit" style="height:24px;padding:0 7px;font-size:10.5px;">Edit</button>
             <button class="btn-pill btn-primary btn-save-shot" type="button" style="height:24px;padding:0 7px;font-size:10.5px;">Save</button>
           </div>
         </div>
       `;
-      card.querySelector('.btn-edit').addEventListener('click', () => {
-        document.getElementById('contactSheetBackdrop').classList.remove('open');
-        loadSourceCanvas(s.rawCanvas, null);
-        switchMainTab('darkroom');
-        showToast(`Shot #${s.num} moved to Darkroom`);
+      card.querySelector('.btn-edit').addEventListener('click', async () => {
+        try {
+          const files = s.rawBlob ? s : await loadCameraRollFiles(s.id);
+          if (!files?.rawBlob) throw new Error('Original photo is unavailable');
+          document.getElementById('contactSheetBackdrop').classList.remove('open');
+          const bitmap = await createImageBitmap(files.rawBlob);
+          const source = document.createElement('canvas');
+          source.width = bitmap.width; source.height = bitmap.height;
+          source.getContext('2d').drawImage(bitmap, 0, 0);
+          bitmap.close();
+          loadSourceCanvas(source, null);
+          switchMainTab('darkroom');
+          showToast(`Shot #${s.num} moved to Darkroom`);
+        } catch (error) { showToast('Could not open the original photo'); }
       });
       card.querySelector('.btn-save-shot').addEventListener('click', () => saveRollPhoto(s));
       grid.appendChild(card);
     });
   }
 
-  async function saveRollPhoto(shot) {
-    const filename = `tees-lab-shot-${String(shot.num).padStart(2, '0')}.jpg`;
+  async function restoreCameraRoll() {
     try {
-      const base64 = shot.dataUrl.split(',')[1];
-      const binary = atob(base64);
-      const bytes = new Uint8Array(binary.length);
-      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-      const blob = new Blob([bytes], { type: 'image/jpeg' });
+      const savedShots = await loadCameraRollFromStorage();
+      state.camRollShots = savedShots.reverse();
+      renderContactSheet();
+      syncCameraDropdowns();
+      document.getElementById('btnShutter').disabled = state.camShotCount >= state.camMaxShots;
+    } catch (error) {
+      // Keep camera capture usable in private browsing or when local storage is blocked.
+    }
+  }
+
+  async function saveRollPhoto(shot) {
+    const filename = `tees-lab-roll-${shot.rollNumber || 1}-shot-${String(shot.num).padStart(2, '0')}.jpg`;
+    try {
+      const files = shot.photoBlob ? shot : await loadCameraRollFiles(shot.id);
+      const blob = files?.photoBlob;
+      if (!blob) throw new Error('Processed photo is unavailable');
       const imageFile = new File([blob], filename, { type: 'image/jpeg' });
       if (navigator.share && (!navigator.canShare || navigator.canShare({ files: [imageFile] }))) {
         showToast('Choose “Save Image” in the share sheet to save to Photos');
@@ -3233,12 +3485,16 @@
     showToast('⏳ Saving high-quality image...');
     const src = state.fullSourceCanvas;
     const { phone, body, lens, film } = getSelectedGear();
-    const out = processFilmCanvas(src.getContext('2d').getImageData(0, 0, src.width, src.height), src.width, src.height, {
-      phone, body, lens, film, strength: state.strength, exposureEV: state.exposure / 100, warmth: state.warmth,
-      grainAmt: state.grain, halationAmt: state.halation, bloomAmt: state.bloom, vignetteAmt: state.vignette,
-      leakType: state.leakType, leakAmt: state.leakAmt, frameType: state.frameType, dateStampText: formatDateStamp(), frameNumberStr: '36'
-    });
-    const blob = await new Promise(resolve => out.toBlob(resolve, 'image/jpeg', 0.94));
+    let blob;
+    try {
+      const sourceData = src.getContext('2d').getImageData(0, 0, src.width, src.height);
+      const output = await processFilmImage(sourceData, src.width, src.height, {
+        phone, body, lens, film, strength: state.strength, exposureEV: state.exposure / 100, warmth: state.warmth,
+        grainAmt: state.grain, halationAmt: state.halation, bloomAmt: state.bloom, vignetteAmt: state.vignette,
+        leakType: state.leakType, leakAmt: state.leakAmt, frameType: state.frameType, dateStampText: formatDateStamp(), frameNumberStr: '36'
+      }, { output: 'blob', quality: 0.94 });
+      blob = output.blob;
+    } catch (error) { showToast('❌ Could not process this image'); return; }
     if (!blob) { showToast('❌ Could not create image file'); return; }
 
     const filename = `tees-lab-${film.id}-${Date.now()}.jpg`;
@@ -3386,10 +3642,22 @@
     e.currentTarget.textContent = state.camSound ? '🔊' : '🔇';
   });
   document.getElementById('btnNewRoll').addEventListener('click', () => {
-    state.camShotCount = 0; document.getElementById('btnShutter').disabled = false;
-    syncCameraDropdowns(); showToast('🎞️ New 36-shot roll loaded');
+    state.camRollNumber += 1;
+    state.camRollId = createRollId();
+    state.camShotCount = 0;
+    saveCameraRollMeta();
+    document.getElementById('btnShutter').disabled = false;
+    syncCameraDropdowns();
+    showToast('🎞️ New roll loaded — earlier photos are kept');
   });
-  document.getElementById('btnClearRollShots').addEventListener('click', () => { state.camRollShots = []; renderContactSheet(); });
+  document.getElementById('btnClearRollShots').addEventListener('click', async () => {
+    try { await clearCameraRollStorage(); } catch (error) { showToast('Could not clear saved roll photos'); return; }
+    state.camRollShots = []; state.camShotCount = 0;
+    state.camRollId = createRollId(); saveCameraRollMeta();
+    document.getElementById('btnShutter').disabled = false;
+    renderContactSheet(); syncCameraDropdowns();
+    showToast('Roll photos cleared');
+  });
   document.getElementById('btnShutter').addEventListener('click', captureCameraShot);
   document.getElementById('camSelBody').addEventListener('change', e => selectCameraBody(e.target.value));
   document.getElementById('camSelLens').addEventListener('change', e => { state.lensId = e.target.value; renderGearRack(); syncCameraDropdowns(); renderPreview(); });
@@ -3408,12 +3676,16 @@
   document.getElementById('btnGuideCollapseAll').addEventListener('click', () => { openGuideIds.clear(); renderGuideAccordion(); });
 
   // Bootstrap
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  }
   renderSampleStrip();
   renderPhoneProfileGrid();
   renderGearRack();
   renderTweaksDock();
   renderFrameAndRecipes();
   renderContactSheet();
+  cameraRollReady = restoreCameraRoll();
   renderGuideAccordion();
   loadSourceCanvas(SAMPLES[0].canvas, null);
   updateSyncButton();
