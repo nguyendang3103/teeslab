@@ -972,6 +972,9 @@
     .cam-control input[type="range"] { width: 100%; height: 29px; margin: 0; accent-color: var(--brass); }
     .cam-control input:disabled, .cam-control select:disabled { opacity: .48; }
     .cam-controls-note { grid-column: 1 / -1; color: var(--text-muted); font-size: 9px; line-height: 1.35; }
+    .cam-mechanical-row { display:flex; align-items:center; justify-content:space-between; gap:6px; padding:2px 12px 8px; }
+    .cam-mechanical-row .btn-pill { min-height:32px; height:32px; padding:0 9px; font-size:10px; }
+    .cam-mechanical-row button:disabled { opacity:.45; }
 
     .cam-shutter-deck {
       display: flex;
@@ -1431,10 +1434,13 @@
           <summary>⚙ Exposure &amp; camera controls <span id="camControlSupport">Connect camera for hardware controls</span></summary>
           <div class="cam-control-grid">
             <label class="cam-control">Exposure compensation <input id="camExposureControl" type="range" min="-2" max="2" step="0.1" value="0" /><span id="camExposureValue">0 EV · app</span></label>
-            <label class="cam-control">ISO <select class="dark-select" id="camIsoControl"><option value="auto">Auto</option></select><span id="camIsoMode">Hardware if supported</span></label>
+            <label class="cam-control">ISO / ASA <select class="dark-select" id="camIsoControl"><option value="film">Film ASA</option></select><span id="camIsoMode">Matched to selected film</span></label>
             <label class="cam-control">Shutter speed <select class="dark-select" id="camShutterControl"><option value="auto">Auto</option></select><span id="camShutterMode">Hardware if supported</span></label>
             <label class="cam-control">White balance <select class="dark-select" id="camWhiteBalanceControl"><option value="auto">Auto</option><option value="daylight">Daylight</option><option value="cloudy">Cloudy</option><option value="shade">Shade</option><option value="tungsten">Tungsten</option><option value="fluorescent">Fluorescent</option></select><span id="camWhiteBalanceMode">App simulation until camera connects</span></label>
-            <div class="cam-controls-note">Aperture is fixed by the phone’s active camera module; the film lens selector only changes the render. ISO and shutter are enabled only when the phone/browser exposes hardware controls. Exposure and white balance fall back to the saved film render.</div>
+            <label class="cam-control">Self timer <select class="dark-select" id="camTimerControl"><option value="0">Off</option><option value="3">3 seconds</option><option value="10">10 seconds</option></select><span>Delay before shutter release</span></label>
+            <label class="cam-control">Multiple exposure <button class="btn-pill btn-ghost" id="btnMultipleExposure" type="button">Off</button><span id="camMultipleExposureHint">One exposure per frame</span></label>
+            <label class="cam-control">AE lock <button class="btn-pill btn-ghost" id="btnAELock" type="button">🔓 Unlocked</button><span>Hold current exposure value</span></label>
+            <div class="cam-controls-note">Phone cameras do not expose physical aperture or depth-of-field preview controls here; the selected film lens changes the render only. ISO/ASA and shutter speed use camera controls when available, otherwise they adjust the saved render. Multiple exposure combines held frames; AE lock holds exposure.</div>
           </div>
         </details>
 
@@ -1444,6 +1450,11 @@
           </button>
           <button class="shutter-btn" id="btnShutter" title="Take a shot"></button>
           <button class="btn-pill btn-brass" id="btnNewRoll" style="height:38px;">🔄 New roll</button>
+        </div>
+        <div class="cam-mechanical-row">
+          <button class="btn-pill btn-ghost" id="btnFilmAdvance" type="button">Film advance →</button>
+          <button class="btn-pill btn-ghost" id="btnRewindRoll" type="button">↶ Rewind roll</button>
+          <span id="camMechanicStatus" style="font-size:9px;color:var(--text-muted);">Shutter cocked</span>
         </div>
       </div>
     </section>
@@ -2395,10 +2406,18 @@
     camAnimId: null,
     camSound: true,
     camExposureEV: 0,
-    camIso: 'auto',
+    camIso: 'film',
     camShutter: 'auto',
     camWhiteBalance: 'auto',
     camTrackCapabilities: null,
+    camAppliedHardware: {},
+    camIsCocked: true,
+    camRollRewound: false,
+    camTimer: 0,
+    camAELocked: false,
+    camLockedEV: null,
+    camMultipleExposure: false,
+    camPendingExposures: [],
     camShotCount: 0,
     camMaxShots: 36,
     camRollId: '',
@@ -2415,11 +2434,13 @@
       state.camRollId = rollMeta.id || createRollId();
       state.camRollNumber = Math.max(1, Number(rollMeta.number) || 1);
       state.camShotCount = Math.max(0, Number(rollMeta.shotCount) || 0);
+      state.camIsCocked = rollMeta.cocked !== false;
+      state.camRollRewound = !!rollMeta.rewound;
     }
   } catch (error) {}
   if (!state.camRollId) state.camRollId = createRollId();
   function saveCameraRollMeta() {
-    try { localStorage.setItem(CAMERA_ROLL_META_KEY, JSON.stringify({ id: state.camRollId, number: state.camRollNumber, shotCount: state.camShotCount })); }
+    try { localStorage.setItem(CAMERA_ROLL_META_KEY, JSON.stringify({ id: state.camRollId, number: state.camRollNumber, shotCount: state.camShotCount, cocked: state.camIsCocked, rewound: state.camRollRewound })); }
     catch (error) {}
   }
 
@@ -2486,7 +2507,7 @@
       transaction.onabort = () => reject(transaction.error || new Error('Camera roll clear was interrupted'));
     });
   }
-  const SYNC_FIELDS = ['phoneId', 'bodyId', 'lensId', 'filmId', 'filmBrandFilter', 'strength', 'exposure', 'warmth', 'grain', 'halation', 'bloom', 'vignette', 'leakType', 'leakAmt', 'frameType', 'dateStamp', 'camFacing', 'camSound', 'camExposureEV', 'camIso', 'camShutter', 'camWhiteBalance'];
+  const SYNC_FIELDS = ['phoneId', 'bodyId', 'lensId', 'filmId', 'filmBrandFilter', 'strength', 'exposure', 'warmth', 'grain', 'halation', 'bloom', 'vignette', 'leakType', 'leakAmt', 'frameType', 'dateStamp', 'camFacing', 'camSound', 'camExposureEV', 'camIso', 'camShutter', 'camWhiteBalance', 'camTimer'];
   function getGhConfig() {
     try { return JSON.parse(localStorage.getItem(GH_CONFIG_KEY)) || { token: '', gistId: '', user: '' }; }
     catch (e) { return { token: '', gistId: '', user: '' }; }
@@ -3143,7 +3164,8 @@
     const { body, film } = getSelectedGear();
     document.getElementById('camGearSummary').textContent = `${body.name} • ${film.name}`;
     updateCameraHud();
-    document.getElementById('camRollCounter').textContent = `${String(Math.min(state.camShotCount + 1, state.camMaxShots)).padStart(2, '0')} / ${state.camMaxShots}`;
+    const frame = state.camIsCocked ? state.camShotCount + 1 : Math.max(1, state.camShotCount);
+    document.getElementById('camRollCounter').textContent = `${String(Math.min(frame, state.camMaxShots)).padStart(2, '0')} / ${state.camMaxShots}`;
   }
 
   function cameraTrack() { return state.camStream?.getVideoTracks?.()[0] || null; }
@@ -3154,18 +3176,42 @@
   function updateCameraHud() {
     const settings = cameraTrack()?.getSettings?.() || {};
     const shutter = settings.exposureTime ? formatCameraShutter(settings.exposureTime) : (state.camShutter === 'auto' ? 'Auto' : `1/${state.camShutter}s`);
-    const iso = Number.isFinite(settings.iso) ? Math.round(settings.iso) : (state.camIso === 'auto' ? 'Auto' : state.camIso);
-    document.getElementById('vfHudLeft').textContent = `Aperture fixed • ${shutter} • ISO ${iso}`;
+    const selectedFilm = FILM_STOCKS.find(item => item.id === state.filmId);
+    const iso = Number.isFinite(settings.iso) ? Math.round(settings.iso) : (state.camIso === 'film' ? (selectedFilm?.iso || 'Auto') : state.camIso);
+    document.getElementById('vfHudLeft').textContent = `Phone aperture • ${shutter} • ISO ${iso}`;
+  }
+  function cameraIsoShiftEV(film) {
+    if (state.camIso === 'film' || !Number.isFinite(Number(state.camIso))) return 0;
+    if (state.camAppliedHardware?.iso) return 0;
+    return Math.max(-3, Math.min(3, Math.log2(Number(state.camIso) / film.iso)));
+  }
+  function cameraShutterShiftEV() {
+    if (state.camShutter === 'auto' || state.camAppliedHardware?.exposureTime) return 0;
+    return Math.max(-3, Math.min(3, Math.log2((1 / Number(state.camShutter)) / (1 / 125))));
+  }
+  function cameraExposureEV(film) {
+    return state.camAELocked && Number.isFinite(state.camLockedEV)
+      ? state.camLockedEV
+      : state.exposure / 100 + (state.camAppliedHardware?.exposureCompensation ? 0 : state.camExposureEV) + cameraIsoShiftEV(film) + cameraShutterShiftEV();
+  }
+  function setAELock(locked) {
+    if (locked) {
+      const film = FILM_STOCKS.find(item => item.id === state.filmId) || FILM_STOCKS[0];
+      state.camLockedEV = cameraExposureEV(film);
+      state.camAELocked = true;
+    } else { state.camAELocked = false; state.camLockedEV = null; }
+    const button = document.getElementById('btnAELock');
+    button.textContent = state.camAELocked ? '🔒 AE locked' : '🔓 Unlocked';
+    button.classList.toggle('btn-brass', state.camAELocked);
+    scheduleCameraSettingsApply();
   }
   function cameraWhiteBalanceShift() {
     const kelvin = { daylight: 5600, cloudy: 6800, shade: 7800, tungsten: 3200, fluorescent: 4300 }[state.camWhiteBalance];
     return kelvin ? Math.round((kelvin - 5600) / 260) : 0;
   }
   function cameraWhiteBalanceUsesHardware() {
-    const capabilities = state.camTrackCapabilities;
-    if (!capabilities) return false;
-    if (state.camWhiteBalance === 'auto') return capabilities.whiteBalanceMode?.includes('continuous') || false;
-    return !!capabilities.colorTemperature && (!capabilities.whiteBalanceMode || capabilities.whiteBalanceMode.includes('manual'));
+    if (state.camWhiteBalance === 'auto') return !!state.camAppliedHardware?.whiteBalanceMode;
+    return !!state.camAppliedHardware?.colorTemperature;
   }
   let cameraSettingsTimer = 0;
   function scheduleCameraSettingsApply() {
@@ -3180,23 +3226,27 @@
     const iso = document.getElementById('camIsoControl');
     const shutter = document.getElementById('camShutterControl');
     const exposure = document.getElementById('camExposureControl');
+    document.getElementById('camTimerControl').value = String(state.camTimer);
     const range = capabilities?.iso;
-    iso.innerHTML = '<option value="auto">Auto</option>';
+    const selectedFilm = FILM_STOCKS.find(item => item.id === state.filmId) || FILM_STOCKS[0];
+    iso.innerHTML = `<option value="film">Film ASA ${selectedFilm.iso}</option><option value="auto">Auto</option>`;
     if (range && Number.isFinite(range.min) && Number.isFinite(range.max)) {
       [50, 100, 200, 400, 800, 1600, 3200, 6400].filter(value => value >= range.min && value <= range.max).forEach(value => iso.add(new Option(String(value), String(value))));
-      if (state.camIso !== 'auto' && ![...iso.options].some(option => option.value === state.camIso)) state.camIso = 'auto';
-    } else state.camIso = 'auto';
+      if (state.camIso !== 'film' && state.camIso !== 'auto' && ![...iso.options].some(option => option.value === state.camIso)) state.camIso = 'film';
+    } else if (state.camIso !== 'film' && state.camIso !== 'auto') state.camIso = 'film';
     iso.value = state.camIso;
-    iso.disabled = !range || !track;
+    iso.disabled = false;
 
     const shutterRange = capabilities?.exposureTime;
     shutter.innerHTML = '<option value="auto">Auto</option>';
     if (shutterRange && Number.isFinite(shutterRange.min) && Number.isFinite(shutterRange.max)) {
-      [30, 60, 125, 250, 500, 1000, 2000].filter(speed => 1 / speed >= shutterRange.min && 1 / speed <= shutterRange.max).forEach(speed => shutter.add(new Option(`1/${speed}s`, String(speed))));
+      [2, 4, 8, 15, 30, 60, 125, 250, 500, 1000, 2000].filter(speed => 1 / speed >= shutterRange.min && 1 / speed <= shutterRange.max).forEach(speed => shutter.add(new Option(`1/${speed}s`, String(speed))));
       if (state.camShutter !== 'auto' && ![...shutter.options].some(option => option.value === state.camShutter)) state.camShutter = 'auto';
-    } else state.camShutter = 'auto';
+    } else {
+      [2, 4, 8, 15, 30, 60, 125, 250, 500, 1000].forEach(speed => shutter.add(new Option(`1/${speed}s · app`, String(speed))));
+    }
     shutter.value = state.camShutter;
-    shutter.disabled = !shutterRange || !track;
+    shutter.disabled = false;
 
     const exposureRange = capabilities?.exposureCompensation;
     if (exposureRange && Number.isFinite(exposureRange.min) && Number.isFinite(exposureRange.max)) {
@@ -3206,39 +3256,51 @@
     } else { exposure.min = -2; exposure.max = 2; exposure.step = 0.1; }
     state.camExposureEV = Math.max(Number(exposure.min), Math.min(Number(exposure.max), Number(state.camExposureEV) || 0));
     exposure.value = state.camExposureEV;
-    document.getElementById('camExposureValue').textContent = `${state.camExposureEV > 0 ? '+' : ''}${state.camExposureEV.toFixed(1)} EV · ${exposureRange ? 'camera' : 'app'}`;
-    document.getElementById('camIsoMode').textContent = range ? 'Camera sensor' : 'Not exposed by camera';
-    document.getElementById('camShutterMode').textContent = shutterRange ? 'Camera sensor' : 'Not exposed by camera';
+    document.getElementById('camExposureValue').textContent = `${state.camExposureEV > 0 ? '+' : ''}${state.camExposureEV.toFixed(1)} EV · ${state.camAppliedHardware?.exposureCompensation ? 'camera' : 'app'}`;
+    document.getElementById('camIsoMode').textContent = state.camAppliedHardware?.iso ? 'Camera sensor' : 'ASA exposure simulation';
+    document.getElementById('camShutterMode').textContent = state.camAppliedHardware?.exposureTime ? 'Camera sensor' : 'Exposure simulation';
 
     const wb = document.getElementById('camWhiteBalanceControl');
     const canSetWb = !!track && !!capabilities?.colorTemperature;
     wb.value = state.camWhiteBalance;
     document.getElementById('camWhiteBalanceMode').textContent = canSetWb && cameraWhiteBalanceUsesHardware() ? 'Camera sensor' : 'Film render simulation';
     document.getElementById('camControlSupport').textContent = track
-      ? `${[range && 'ISO', shutterRange && 'shutter', exposureRange && 'EV', canSetWb && 'WB'].filter(Boolean).join(' · ') || 'App simulation only'}`
+      ? `${[range && 'ISO sensor', shutterRange && 'shutter sensor', exposureRange && 'EV sensor', canSetWb && 'WB sensor'].filter(Boolean).join(' · ') || 'App simulation'}`
       : 'App simulation · camera off';
     updateCameraHud();
+    updateFilmMechanics();
   }
   async function applyCameraHardwareSettings() {
     const track = cameraTrack(), capabilities = state.camTrackCapabilities;
     if (!track || !capabilities || !track.applyConstraints) { updateCameraHud(); return; }
     const advanced = {};
     if (capabilities.exposureCompensation) advanced.exposureCompensation = Number(state.camExposureEV);
-    if (capabilities.iso && state.camIso !== 'auto') advanced.iso = Number(state.camIso);
-    if (capabilities.exposureMode?.length) advanced.exposureMode = state.camShutter === 'auto' ? 'continuous' : 'manual';
+    const selectedFilm = FILM_STOCKS.find(item => item.id === state.filmId) || FILM_STOCKS[0];
+    const requestedIso = state.camIso === 'film' ? selectedFilm.iso : Number(state.camIso);
+    if (capabilities.iso && Number.isFinite(requestedIso) && state.camIso !== 'auto') advanced.iso = requestedIso;
+    if (capabilities.exposureMode?.length) advanced.exposureMode = state.camAELocked || state.camShutter !== 'auto' ? 'manual' : 'continuous';
     if (capabilities.exposureTime && state.camShutter !== 'auto') advanced.exposureTime = 1 / Number(state.camShutter);
+    if (state.camAELocked) {
+      const settings = track.getSettings?.() || {};
+      if (capabilities.exposureTime && settings.exposureTime) advanced.exposureTime = settings.exposureTime;
+      if (capabilities.iso && settings.iso) advanced.iso = settings.iso;
+    }
     if (state.camWhiteBalance === 'auto') {
       if (capabilities.whiteBalanceMode?.includes('continuous')) advanced.whiteBalanceMode = 'continuous';
     } else if (capabilities.colorTemperature && (!capabilities.whiteBalanceMode || capabilities.whiteBalanceMode.includes('manual'))) {
       if (capabilities.whiteBalanceMode?.includes('manual')) advanced.whiteBalanceMode = 'manual';
       advanced.colorTemperature = { daylight: 5600, cloudy: 6800, shade: 7800, tungsten: 3200, fluorescent: 4300 }[state.camWhiteBalance];
     }
+    state.camAppliedHardware = {};
     if (Object.keys(advanced).length) {
-      try { await track.applyConstraints({ advanced: [advanced] }); }
+      try {
+        await track.applyConstraints({ advanced: [advanced] });
+        Object.keys(advanced).forEach(key => { state.camAppliedHardware[key] = true; });
+      }
       catch (error) {
         // Try independently so one unsupported setting does not block the rest.
         for (const [key, value] of Object.entries(advanced)) {
-          try { await track.applyConstraints({ advanced: [{ [key]: value }] }); } catch (ignored) {}
+          try { await track.applyConstraints({ advanced: [{ [key]: value }] }); state.camAppliedHardware[key] = true; } catch (ignored) {}
         }
       }
     }
@@ -3319,7 +3381,7 @@
       const { phone, body, lens, film } = getSelectedGear();
       const version = ++cameraPreviewFrameVersion;
       processFilmImage(tCtx.getImageData(0, 0, 420, 280), 420, 280, {
-        phone, body, lens, film, strength: 100, exposureEV: state.exposure / 100 + (state.camTrackCapabilities?.exposureCompensation ? 0 : state.camExposureEV), warmth: state.warmth + (cameraWhiteBalanceUsesHardware() ? 0 : cameraWhiteBalanceShift()),
+        phone, body, lens, film, strength: 100, exposureEV: cameraExposureEV(film), warmth: state.warmth + (cameraWhiteBalanceUsesHardware() ? 0 : cameraWhiteBalanceShift()),
         grainAmt: Math.round(film.grainBase * 0.65), halationAmt: Math.round(film.halationBase * 0.6),
         bloomAmt: lens.bloomBase, vignetteAmt: lens.vignetteBase, leakType: 'none', leakAmt: 0, frameType: 'none', dateStampText: '', frameNumberStr: ''
       }, { output: 'bitmap', coalesceKey: 'camera-preview' }).then(output => {
@@ -3339,6 +3401,7 @@
     if (state.camStream) state.camStream.getTracks().forEach(track => track.stop());
     state.camStream = null;
     state.camTrackCapabilities = null;
+    state.camAppliedHardware = {};
     camVideo.srcObject = null;
     document.getElementById('camSourceStatus').textContent = 'Camera off';
     document.getElementById('btnStartCam').textContent = '📷 Enable camera';
@@ -3347,6 +3410,7 @@
 
   function pauseCameraWhenHidden() {
     stopCameraLoop();
+    if (shutterTimerInterval) { clearInterval(shutterTimerInterval); shutterTimerInterval = 0; shutterTimerResolve?.(); shutterTimerResolve = null; }
     if (state.camStream) stopRealCamera();
   }
 
@@ -3368,9 +3432,114 @@
     return canvasToJpegBlob(canvas, 0.72);
   }
 
+  async function blendExposureBlobs(blobs) {
+    if (blobs.length === 1) return blobs[0];
+    const bitmaps = await Promise.all(blobs.map(blob => createImageBitmap(blob)));
+    const width = bitmaps[0].width, height = bitmaps[0].height;
+    const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    ctx.globalCompositeOperation = 'lighter';
+    bitmaps.forEach(bitmap => { ctx.globalAlpha = 1 / bitmaps.length; ctx.drawImage(bitmap, 0, 0, width, height); bitmap.close(); });
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = 1;
+    return canvasToJpegBlob(canvas, 0.92);
+  }
+
+  async function saveCameraExposure(rawBlob, shotNumber) {
+    const rawBitmap = await createImageBitmap(rawBlob);
+    const scale = Math.min(1, 1280 / Math.max(rawBitmap.width, rawBitmap.height));
+    const capW = Math.max(1, Math.round(rawBitmap.width * scale));
+    const capH = Math.max(1, Math.round(rawBitmap.height * scale));
+    const capC = document.createElement('canvas'); capC.width = capW; capC.height = capH;
+    const cCtx = capC.getContext('2d');
+    cCtx.drawImage(rawBitmap, 0, 0, capW, capH); rawBitmap.close();
+    const { phone, body, lens, film } = getSelectedGear();
+    const cf = document.getElementById('camSelFrame').value;
+    const numStr = `${String(shotNumber).padStart(2, '0')}A`;
+    const processed = await processFilmImage(cCtx.getImageData(0, 0, capW, capH), capW, capH, {
+      phone, body, lens, film, strength: 100, exposureEV: cameraExposureEV(film), warmth: state.warmth + (cameraWhiteBalanceUsesHardware() ? 0 : cameraWhiteBalanceShift()),
+      grainAmt: film.grainBase, halationAmt: film.halationBase, bloomAmt: lens.bloomBase, vignetteAmt: lens.vignetteBase,
+      leakType: state.leakType, leakAmt: state.leakAmt, frameType: cf, dateStampText: formatDateStamp(), frameNumberStr: numStr
+    }, { output: 'blob', quality: 0.92 });
+    const photoBlob = processed.blob;
+    const thumbnailBlob = await createShotThumbnail(photoBlob);
+    const shot = { id: createRollId(), rollId: state.camRollId, rollNumber: state.camRollNumber, num: shotNumber, createdAt: Date.now(), filmName: film.name, rawBlob, photoBlob, thumbnailBlob };
+    let persisted = true;
+    try { await storeCameraRollShot(shot); } catch (error) { persisted = false; }
+    state.camShotCount = shotNumber;
+    state.camIsCocked = false;
+    saveCameraRollMeta();
+    state.camRollShots.unshift(persisted
+      ? { id: shot.id, rollId: shot.rollId, rollNumber: shot.rollNumber, num: shot.num, createdAt: shot.createdAt, filmName: shot.filmName, thumbnailBlob: shot.thumbnailBlob }
+      : shot);
+    syncCameraDropdowns(); renderContactSheet();
+    if (!persisted) showToast('Photo added for this session, but could not be kept after closing');
+  }
+
+  function updateFilmMechanics() {
+    const canTake = !!state.camStream && !state.camRollRewound && state.camShotCount < state.camMaxShots && state.camIsCocked && state.camPendingExposures.length < 4;
+    document.getElementById('btnShutter').disabled = !canTake;
+    document.getElementById('btnFilmAdvance').disabled = state.camRollRewound || (state.camIsCocked && state.camPendingExposures.length === 0);
+    document.getElementById('btnRewindRoll').disabled = state.camRollRewound || state.camPendingExposures.length > 0;
+    document.getElementById('btnNewRoll').disabled = !state.camRollRewound;
+    const status = state.camRollRewound ? 'Roll rewound' : state.camPendingExposures.length
+      ? `${state.camPendingExposures.length} exposure${state.camPendingExposures.length > 1 ? 's' : ''} held · advance to save`
+      : state.camIsCocked ? 'Shutter cocked' : 'Advance film to cock';
+    document.getElementById('camMechanicStatus').textContent = status;
+    const frame = state.camIsCocked ? state.camShotCount + 1 : Math.max(1, state.camShotCount);
+    document.getElementById('camRollCounter').textContent = `${String(Math.min(frame, state.camMaxShots)).padStart(2, '0')} / ${state.camMaxShots}`;
+  }
+
+  async function advanceFilm() {
+    if (state.camRollRewound) return;
+    if (state.camPendingExposures.length) {
+      const pending = state.camPendingExposures.slice();
+      document.getElementById('btnFilmAdvance').disabled = true;
+      const shotNumber = state.camShotCount + 1;
+      try {
+        const composite = await blendExposureBlobs(pending);
+        state.camIsCocked = true;
+        await saveCameraExposure(composite, shotNumber);
+        state.camPendingExposures = [];
+        state.camIsCocked = true;
+        document.getElementById('camMultipleExposureHint').textContent = state.camMultipleExposure ? 'Ready for another multiple exposure' : 'One exposure per frame';
+        saveCameraRollMeta();
+        showToast('Multiple exposure saved to this frame');
+      } catch (error) { showToast('Could not develop the multiple exposure'); }
+    } else if (!state.camIsCocked) {
+      state.camIsCocked = true;
+      saveCameraRollMeta();
+      showToast('Film advanced · shutter cocked');
+    }
+    updateFilmMechanics();
+  }
+
+  let shutterTimerInterval = 0;
+  let shutterTimerResolve = null;
+  async function requestShutterRelease() {
+    if (!state.camStream || !state.camIsCocked || state.camRollRewound) { showToast('Advance the film and enable the camera first'); return; }
+    if (state.camPendingExposures.length >= 4) { showToast('Advance film to save these four exposures'); return; }
+    let remaining = Number(state.camTimer) || 0;
+    if (!remaining) return captureCameraShot();
+    const shutter = document.getElementById('btnShutter');
+    shutter.disabled = true;
+    await new Promise(resolve => {
+      shutterTimerResolve = resolve;
+      document.getElementById('camMechanicStatus').textContent = `Self timer · ${remaining}s`;
+      shutterTimerInterval = window.setInterval(() => {
+        remaining -= 1;
+        if (remaining <= 0) { clearInterval(shutterTimerInterval); shutterTimerInterval = 0; shutterTimerResolve = null; resolve(); }
+        else document.getElementById('camMechanicStatus').textContent = `Self timer · ${remaining}s`;
+      }, 1000);
+    });
+    if (state.camStream && state.camIsCocked && !state.camRollRewound) await captureCameraShot();
+    updateFilmMechanics();
+  }
+
   let cameraRollReady = Promise.resolve();
   async function captureCameraShot() {
     if (!state.camStream || camVideo.readyState < 2) { showToast('Camera is not ready yet'); return; }
+    if (state.camRollRewound || !state.camIsCocked) { showToast('Advance the film before taking the next shot'); return; }
     const shutterButton = document.getElementById('btnShutter');
     shutterButton.disabled = true;
     await cameraRollReady;
@@ -3390,31 +3559,19 @@
     if (sr > tr) { sw = vh * tr; sx = (vw - sw) / 2; } else { sh = vw / tr; sy = (vh - sh) / 2; }
     cCtx.drawImage(camVideo, sx, sy, sw, sh, 0, 0, capW, capH);
     const rawBlob = await canvasToJpegBlob(capC, 0.9);
-    const { phone, body, lens, film } = getSelectedGear();
-    const cf = document.getElementById('camSelFrame').value;
-    const numStr = `${String(shotNumber).padStart(2, '0')}A`;
-    const processed = await processFilmImage(cCtx.getImageData(0, 0, capW, capH), capW, capH, {
-      phone, body, lens, film, strength: 100, exposureEV: state.exposure / 100 + (state.camTrackCapabilities?.exposureCompensation ? 0 : state.camExposureEV), warmth: state.warmth + (cameraWhiteBalanceUsesHardware() ? 0 : cameraWhiteBalanceShift()),
-      grainAmt: film.grainBase, halationAmt: film.halationBase, bloomAmt: lens.bloomBase, vignetteAmt: lens.vignetteBase,
-      leakType: state.leakType, leakAmt: state.leakAmt, frameType: cf, dateStampText: formatDateStamp(), frameNumberStr: numStr
-    }, { output: 'blob', quality: 0.92 });
-    const photoBlob = processed.blob;
-    const thumbnailBlob = await createShotThumbnail(photoBlob);
-    const shot = { id: createRollId(), rollId: state.camRollId, rollNumber: state.camRollNumber, num: shotNumber, createdAt: Date.now(), filmName: film.name, rawBlob, photoBlob, thumbnailBlob };
-    let persisted = true;
-    try { await storeCameraRollShot(shot); } catch (error) { persisted = false; }
-    state.camShotCount = shotNumber;
-    saveCameraRollMeta();
-    state.camRollShots.unshift(persisted
-      ? { id: shot.id, rollId: shot.rollId, rollNumber: shot.rollNumber, num: shot.num, createdAt: shot.createdAt, filmName: shot.filmName, thumbnailBlob: shot.thumbnailBlob }
-      : shot);
-    syncCameraDropdowns();
-    renderContactSheet();
-    if (!persisted) showToast('Photo added for this session, but could not be kept after closing');
+    if (state.camMultipleExposure) {
+      state.camPendingExposures.push(rawBlob);
+      state.camIsCocked = true;
+      document.getElementById('camMultipleExposureHint').textContent = `${state.camPendingExposures.length} exposure${state.camPendingExposures.length > 1 ? 's' : ''} on one frame`;
+      saveCameraRollMeta();
+      showToast('Exposure held on this frame · tap Film advance to save');
+    } else {
+      await saveCameraExposure(rawBlob, shotNumber);
+    }
     } catch (error) {
       showToast('Could not process this shot');
     } finally {
-      shutterButton.disabled = state.camShotCount >= state.camMaxShots;
+      updateFilmMechanics();
     }
   }
 
@@ -3470,7 +3627,7 @@
       state.camRollShots = savedShots.reverse();
       renderContactSheet();
       syncCameraDropdowns();
-      document.getElementById('btnShutter').disabled = state.camShotCount >= state.camMaxShots;
+      updateFilmMechanics();
     } catch (error) {
       // Keep camera capture usable in private browsing or when local storage is blocked.
     }
@@ -3697,11 +3854,21 @@
   const camExposureControl = document.getElementById('camExposureControl');
   camExposureControl.addEventListener('input', e => {
     state.camExposureEV = Number(e.target.value);
-    document.getElementById('camExposureValue').textContent = `${state.camExposureEV > 0 ? '+' : ''}${state.camExposureEV.toFixed(1)} EV · ${state.camTrackCapabilities?.exposureCompensation ? 'camera' : 'app'}`;
+    document.getElementById('camExposureValue').textContent = `${state.camExposureEV > 0 ? '+' : ''}${state.camExposureEV.toFixed(1)} EV · ${state.camAppliedHardware?.exposureCompensation ? 'camera' : 'app'}`;
     scheduleCameraSettingsApply();
   });
   document.getElementById('camIsoControl').addEventListener('change', e => { state.camIso = e.target.value; scheduleCameraSettingsApply(); });
   document.getElementById('camShutterControl').addEventListener('change', e => { state.camShutter = e.target.value; scheduleCameraSettingsApply(); });
+  document.getElementById('camTimerControl').addEventListener('change', e => { state.camTimer = Number(e.target.value); });
+  document.getElementById('btnMultipleExposure').addEventListener('click', e => {
+    state.camMultipleExposure = !state.camMultipleExposure;
+    e.currentTarget.textContent = state.camMultipleExposure ? 'On' : 'Off';
+    e.currentTarget.classList.toggle('btn-brass', state.camMultipleExposure);
+    document.getElementById('camMultipleExposureHint').textContent = state.camPendingExposures.length
+      ? `${state.camPendingExposures.length} exposure${state.camPendingExposures.length > 1 ? 's' : ''} held · advance to save`
+      : state.camMultipleExposure ? 'Hold exposures on one frame' : 'One exposure per frame';
+  });
+  document.getElementById('btnAELock').addEventListener('click', () => setAELock(!state.camAELocked));
   document.getElementById('camWhiteBalanceControl').addEventListener('change', e => { state.camWhiteBalance = e.target.value; scheduleCameraSettingsApply(); renderPreview(); });
   document.getElementById('btnStartCam').addEventListener('click', () => { if (state.camStream) stopRealCamera(); startRealCamera(); });
   document.getElementById('btnFlipCam').addEventListener('click', () => {
@@ -3717,23 +3884,35 @@
     state.camRollNumber += 1;
     state.camRollId = createRollId();
     state.camShotCount = 0;
+    state.camIsCocked = true; state.camRollRewound = false; state.camPendingExposures = []; state.camMultipleExposure = false;
     saveCameraRollMeta();
-    document.getElementById('btnShutter').disabled = false;
+    document.getElementById('btnMultipleExposure').textContent = 'Off';
+    document.getElementById('camMultipleExposureHint').textContent = 'One exposure per frame';
     syncCameraDropdowns();
+    updateFilmMechanics();
     showToast('🎞️ New roll loaded — earlier photos are kept');
+  });
+  document.getElementById('btnFilmAdvance').addEventListener('click', advanceFilm);
+  document.getElementById('btnRewindRoll').addEventListener('click', () => {
+    if (state.camPendingExposures.length) { showToast('Advance film to save held exposures before rewinding'); return; }
+    state.camRollRewound = true; state.camIsCocked = false;
+    saveCameraRollMeta(); updateFilmMechanics();
+    showToast('Film rewound · your saved photos remain on the roll');
   });
   document.getElementById('btnClearRollShots').addEventListener('click', async () => {
     try { await clearCameraRollStorage(); } catch (error) { showToast('Could not clear saved roll photos'); return; }
     state.camRollShots = []; state.camShotCount = 0;
     state.camRollId = createRollId(); saveCameraRollMeta();
-    document.getElementById('btnShutter').disabled = false;
-    renderContactSheet(); syncCameraDropdowns();
+    state.camIsCocked = true; state.camRollRewound = false; state.camPendingExposures = []; state.camMultipleExposure = false;
+    document.getElementById('btnMultipleExposure').textContent = 'Off';
+    document.getElementById('camMultipleExposureHint').textContent = 'One exposure per frame';
+    renderContactSheet(); syncCameraDropdowns(); updateFilmMechanics();
     showToast('Roll photos cleared');
   });
-  document.getElementById('btnShutter').addEventListener('click', captureCameraShot);
+  document.getElementById('btnShutter').addEventListener('click', requestShutterRelease);
   document.getElementById('camSelBody').addEventListener('change', e => selectCameraBody(e.target.value));
   document.getElementById('camSelLens').addEventListener('change', e => { state.lensId = e.target.value; renderGearRack(); syncCameraDropdowns(); renderPreview(); });
-  document.getElementById('camSelFilm').addEventListener('change', e => { selectFilmStock(e.target.value); syncCameraDropdowns(); });
+  document.getElementById('camSelFilm').addEventListener('change', e => { selectFilmStock(e.target.value); syncCameraDropdowns(); populateCameraHardwareControls(); scheduleCameraSettingsApply(); });
 
   // Guide Events
   document.querySelectorAll('#guideFilterPills .filter-chip').forEach(b => {
