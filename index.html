@@ -123,8 +123,8 @@
       min-width: 0;
     }
     .brand-logo-wrap {
-      width: 30px;
-      height: 30px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       overflow: hidden;
       border: 1.5px solid rgba(34, 211, 238, 0.7);
@@ -140,18 +140,23 @@
     }
     .brand-info {
       display: flex;
-      flex-direction: column;
+      align-items: center;
+      gap: 6px;
       min-width: 0;
     }
     .brand-title {
       font-family: var(--mono);
       font-weight: 800;
-      font-size: 12.5px;
-      letter-spacing: 0.9px;
+      font-size: 11.5px;
+      letter-spacing: 0.7px;
       color: var(--text-primary);
       display: flex;
       align-items: center;
-      gap: 5px;
+      border: 1px solid rgba(34, 211, 238, 0.65);
+      border-radius: 6px;
+      padding: 2px 5px;
+      text-shadow: 0 0 5px rgba(34, 211, 238, 0.75), 0 0 11px rgba(34, 211, 238, 0.35);
+      box-shadow: 0 0 8px rgba(34, 211, 238, 0.22), inset 0 0 5px rgba(34, 211, 238, 0.1);
       white-space: nowrap;
     }
     .hdr-phone-chip {
@@ -167,7 +172,7 @@
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      margin-top: 1px;
+      margin-top: 0;
     }
 
     .topbar-actions {
@@ -226,8 +231,10 @@
     @media (max-width: 360px) {
       .topbar { padding: 0 8px; gap: 6px; }
       .brand { gap: 6px; }
-      .brand-logo-wrap { width: 28px; height: 28px; }
-      .hdr-phone-chip { display: none; }
+      .brand-logo-wrap { width: 32px; height: 32px; }
+      .brand-info { gap: 4px; }
+      .brand-title { font-size: 10.5px; letter-spacing: 0.4px; padding: 2px 4px; }
+      .hdr-phone-chip { max-width: 82px; padding: 1px 5px; font-size: 9px; }
       .topbar-actions { gap: 5px; }
       #btnGuideTop { min-width: 72px; padding: 0 10px; }
     }
