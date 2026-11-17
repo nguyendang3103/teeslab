@@ -1240,12 +1240,12 @@
         </div>
         <div class="brand-info">
           <div class="brand-title">Tee's Lab</div>
-          <button class="hdr-phone-chip" id="hdrPhoneChip" title="Change phone profile">Detecting...</button>
         </div>
       </div>
 
       <div class="topbar-actions">
         <input type="file" id="fileInput" accept="image/*" hidden />
+        <button class="hdr-phone-chip" id="hdrPhoneChip" title="Change phone profile">Automatic</button>
         <button class="btn-pill btn-primary" id="btnGuideTop" title="Open film guide" aria-label="Open film guide">📔 Guide</button>
       </div>
     </header>
@@ -2491,6 +2491,14 @@
     if (savedState) applyAppSnapshot(savedState);
     else localStorage.setItem(APP_STATE_KEY, JSON.stringify({ ...stateSnapshot(), t: 0 }));
   } catch (e) {}
+  const PHONE_SENSOR_DEFAULT_KEY = 'tees-lab-phone-sensor-auto-default-v1';
+  try {
+    if (!localStorage.getItem(PHONE_SENSOR_DEFAULT_KEY)) {
+      state.phoneId = 'auto-detect';
+      localStorage.setItem(PHONE_SENSOR_DEFAULT_KEY, '1');
+      saveLocalAppState();
+    }
+  } catch (e) { state.phoneId = 'auto-detect'; }
   function ghHeaders(token) {
     const clean = (token || '').trim();
     const auth = clean.startsWith('Bearer ') || clean.startsWith('token ') ? clean : `Bearer ${clean}`;
@@ -2687,7 +2695,6 @@
     state.analysis = analyzeImageCharacteristics(srcCanvas);
 
     if (exifData && exifData.mappedProfile) state.phoneId = normalizePhoneProfileId(exifData.mappedProfile);
-    else if (state.analysis && state.analysis.suggestedPhoneId) state.phoneId = normalizePhoneProfileId(state.analysis.suggestedPhoneId);
 
     renderExifAndAnalysisUI();
     renderPhoneProfileGrid();
