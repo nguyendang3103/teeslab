@@ -2466,6 +2466,7 @@
       if (Object.prototype.hasOwnProperty.call(settings, key)) state[key] = settings[key];
     });
     state.phoneId = 'auto-detect';
+    state.dateStamp = state.dateStamp && state.dateStamp !== 'off' ? 'exif-or-today' : 'off';
     if (state.bodyId === 'olympus-mju') {
       state.bodyId = 'contax-t2'; state.lensId = 'contax-t2-sonnar';
     }
@@ -2739,10 +2740,6 @@
 
   function formatDateStamp() {
     if (state.dateStamp === 'off') return '';
-    if (state.dateStamp === 'retro98') {
-      const n = new Date();
-      return `'98 ${String(n.getMonth() + 1).padStart(2, '0')} ${String(n.getDate()).padStart(2, '0')}`;
-    }
     if (state.exif && state.exif.dateRaw) {
       const m = state.exif.dateRaw.match(/^(\d{4}):(\d{2}):(\d{2})/);
       if (m) return `'${m[1].slice(2)} ${m[2]} ${m[3]}`;
@@ -3035,15 +3032,14 @@
     });
     strip.appendChild(framePill);
 
-    // Date quick-cycle pill
-    const dateLabels = { 'off': 'Off', 'retro98': "'98", 'exif-or-today': 'Today' };
+    // Date toggle pill (Off / Today)
+    const isDateOn = state.dateStamp !== 'off';
     const datePill = document.createElement('button');
     datePill.type = 'button';
-    datePill.className = `tweak-pill ${state.dateStamp !== 'off' ? 'active' : ''}`;
-    datePill.innerHTML = `<span>Date</span><span class="tweak-pill-val">${dateLabels[state.dateStamp] || 'Off'}</span>`;
+    datePill.className = `tweak-pill ${isDateOn ? 'active' : ''}`;
+    datePill.innerHTML = `<span>Date</span><span class="tweak-pill-val">${isDateOn ? 'Today' : 'Off'}</span>`;
     datePill.addEventListener('click', () => {
-      const order = ['off', 'retro98', 'exif-or-today'];
-      state.dateStamp = order[(order.indexOf(state.dateStamp) + 1) % order.length];
+      state.dateStamp = isDateOn ? 'off' : 'exif-or-today';
       syncAllUI();
       renderPreview();
     });
@@ -3091,7 +3087,7 @@
           phoneId: 'auto-detect', bodyId: r.bodyId, lensId: r.lensId, filmId: r.filmId,
           strength: r.strength, exposure: r.exposure, warmth: r.warmth, grain: r.grain,
           halation: r.halation, bloom: r.bloom, vignette: r.vignette,
-          leakType: r.leakType, leakAmt: r.leakAmt, frameType: r.frameType, dateStamp: r.dateStamp
+          leakType: r.leakType, leakAmt: r.leakAmt, frameType: r.frameType, dateStamp: r.dateStamp && r.dateStamp !== 'off' ? 'exif-or-today' : 'off'
         });
         syncAllUI();
         renderPreview();
@@ -3808,7 +3804,7 @@
     showToast('EV reset to 0.0');
   });
   document.getElementById('btnVfDateToggle').addEventListener('click', () => {
-    state.dateStamp = state.dateStamp === 'off' ? 'retro98' : 'off';
+    state.dateStamp = state.dateStamp === 'off' ? 'exif-or-today' : 'off';
     syncAllUI();
     renderPreview();
   });
