@@ -163,20 +163,6 @@
       text-shadow: 0 0 3px var(--cyan), 0 0 8px rgba(34, 211, 238, 0.9), 0 0 16px rgba(34, 211, 238, 0.55);
       white-space: nowrap;
     }
-    .hdr-phone-chip {
-      font-family: var(--mono);
-      font-size: 9.5px;
-      font-weight: 600;
-      color: var(--brass);
-      background: rgba(212, 163, 89, 0.12);
-      border: 1px solid rgba(212, 163, 89, 0.28);
-      border-radius: 10px;
-      padding: 2px 8px;
-      line-height: 1.2;
-      white-space: nowrap;
-      cursor: default;
-      user-select: none;
-    }
 
     .topbar-actions {
       display: flex;
@@ -334,7 +320,7 @@
       display: inline-flex;
       max-width: 100%;
       flex: 0 1 auto;
-      max-height: calc(100% - 56px);
+      max-height: calc(100% - 34px);
       min-width: 0;
       min-height: 0;
       align-items: center;
@@ -418,16 +404,6 @@
       justify-content: space-between;
       align-items: center;
       gap: 6px;
-      z-index: 12;
-    }
-    .stage-sensor-row {
-      width: 100%;
-      padding: 0 6px;
-      margin-top: 4px;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
       z-index: 12;
     }
     .rollie-combo-caption {
@@ -1312,9 +1288,6 @@
             <button class="float-pill" id="btnToggleSplit">◧ Split</button>
             <button class="float-pill" id="btnHoldOriginal">👁️ Original</button>
           </div>
-        </div>
-        <div class="stage-sensor-row">
-          <span class="hdr-phone-chip" id="hdrPhoneChip" title="Automatic sensor">Automatic</span>
         </div>
       </div>
 
@@ -2896,11 +2869,6 @@
      7. ROLLIE COMBO CARDS, CLAPPER SHEET & COMPACT LAB RENDERERS
      ========================================================================== */
 
-  function renderPhoneChipUI() {
-    const hdrChip = document.getElementById('hdrPhoneChip');
-    if (hdrChip) hdrChip.textContent = 'Automatic';
-  }
-
   function renderComboCards() {
     const { body, lens, film } = getSelectedGear();
     const lensShort = shortLensLabel(lens);
@@ -3210,7 +3178,6 @@
   }
 
   function syncAllUI() {
-    renderPhoneChipUI();
     renderComboCards();
     renderComboPickerSheet();
     renderTweaksDock();
