@@ -267,6 +267,10 @@
       transform: scale(0.98);
       border-color: #f5a623;
     }
+    #labComboTrio .combo-card {
+      padding: 10px 6px 8px;
+      gap: 5px;
+    }
     .combo-card-tag {
       font-family: var(--mono);
       font-size: 8.5px;
@@ -304,6 +308,12 @@
       display: block;
       filter: drop-shadow(0 3px 5px rgba(0,0,0,0.55));
     }
+    #labComboTrio .combo-card-art {
+      height: 44px;
+    }
+    #labComboTrio .combo-card-art svg {
+      height: 41px;
+    }
 
     /* ==================== TAB 1: DARKROOM (CLEAN STAGE + COMPACT DECK) ==================== */
     .stage-area {
@@ -316,7 +326,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 10px 10px 28px;
+      padding: 4px 4px 6px;
       overflow: hidden;
       user-select: none;
     }
@@ -325,7 +335,8 @@
       position: relative;
       display: inline-flex;
       max-width: 100%;
-      max-height: 100%;
+      flex: 0 1 auto;
+      max-height: calc(100% - 34px);
       min-width: 0;
       min-height: 0;
       align-items: center;
@@ -399,17 +410,16 @@
     .split-tag.left { left: 6px; }
     .split-tag.right { right: 6px; color: #f5a623; }
 
-    /* Rollie-style bottom caption & subtle floating controls */
+    /* Rollie-style bottom caption & subtle floating controls (hugged beneath photo) */
     .stage-overlay-bottom {
-      position: absolute;
-      bottom: 6px;
-      left: 10px;
-      right: 10px;
+      width: 100%;
+      padding: 0 6px;
+      margin-top: 8px;
+      flex-shrink: 0;
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 6px;
-      pointer-events: none;
       z-index: 12;
     }
     .rollie-combo-caption {
@@ -471,10 +481,10 @@
       flex-shrink: 0;
       background: #0d0f13;
       border-top: 1px solid #1e222b;
-      padding: 8px 10px 8px;
+      padding: 9px 10px 9px;
       display: flex;
       flex-direction: column;
-      gap: 7px;
+      gap: 8px;
     }
 
     /* Collapsible Slider Drawer inside Lab Dock */
@@ -518,25 +528,39 @@
       box-shadow: 0 1px 5px rgba(0,0,0,0.7);
     }
 
-    /* Horizontal Tweak Pill Strip */
+    /* Tweak Pill Strip */
     .tweak-strip-row {
       display: flex;
       align-items: center;
       gap: 6px;
     }
+    .tweak-pills-wrap {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 5px;
+      width: 100%;
+    }
     .tweak-pill {
-      flex-shrink: 0;
-      padding: 5px 9px;
-      border-radius: 14px;
+      min-width: 0;
+      padding: 5px 4px;
+      border-radius: 9px;
       background: #151820;
       border: 1px solid #252a35;
-      display: inline-flex;
+      display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 5px;
-      font-size: 10.5px;
+      justify-content: center;
+      gap: 2px;
+      font-size: 9px;
       font-weight: 600;
       color: var(--text-secondary);
       white-space: nowrap;
+      overflow: hidden;
+    }
+    .tweak-pill span:first-child {
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .tweak-pill.active {
       border-color: #f5a623;
@@ -545,7 +569,7 @@
     }
     .tweak-pill-val {
       font-family: var(--mono);
-      font-size: 10px;
+      font-size: 9.5px;
       font-weight: 700;
       color: #f5a623;
     }
@@ -876,7 +900,7 @@
       padding: 4px 10px 6px;
     }
     .app-shell.picker-open .stage-area {
-      padding: 6px 10px 26px;
+      padding: 4px 4px 6px;
     }
 
     .combo-dock-panel {
@@ -1211,6 +1235,30 @@
     .sync-modal-actions { display: flex; gap: 8px; margin-top: 12px; }
     .sync-modal-actions button { flex: 1; min-height: 36px; border: 1px solid var(--border-light); border-radius: 9px; background: var(--bg-elevated); }
     .sync-modal-actions .sync-save { border-color: #f5a623; background: rgba(245,166,35,0.16); color: #f5a623; font-weight: 700; }
+
+    @media (min-height: 750px) {
+      #view-darkroom .tool-dock {
+        padding: 10px 10px 10px;
+        gap: 9px;
+      }
+      .tweak-drawer {
+        padding: 7px 11px 9px;
+        gap: 6px;
+      }
+      #labComboTrio .combo-card {
+        padding: 12px 6px 10px;
+        gap: 6px;
+      }
+      #labComboTrio .combo-card-art {
+        height: 48px;
+      }
+      #labComboTrio .combo-card-art svg {
+        height: 45px;
+      }
+      .tweak-pill {
+        padding: 6px 4px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1295,9 +1343,9 @@
           </button>
         </div>
 
-        <!-- Single-Row Quick Adjust & Frame/Date/Recipe Pills -->
+        <!-- Quick Adjust & Frame/Date Pills -->
         <div class="tweak-strip-row">
-          <div class="h-scroll" id="tweakPillsStrip" style="flex:1;"></div>
+          <div class="tweak-pills-wrap" id="tweakPillsStrip"></div>
         </div>
       </div>
     </main>
@@ -1588,14 +1636,14 @@
   FILM_STOCKS.forEach(film => { film.subtitle = FILM_SUBTITLES_EN[film.id]; });
 
   const TWEAK_DEFS = [
-    { key: 'strength', label: 'Film strength', min: 0, max: 100, fmt: v => `${v}%` },
-    { key: 'exposure', label: 'Exposure', min: -150, max: 150, fmt: v => `${v >= 0 ? '+' : ''}${(v / 100).toFixed(1)} EV` },
-    { key: 'warmth', label: 'Warmth', min: -40, max: 40, fmt: v => (v > 0 ? `+${v}` : `${v}`) },
-    { key: 'grain', label: 'Grain', min: 0, max: 100, fmt: v => `${v}%` },
-    { key: 'halation', label: 'Halation', min: 0, max: 100, fmt: v => `${v}%` },
-    { key: 'bloom', label: 'Bloom', min: 0, max: 100, fmt: v => `${v}%` },
-    { key: 'vignette', label: 'Vignette', min: 0, max: 100, fmt: v => `${v}%` },
-    { key: 'leakAmt', label: 'Light leak', min: 0, max: 100, fmt: v => `${v}%` }
+    { key: 'strength', label: 'Film strength', short: 'Strength', min: 0, max: 100, fmt: v => `${v}%` },
+    { key: 'exposure', label: 'Exposure', short: 'Exp', min: -150, max: 150, fmt: v => `${v >= 0 ? '+' : ''}${(v / 100).toFixed(1)}` },
+    { key: 'warmth', label: 'Warmth', short: 'Warmth', min: -40, max: 40, fmt: v => (v > 0 ? `+${v}` : `${v}`) },
+    { key: 'grain', label: 'Grain', short: 'Grain', min: 0, max: 100, fmt: v => `${v}%` },
+    { key: 'halation', label: 'Halation', short: 'Halation', min: 0, max: 100, fmt: v => `${v}%` },
+    { key: 'bloom', label: 'Bloom', short: 'Bloom', min: 0, max: 100, fmt: v => `${v}%` },
+    { key: 'vignette', label: 'Vignette', short: 'Vig', min: 0, max: 100, fmt: v => `${v}%` },
+    { key: 'leakAmt', label: 'Light leak', short: 'Leak', min: 0, max: 100, fmt: v => `${v}%` }
   ];
 
   const LEAK_TYPES = [
@@ -2806,6 +2854,7 @@
       if (!output || requestVersion !== previewRequestVersion) { output?.bitmap?.close(); return; }
       const image = output.bitmap || output.canvas;
 
+      canvasStack.style.aspectRatio = `${image.width} / ${image.height}`;
       previewCanvas.width = image.width;
       previewCanvas.height = image.height;
       previewCanvas.getContext('2d').drawImage(image, 0, 0);
@@ -3051,7 +3100,7 @@
       pill.type = 'button';
       const active = isDrawerOpen && state.activeTweakKey === t.key;
       pill.className = `tweak-pill ${active ? 'active' : ''}`;
-      pill.innerHTML = `<span>${t.label}</span><span class="tweak-pill-val">${t.fmt(state[t.key])}</span>`;
+      pill.innerHTML = `<span>${t.short || t.label}</span><span class="tweak-pill-val">${t.fmt(state[t.key])}</span>`;
       pill.addEventListener('click', () => {
         if (drawer.classList.contains('open') && state.activeTweakKey === t.key) {
           drawer.classList.remove('open');
@@ -3844,6 +3893,7 @@
   }
   await loadSampleScenePhotos();
   renderSampleStrip();
+  if (window.innerHeight >= 700) document.getElementById('tweakDrawer')?.classList.add('open');
   syncAllUI();
   renderContactSheet();
   cameraRollReady = restoreCameraRoll();
