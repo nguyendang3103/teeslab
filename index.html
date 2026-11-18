@@ -280,23 +280,27 @@
       margin-top: -2px;
     }
     .combo-card-art {
-      height: 36px;
+      height: 38px;
       display: flex;
       align-items: center;
       justify-content: center;
       margin-top: 1px;
     }
-    .combo-card-art svg {
-      height: 34px;
+    .combo-card-art svg,
+    .combo-card-art img {
+      height: 36px;
       width: auto;
+      max-width: 100%;
+      object-fit: contain;
       display: block;
-      filter: drop-shadow(0 3px 5px rgba(0,0,0,0.55));
+      filter: drop-shadow(0 3px 5px rgba(0,0,0,0.55)) drop-shadow(0 0 1px rgba(255,255,255,0.16));
     }
     #labComboTrio .combo-card-art {
-      height: 44px;
+      height: 45px;
     }
-    #labComboTrio .combo-card-art svg {
-      height: 41px;
+    #labComboTrio .combo-card-art svg,
+    #labComboTrio .combo-card-art img {
+      height: 43px;
     }
 
     /* ==================== TAB 1: DARKROOM (CLEAN STAGE + COMPACT DECK) ==================== */
@@ -1075,7 +1079,7 @@
     .picker-tile {
       flex-shrink: 0;
       width: 88px;
-      padding: 6px 4px 5px;
+      padding: 4px 4px 4px;
       border-radius: 9px;
       background: #171a21;
       border: 1.5px solid #242934;
@@ -1089,11 +1093,13 @@
       transition: border-color 0.14s ease, opacity 0.14s ease, background 0.14s ease;
     }
     .picker-tile .combo-card-art {
-      height: 28px;
+      height: 34px;
       margin-top: 0;
     }
-    .picker-tile .combo-card-art svg {
-      height: 27px;
+    .picker-tile .combo-card-art svg,
+    .picker-tile .combo-card-art img {
+      height: 33px;
+      max-width: 78px;
     }
     .picker-tile.active {
       opacity: 1;
@@ -1214,21 +1220,6 @@
       opacity: 1;
       transform: translateX(-50%) translateY(0);
     }
-    .sync-modal-backdrop {
-      position: absolute; inset: 0; z-index: 100; display: none; align-items: center; justify-content: center;
-      padding: 20px; background: rgba(0, 0, 0, .72);
-    }
-    .sync-modal-backdrop.open { display: flex; }
-    .sync-modal {
-      width: 100%; max-width: 360px; padding: 18px; border: 1px solid var(--border-light);
-      border-radius: 16px; background: var(--bg-card); box-shadow: 0 18px 50px rgba(0,0,0,.45);
-    }
-    .sync-modal h2 { margin: 0 0 8px; font-size: 16px; }
-    .sync-modal p { margin: 0 0 14px; color: var(--text-secondary); font-size: 12px; line-height: 1.5; }
-    .sync-modal input { width: 100%; height: 40px; padding: 0 10px; border: 1px solid var(--border-light); border-radius: 9px; background: var(--bg-input); }
-    .sync-modal-actions { display: flex; gap: 8px; margin-top: 12px; }
-    .sync-modal-actions button { flex: 1; min-height: 36px; border: 1px solid var(--border-light); border-radius: 9px; background: var(--bg-elevated); }
-    .sync-modal-actions .sync-save { border-color: #f5a623; background: rgba(245,166,35,0.16); color: #f5a623; font-weight: 700; }
 
     @media (min-height: 750px) {
       #view-darkroom .tool-dock {
@@ -1246,8 +1237,9 @@
       #labComboTrio .combo-card-art {
         height: 48px;
       }
-      #labComboTrio .combo-card-art svg {
-        height: 45px;
+      #labComboTrio .combo-card-art svg,
+      #labComboTrio .combo-card-art img {
+        height: 46px;
       }
       .tweak-pill {
         padding: 6px 4px;
@@ -1271,7 +1263,6 @@
       <div class="topbar-actions">
         <input type="file" id="fileInput" accept="image/*" hidden />
         <button class="btn-icon-top" id="btnOpenSamples" title="Sample photos" aria-label="Sample photos">🖼️</button>
-        <button class="btn-icon-top" id="btnCloudSync" title="Cloud backup" aria-label="Cloud backup">☁️</button>
         <button class="btn-pill btn-brass" id="btnExport" title="Save edited photo" aria-label="Save edited photo">Save</button>
       </div>
     </header>
@@ -1520,19 +1511,6 @@
           </div>
         </div>
         <div class="contact-grid-2" id="contactSheetGrid"></div>
-      </div>
-    </div>
-
-    <div class="sync-modal-backdrop" id="syncModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="syncModalTitle">
-      <div class="sync-modal">
-        <h2 id="syncModalTitle">Sync settings with GitHub</h2>
-        <p>Back up camera settings and saved combos to a private GitHub Gist. Use a personal access token with <strong>gist</strong> access. Your photos stay on this device.</p>
-        <input id="syncTokenInput" type="password" autocomplete="off" placeholder="GitHub token" aria-label="GitHub token" />
-        <div class="sync-modal-actions">
-          <button id="syncDisconnect" type="button">Disconnect</button>
-          <button id="syncModalClose" type="button">Close</button>
-          <button class="sync-save" id="syncSave" type="button">Connect and sync</button>
-        </div>
       </div>
     </div>
 
@@ -2476,8 +2454,6 @@
   } catch (e) {}
 
   const APP_STATE_KEY = 'tees-lab-state-v1';
-  const GH_CONFIG_KEY = 'tees-lab-github-sync-v1';
-  const GH_SYNC = { timer: 0, running: false };
   let rollDatabasePromise = null;
   function openRollDatabase() {
     if (!('indexedDB' in window)) return Promise.reject(new Error('IndexedDB is unavailable'));
@@ -2534,23 +2510,10 @@
     });
   }
   const SYNC_FIELDS = ['phoneId', 'bodyId', 'lensId', 'filmId', 'filmBrandFilter', 'strength', 'exposure', 'warmth', 'grain', 'halation', 'bloom', 'vignette', 'leakType', 'leakAmt', 'frameType', 'dateStamp', 'camFacing', 'camSound', 'camExposureEV', 'camIso', 'camShutter', 'camWhiteBalance', 'camTimer'];
-  function getGhConfig() {
-    try { return JSON.parse(localStorage.getItem(GH_CONFIG_KEY)) || { token: '', gistId: '', user: '' }; }
-    catch (e) { return { token: '', gistId: '', user: '' }; }
-  }
-  function saveGhConfig(cfg) { localStorage.setItem(GH_CONFIG_KEY, JSON.stringify(cfg)); }
   function stateSnapshot() {
     const settings = {};
     SYNC_FIELDS.forEach(key => { settings[key] = state[key]; });
     return { v: 1, t: Date.now(), settings, recipes: state.recipes };
-  }
-  function mergeRecipes(a, b) {
-    const merged = [], seen = new Set();
-    for (const recipe of [...(Array.isArray(a) ? a : []), ...(Array.isArray(b) ? b : [])]) {
-      const key = JSON.stringify(recipe);
-      if (!seen.has(key)) { seen.add(key); merged.push(recipe); }
-    }
-    return merged;
   }
   function saveLocalAppState() {
     const snapshot = stateSnapshot();
@@ -2558,7 +2521,6 @@
       localStorage.setItem(APP_STATE_KEY, JSON.stringify(snapshot));
       localStorage.setItem('tees_lab_recipes_v1', JSON.stringify(state.recipes));
     } catch (e) { return; }
-    scheduleGhPush();
   }
   function applyAppSnapshot(snapshot) {
     if (!snapshot || snapshot.v !== 1) return false;
@@ -2595,144 +2557,6 @@
       saveLocalAppState();
     }
   } catch (e) { state.phoneId = 'auto-detect'; }
-  function ghHeaders(token) {
-    const clean = (token || '').trim();
-    const auth = clean.startsWith('Bearer ') || clean.startsWith('token ') ? clean : `Bearer ${clean}`;
-    return { Accept: 'application/vnd.github+json', Authorization: auth, 'X-GitHub-Api-Version': '2022-11-28', 'Content-Type': 'application/json' };
-  }
-  async function findOrCreateGhGist(token) {
-    const headers = ghHeaders(token);
-    const userResponse = await fetch('https://api.github.com/user', { headers });
-    if (!userResponse.ok) throw new Error(`GitHub token check failed (${userResponse.status})`);
-    const user = await userResponse.json();
-    const listResponse = await fetch('https://api.github.com/gists?per_page=100', { headers });
-    if (listResponse.ok) {
-      const gists = await listResponse.json();
-      const existing = gists.find(g => g.files && g.files['tees-lab-settings.json']);
-      if (existing) return { gistId: existing.id, user: user.login || '' };
-    }
-    const createResponse = await fetch('https://api.github.com/gists', {
-      method: 'POST', headers,
-      body: JSON.stringify({ description: "Tee's Lab settings and recipe backup", public: false, files: { 'tees-lab-settings.json': { content: JSON.stringify(stateSnapshot()) } } })
-    });
-    if (!createResponse.ok) throw new Error(`Could not create GitHub Gist (${createResponse.status})`);
-    const created = await createResponse.json();
-    return { gistId: created.id, user: user.login || '' };
-  }
-  async function pullGhSync(quiet = true) {
-    const cfg = getGhConfig();
-    if (!cfg.token || !cfg.gistId || GH_SYNC.running) return false;
-    GH_SYNC.running = true;
-    try {
-      const response = await fetch(`https://api.github.com/gists/${cfg.gistId}`, { headers: ghHeaders(cfg.token) });
-      if (!response.ok) throw new Error(`GitHub sync failed (${response.status})`);
-      const gist = await response.json();
-      const file = gist.files && gist.files['tees-lab-settings.json'];
-      if (!file || !file.content) return false;
-      const remote = JSON.parse(file.content);
-      const local = JSON.parse(localStorage.getItem(APP_STATE_KEY) || 'null');
-      if (remote && remote.v === 1 && (!local || (remote.t || 0) > (local.t || 0))) {
-        remote.recipes = mergeRecipes(local && local.recipes, remote.recipes);
-        applyAppSnapshot(remote);
-        syncAllUI(); renderPreview();
-        if (!quiet) showToast('Settings synced from GitHub');
-        return true;
-      }
-      return false;
-    } catch (e) {
-      if (!quiet) showToast(e.message || 'Could not sync with GitHub');
-      return false;
-    } finally { GH_SYNC.running = false; }
-  }
-  async function pushGhSync(quiet = true) {
-    const cfg = getGhConfig();
-    if (!cfg.token || !cfg.gistId || GH_SYNC.running) return false;
-    GH_SYNC.running = true;
-    try {
-      const local = stateSnapshot();
-      let outgoing = local;
-      const currentResponse = await fetch(`https://api.github.com/gists/${cfg.gistId}`, { headers: ghHeaders(cfg.token) });
-      if (currentResponse.ok) {
-        const currentGist = await currentResponse.json();
-        const currentFile = currentGist.files && currentGist.files['tees-lab-settings.json'];
-        if (currentFile && currentFile.content) {
-          const remote = JSON.parse(currentFile.content);
-          if (remote && remote.v === 1) {
-            const remoteWins = (remote.t || 0) > (local.t || 0);
-            outgoing = remoteWins ? { ...remote } : { ...local };
-            outgoing.recipes = mergeRecipes(local.recipes, remote.recipes);
-            outgoing.t = Math.max(local.t || 0, remote.t || 0, Date.now()) + 1;
-            applyAppSnapshot(outgoing);
-            if (remoteWins) { syncAllUI(); renderPreview(); }
-          }
-        }
-      }
-      const response = await fetch(`https://api.github.com/gists/${cfg.gistId}`, {
-        method: 'PATCH', headers: ghHeaders(cfg.token),
-        body: JSON.stringify({ files: { 'tees-lab-settings.json': { content: JSON.stringify(outgoing) } } })
-      });
-      if (!response.ok) throw new Error(`GitHub sync failed (${response.status})`);
-      if (!quiet) showToast('Settings backed up to GitHub');
-      return true;
-    } catch (e) {
-      if (!quiet) showToast(e.message || 'Could not back up to GitHub');
-      return false;
-    } finally { GH_SYNC.running = false; }
-  }
-  function scheduleGhPush() {
-    if (!getGhConfig().token) return;
-    clearTimeout(GH_SYNC.timer);
-    GH_SYNC.timer = setTimeout(() => { pushGhSync(true); }, 2500);
-  }
-  async function startGhSync() {
-    let cfg = getGhConfig();
-    if (!cfg.token) return;
-    try {
-      if (!cfg.gistId) {
-        const found = await findOrCreateGhGist(cfg.token);
-        cfg = { ...cfg, ...found }; saveGhConfig(cfg);
-      }
-      const updated = await pullGhSync(true);
-      if (!updated) await pushGhSync(true);
-      document.addEventListener('visibilitychange', () => { if (!document.hidden) pullGhSync(true); });
-      updateSyncButton();
-    } catch (e) { updateSyncButton(); }
-  }
-  function updateSyncButton() {
-    const button = document.getElementById('btnCloudSync');
-    if (!button) return;
-    const cfg = getGhConfig();
-    button.textContent = cfg.token ? '☁️✓' : '☁️';
-    button.title = cfg.token ? `GitHub sync connected${cfg.user ? ` (@${cfg.user})` : ''}` : 'Set up cloud sync';
-    button.setAttribute('aria-label', button.title);
-  }
-  const syncModal = document.getElementById('syncModalBackdrop');
-  function openSyncModal() {
-    document.getElementById('syncTokenInput').value = getGhConfig().token || '';
-    syncModal.classList.add('open');
-  }
-  document.getElementById('btnCloudSync')?.addEventListener('click', openSyncModal);
-  document.getElementById('syncModalClose').addEventListener('click', () => syncModal.classList.remove('open'));
-  syncModal.addEventListener('click', e => { if (e.target === syncModal) syncModal.classList.remove('open'); });
-  document.getElementById('syncDisconnect').addEventListener('click', () => {
-    clearTimeout(GH_SYNC.timer);
-    localStorage.removeItem(GH_CONFIG_KEY); updateSyncButton(); syncModal.classList.remove('open');
-    showToast('GitHub sync disconnected');
-  });
-  document.getElementById('syncSave').addEventListener('click', async () => {
-    const token = document.getElementById('syncTokenInput').value.trim();
-    if (!token) { showToast('Enter a GitHub token with Gist access'); return; }
-    const button = document.getElementById('syncSave'); button.disabled = true; button.textContent = 'Connecting…';
-    try {
-      const found = await findOrCreateGhGist(token);
-      saveGhConfig({ token, ...found });
-      const changed = await pullGhSync(true);
-      if (!changed) await pushGhSync(true);
-      saveLocalAppState(); updateSyncButton(); syncModal.classList.remove('open');
-      showToast('GitHub sync connected');
-    } catch (e) { showToast(e.message || 'Could not connect to GitHub'); }
-    finally { button.disabled = false; button.textContent = 'Connect and sync'; }
-  });
   document.addEventListener('input', saveLocalAppState);
   document.addEventListener('change', saveLocalAppState);
   document.addEventListener('click', () => setTimeout(saveLocalAppState, 0));
@@ -2839,6 +2663,37 @@
     </svg>`;
   }
 
+  window.__gearImgErr = function(img) {
+    if (!img || !img.parentElement) return;
+    const folder = img.dataset.folder;
+    const id = img.dataset.id;
+    let fallback = '';
+    if (folder === 'bodies') fallback = svgCameraBody(id);
+    else if (folder === 'lenses') fallback = svgLensBarrel(id);
+    else {
+      const film = FILM_STOCKS.find(f => f.id === id) || { brand: 'fuji' };
+      fallback = svgFilmCanister(film);
+    }
+    delete img.parentElement.dataset.gearKey;
+    img.parentElement.innerHTML = fallback;
+  };
+
+  function renderGearArt(folder, id, alt) {
+    const safeFolder = escapeHtml(folder);
+    const safeId = escapeHtml(id);
+    const safeAlt = escapeHtml(alt || id);
+    return `<img src="./assets/gear/${safeFolder}/${safeId}.webp" alt="${safeAlt}" data-folder="${safeFolder}" data-id="${safeId}" loading="eager" decoding="async" onerror="window.__gearImgErr(this)" />`;
+  }
+
+  function setGearArt(elId, folder, gearId, alt) {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    const key = `${folder}/${gearId}`;
+    if (el.dataset.gearKey === key) return;
+    el.dataset.gearKey = key;
+    el.innerHTML = renderGearArt(folder, gearId, alt);
+  }
+
   function formatDateStamp() {
     if (state.dateStamp === 'off') return '';
     if (state.exif && state.exif.dateRaw) {
@@ -2937,25 +2792,22 @@
   function renderComboCards() {
     const { body, lens, film } = getSelectedGear();
     const lensShort = shortLensLabel(lens);
-    const bodySvg = svgCameraBody(body.id);
-    const lensSvg = svgLensBarrel(lens.id);
-    const filmSvg = svgFilmCanister(film);
 
     // Lab 3-card deck
     document.getElementById('labCardBodyName').textContent = body.name;
     document.getElementById('labCardLensName').textContent = lensShort;
     document.getElementById('labCardFilmName').textContent = film.name;
-    document.getElementById('labCardBodyArt').innerHTML = bodySvg;
-    document.getElementById('labCardLensArt').innerHTML = lensSvg;
-    document.getElementById('labCardFilmArt').innerHTML = filmSvg;
+    setGearArt('labCardBodyArt', 'bodies', body.id, body.name);
+    setGearArt('labCardLensArt', 'lenses', lens.id, lensShort);
+    setGearArt('labCardFilmArt', 'films', film.id, film.name);
 
     // Camera 3-card deck
     document.getElementById('camCardBodyName').textContent = body.name;
     document.getElementById('camCardLensName').textContent = lensShort;
     document.getElementById('camCardFilmName').textContent = film.name;
-    document.getElementById('camCardBodyArt').innerHTML = bodySvg;
-    document.getElementById('camCardLensArt').innerHTML = lensSvg;
-    document.getElementById('camCardFilmArt').innerHTML = filmSvg;
+    setGearArt('camCardBodyArt', 'bodies', body.id, body.name);
+    setGearArt('camCardLensArt', 'lenses', lens.id, lensShort);
+    setGearArt('camCardFilmArt', 'films', film.id, film.name);
 
     // Clapperboard summary inside Combo Picker Sheet & Stage caption
     document.getElementById('clapperBodyVal').textContent = body.name;
@@ -3010,7 +2862,7 @@
         btn.dataset.id = b.id;
         btn.className = 'picker-tile';
         btn.innerHTML = `
-          <div class="combo-card-art">${svgCameraBody(b.id)}</div>
+          <div class="combo-card-art">${renderGearArt('bodies', b.id, b.name)}</div>
           <span class="picker-tile-name">${escapeHtml(b.name)}</span>
           <span class="picker-tile-sub">${escapeHtml(b.meta)}</span>
         `;
@@ -3032,7 +2884,7 @@
         btn.dataset.id = l.id;
         btn.className = 'picker-tile';
         btn.innerHTML = `
-          <div class="combo-card-art">${svgLensBarrel(l.id)}</div>
+          <div class="combo-card-art">${renderGearArt('lenses', l.id, shortLensLabel(l))}</div>
           <span class="picker-tile-name">${escapeHtml(shortLensLabel(l))}</span>
           <span class="picker-tile-sub">${escapeHtml(l.meta)}</span>
         `;
@@ -3071,7 +2923,7 @@
         btn.dataset.id = f.id;
         btn.className = 'picker-tile';
         btn.innerHTML = `
-          <div class="combo-card-art">${svgFilmCanister(f)}</div>
+          <div class="combo-card-art">${renderGearArt('films', f.id, f.name)}</div>
           <span class="picker-tile-name">${escapeHtml(f.name)}</span>
           <span class="picker-tile-sub">${escapeHtml(f.subtitle)}</span>
         `;
@@ -3950,8 +3802,6 @@
   renderContactSheet();
   cameraRollReady = restoreCameraRoll();
   loadSourceCanvas(SAMPLES[0].canvas, null);
-  updateSyncButton();
-  startGhSync();
 })();
 </script>
 </body>
