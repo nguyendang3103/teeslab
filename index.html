@@ -321,6 +321,7 @@
       max-width: 100%;
       max-height: 100%;
       min-width: 0;
+      min-height: 0;
       align-items: center;
       justify-content: center;
     }
@@ -659,7 +660,7 @@
     #cameraViewfinderCanvas {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain;
       display: block;
     }
     /* Rule of thirds grid + Corner Brackets */
@@ -858,7 +859,37 @@
       color: #f5a623;
     }
 
-    /* ==================== ROLLIE COMBO PICKER SHEET (IMG_0493) ==================== */
+    /* ==================== ROLLIE DOCKED COMBO PICKER (LIVE PREVIEW ABOVE) ==================== */
+    .app-shell.picker-open #view-darkroom .tool-dock,
+    .app-shell.picker-open #camComboTrio,
+    .app-shell.picker-open .cam-shutter-deck,
+    .app-shell.picker-open .bottom-nav {
+      display: none;
+    }
+    .app-shell.picker-open .cam-wrap {
+      padding: 4px 10px 6px;
+    }
+    .app-shell.picker-open .stage-area {
+      padding: 6px 10px 26px;
+    }
+
+    .combo-dock-panel {
+      display: none;
+      flex-shrink: 0;
+      width: 100%;
+      background: #101217;
+      border-top: 1px solid #2b303c;
+      border-radius: 14px 14px 0 0;
+      padding: 8px 10px calc(10px + env(safe-area-inset-bottom));
+      box-shadow: 0 -8px 26px rgba(0, 0, 0, 0.58);
+      z-index: 40;
+    }
+    .combo-dock-panel.open {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
     .sheet-backdrop {
       position: absolute;
       inset: 0;
@@ -871,7 +902,7 @@
     .sheet-backdrop.open { display: flex; }
     .sheet-card {
       width: 100%;
-      max-height: 82vh;
+      max-height: 78vh;
       background: #111318;
       border-top: 1px solid #2b303c;
       border-radius: 18px 18px 0 0;
@@ -888,45 +919,95 @@
       font-weight: 700;
       font-size: 13px;
     }
+    .picker-topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      min-height: 26px;
+    }
+    .picker-topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+    .picker-topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
 
-    /* Clapperboard Summary Box in Combo Picker */
+    /* Interactive Clapperboard Tab Box */
     .clapper-box {
       border: 1px solid #282c36;
       border-radius: 8px;
       overflow: hidden;
-      margin-bottom: 12px;
       background: #15181f;
     }
     .clapper-stripes {
-      height: 10px;
+      height: 7px;
       background: repeating-linear-gradient(
         -45deg,
         #e5e7eb,
-        #e5e7eb 8px,
-        #15181f 8px,
-        #15181f 16px
+        #e5e7eb 7px,
+        #15181f 7px,
+        #15181f 14px
       );
       border-bottom: 1px solid #282c36;
     }
     .clapper-cols {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
     .clapper-col {
-      padding: 6px 8px;
+      padding: 5px 8px 6px;
       border-right: 1px solid #222630;
       min-width: 0;
+      text-align: left;
+      position: relative;
+      transition: background 0.15s ease;
     }
     .clapper-col:last-child { border-right: none; }
+    .clapper-col.active {
+      background: rgba(245, 166, 35, 0.12);
+    }
+    .clapper-col.active::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 2px;
+      background: #f5a623;
+    }
+    .clapper-col-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 1px;
+    }
     .clapper-col-lbl {
       font-family: var(--mono);
       font-size: 8.5px;
+      font-weight: 700;
       color: #6c7586;
-      letter-spacing: 0.8px;
-      margin-bottom: 2px;
+      letter-spacing: 0.7px;
     }
+    .clapper-col.active .clapper-col-lbl {
+      color: #f5a623;
+    }
+    .clapper-col-num {
+      font-family: var(--mono);
+      font-size: 8px;
+      color: #6c7586;
+    }
+    .clapper-col-num strong { color: #d1d5db; }
+    .clapper-col.active .clapper-col-num strong { color: #f5a623; }
     .clapper-col-val {
-      font-size: 11.5px;
+      font-size: 11px;
       font-weight: 700;
       color: #f3f4f6;
       white-space: nowrap;
@@ -936,48 +1017,71 @@
     .clapper-col.film-col .clapper-col-val { color: #f5a623; }
 
     .picker-section {
-      margin-bottom: 12px;
+      display: none;
+      margin-bottom: 0;
     }
-    .picker-sec-head {
+    .picker-section.active {
+      display: block;
+    }
+    .picker-spec-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-family: var(--mono);
+      gap: 8px;
+      margin-bottom: 5px;
+      min-height: 18px;
       font-size: 10px;
-      letter-spacing: 0.8px;
-      color: #8a93a2;
-      margin-bottom: 6px;
     }
-    .picker-sec-count strong { color: #f5a623; }
+    .picker-spec-note {
+      color: #a8b1bf;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
+    }
+    .picker-spec-stat {
+      font-family: var(--mono);
+      font-size: 9.5px;
+      color: #f5a623;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
 
-    /* Visual tiles inside Rollie Combo Picker */
+    /* Compact Visual Tiles inside Docked Clapperboard */
     .picker-tile {
       flex-shrink: 0;
-      width: 84px;
-      padding: 7px 5px 6px;
-      border-radius: 10px;
+      width: 88px;
+      padding: 6px 4px 5px;
+      border-radius: 9px;
       background: #171a21;
       border: 1.5px solid #242934;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: space-between;
-      gap: 5px;
+      gap: 3px;
       text-align: center;
-      opacity: 0.65;
-      transition: all 0.15s ease;
+      opacity: 0.7;
+      transition: border-color 0.14s ease, opacity 0.14s ease, background 0.14s ease;
+    }
+    .picker-tile .combo-card-art {
+      height: 28px;
+      margin-top: 0;
+    }
+    .picker-tile .combo-card-art svg {
+      height: 27px;
     }
     .picker-tile.active {
       opacity: 1;
       border-color: #f5a623;
-      background: rgba(245, 166, 35, 0.1);
-      box-shadow: 0 0 12px rgba(245, 166, 35, 0.18);
+      background: rgba(245, 166, 35, 0.11);
+      box-shadow: 0 0 10px rgba(245, 166, 35, 0.18);
     }
     .picker-tile-name {
-      font-size: 10px;
+      font-size: 9.5px;
       font-weight: 700;
-      padding: 1px 6px;
-      border-radius: 8px;
+      padding: 1px 5px;
+      border-radius: 7px;
       max-width: 100%;
       white-space: nowrap;
       overflow: hidden;
@@ -989,7 +1093,7 @@
       color: #111;
     }
     .picker-tile-sub {
-      font-size: 8.5px;
+      font-size: 8px;
       color: var(--text-muted);
       white-space: nowrap;
       overflow: hidden;
@@ -1140,7 +1244,7 @@
         <div class="hold-badge" id="holdCompareBadge">ORIGINAL</div>
 
         <div class="stage-overlay-bottom">
-          <button class="rollie-combo-caption" id="liveGearBadge" title="Tap to change combo">Rollie 35 S — 40mm f/2.8 — <strong>Pro 400H</strong></button>
+          <button class="rollie-combo-caption" id="liveGearBadge" title="Tap to change combo">Rollie 35 S — Sonnar 40 f2.8 — <strong>Pro 400H</strong></button>
           <div style="display:flex;gap:5px;">
             <button class="float-pill" id="btnToggleSplit">◧ Split</button>
             <button class="float-pill" id="btnHoldOriginal">👁️ Original</button>
@@ -1272,70 +1376,79 @@
       <button class="bnav-btn" data-tab="camera"><span class="ico">📷</span><span>Camera</span></button>
     </nav>
 
-    <!-- ROLLIE-STYLE COMBO PICKER SHEET (CAMERA • LENS • FILM + RECIPES) -->
-    <div class="sheet-backdrop" id="comboSheetBackdrop">
-      <div class="sheet-card">
-        <div class="sheet-head">
-          <span style="font-family:var(--mono);font-size:11px;letter-spacing:0.6px;color:var(--text-secondary);" id="clapperSceneLabel">SCENE 01 · ROLL 01</span>
-          <button class="btn-pill btn-ghost" id="btnCloseComboSheet" style="height:26px;">✕ Done</button>
+    <!-- ROLLIE-STYLE DOCKED COMBO PICKER (PHOTO STAYS CLEAR ABOVE) -->
+    <div class="combo-dock-panel" id="comboSheetBackdrop">
+      <div class="picker-topbar">
+        <div class="picker-topbar-left">
+          <span style="font-family:var(--mono);font-size:10.5px;letter-spacing:0.6px;color:var(--text-secondary);" id="clapperSceneLabel">SCENE 01 · ROLL 01</span>
+          <button class="filter-chip" id="btnTabSaved" type="button" style="padding:2px 8px;font-size:9.5px;">★ Saved</button>
+          <button class="filter-chip" id="btnRandomCombo" type="button" title="Randomize combo" style="padding:2px 7px;font-size:9.5px;">🎲</button>
         </div>
+        <div class="picker-topbar-right">
+          <button class="btn-pill btn-brass" id="btnCloseComboSheet" type="button" style="height:24px;padding:0 10px;font-size:10.5px;">✓ Done</button>
+        </div>
+      </div>
 
-        <div class="clapper-box">
-          <div class="clapper-stripes"></div>
-          <div class="clapper-cols">
-            <div class="clapper-col">
-              <div class="clapper-col-lbl">CAMERA</div>
-              <div class="clapper-col-val" id="clapperBodyVal">Rollie 35 S</div>
+      <div class="clapper-box">
+        <div class="clapper-stripes"></div>
+        <div class="clapper-cols">
+          <button class="clapper-col active" data-picker-tab="camera" type="button">
+            <div class="clapper-col-head">
+              <span class="clapper-col-lbl">CAMERA</span>
+              <span class="clapper-col-num" id="pickerBodyCount"><strong>01</strong>/11</span>
             </div>
-            <div class="clapper-col">
-              <div class="clapper-col-lbl">LENS</div>
-              <div class="clapper-col-val" id="clapperLensVal">40mm f/2.8</div>
+            <div class="clapper-col-val" id="clapperBodyVal">Rollie 35 S</div>
+          </button>
+          <button class="clapper-col" data-picker-tab="lens" type="button">
+            <div class="clapper-col-head">
+              <span class="clapper-col-lbl">LENS</span>
+              <span class="clapper-col-num" id="pickerLensCount"><strong>01</strong>/12</span>
             </div>
-            <div class="clapper-col film-col">
-              <div class="clapper-col-lbl">FILM</div>
-              <div class="clapper-col-val" id="clapperFilmVal">Pro 400H</div>
+            <div class="clapper-col-val" id="clapperLensVal">Sonnar 40 f2.8</div>
+          </button>
+          <button class="clapper-col film-col" data-picker-tab="film" type="button">
+            <div class="clapper-col-head">
+              <span class="clapper-col-lbl">FILM</span>
+              <span class="clapper-col-num" id="pickerFilmCount"><strong>01</strong>/20</span>
             </div>
-          </div>
+            <div class="clapper-col-val" id="clapperFilmVal">Pro 400H</div>
+          </button>
         </div>
+      </div>
 
-        <div class="picker-section" id="pickerSecCamera">
-          <div class="picker-sec-head">
-            <span>CAMERA</span>
-            <span class="picker-sec-count" id="pickerBodyCount"><strong>01</strong> / 11</span>
-          </div>
-          <div class="h-scroll" id="pickerBodyTrack"></div>
+      <div class="picker-section active" id="pickerSecCamera">
+        <div class="picker-spec-bar">
+          <span class="picker-spec-note" id="pickerBodyEffect">Warm nostalgia</span>
+          <span class="picker-spec-stat" id="pickerBodyStat">Contrast 1.04</span>
         </div>
+        <div class="h-scroll" id="pickerBodyTrack"></div>
+      </div>
 
-        <div class="picker-section" id="pickerSecLens">
-          <div class="picker-sec-head">
-            <span>LENS</span>
-            <span class="picker-sec-count" id="pickerLensCount"><strong>01</strong> / 23</span>
-          </div>
-          <div class="h-scroll" id="pickerLensTrack"></div>
+      <div class="picker-section" id="pickerSecLens">
+        <div class="picker-spec-bar">
+          <span class="picker-spec-note" id="pickerLensEffect">Rollei 35 S • built-in lens</span>
+          <span class="picker-spec-stat" id="pickerLensStat">Bloom 24 · Vig 22</span>
         </div>
+        <div class="h-scroll" id="pickerLensTrack"></div>
+      </div>
 
-        <div class="picker-section" id="pickerSecFilm">
-          <div class="picker-sec-head">
-            <span>FILM</span>
-            <span class="picker-sec-count" id="pickerFilmCount"><strong>01</strong> / 20</span>
-          </div>
-          <div class="h-scroll" id="filmBrandPills" style="margin-bottom:7px;">
-            <button class="filter-chip active" data-fbrand="all" type="button">All (20)</button>
-            <button class="filter-chip" data-fbrand="fuji" type="button">Fujifilm</button>
-            <button class="filter-chip" data-fbrand="kodak" type="button">Kodak</button>
-            <button class="filter-chip" data-fbrand="cinema" type="button">CineStill</button>
-            <button class="filter-chip" data-fbrand="bw" type="button">B&amp;W</button>
-          </div>
-          <div class="h-scroll" id="pickerFilmTrack"></div>
+      <div class="picker-section" id="pickerSecFilm">
+        <div class="h-scroll" id="filmBrandPills" style="margin-bottom:6px;">
+          <button class="filter-chip active" data-fbrand="all" type="button">All (20)</button>
+          <button class="filter-chip" data-fbrand="fuji" type="button">Fujifilm</button>
+          <button class="filter-chip" data-fbrand="kodak" type="button">Kodak</button>
+          <button class="filter-chip" data-fbrand="cinema" type="button">CineStill</button>
+          <button class="filter-chip" data-fbrand="bw" type="button">B&amp;W</button>
         </div>
+        <div class="h-scroll" id="pickerFilmTrack"></div>
+      </div>
 
-        <div class="picker-section" style="margin-bottom:0;padding-top:8px;border-top:1px solid #222630;">
-          <div class="picker-sec-head">
-            <span>SAVED COMBOS</span>
-            <button class="filter-chip" id="btnSaveRecipe" type="button" style="color:#f5a623;border-color:rgba(245,166,35,0.4);">+ Save current combo</button>
-          </div>
-          <div class="h-scroll" id="recipeList"></div>
+      <div class="picker-section" id="pickerSecSaved">
+        <div class="picker-spec-bar">
+          <span class="picker-spec-note" style="font-family:var(--mono);font-size:9.5px;letter-spacing:0.6px;">SAVED COMBOS</span>
+          <button class="filter-chip" id="btnSaveRecipe" type="button" style="color:#f5a623;border-color:rgba(245,166,35,0.4);">+ Save current combo</button>
         </div>
+        <div class="h-scroll" id="recipeList"></div>
       </div>
     </div>
 
@@ -2188,6 +2301,7 @@
     lensId: 'rollei-sonnar-40',
     filmId: 'fuji-pro-400h',
     filmBrandFilter: 'all',
+    pickerTab: 'camera',
     activeTweakKey: 'strength',
 
     strength: 100,
@@ -2537,11 +2651,23 @@
   }
 
   function shortLensLabel(lens) {
+    const shortMap = {
+      'helios-44': 'Helios 44-2',
+      'nikon-50-18': 'Nikkor 50 f1.8',
+      'canon-fd-50': 'FD 50 f1.4',
+      'olympus-zuiko-50': 'Zuiko 50 f1.8',
+      'pentax-k-50-12': 'Pentax 50 f1.2',
+      'minolta-rokkor-58-12': 'Rokkor 58 f1.2',
+      'leica-summilux-35': 'Lux 35 f1.4',
+      'leica-noctilux-50': 'Noctilux 50',
+      'hasselblad-planar-80': 'Planar 80 f2.8',
+      'fuji-xpan-45': 'XPan 45 f4',
+      'contax-t2-sonnar': 'Sonnar 38 f2.8',
+      'rollei-sonnar-40': 'Sonnar 40 f2.8'
+    };
+    if (shortMap[lens.id]) return shortMap[lens.id];
     const m = lens.name.match(/(\d+mm\s*f\/[\d.]+)/i) || lens.meta.match(/(f\/[\d.]+)/i);
     if (m && /\d+mm/i.test(m[1])) return m[1].replace(/\s+/g, ' ').replace('f/', 'f');
-    const focal = lens.name.match(/(\d{2,3})\b/);
-    const ap = (lens.name + ' ' + lens.meta).match(/f\/?([\d.]+)/i);
-    if (focal && ap) return `${focal[1]}mm f${ap[1]}`;
     return lens.name.replace(/^(Carl Zeiss|Leica|Fujinon|Voigtländer|Nikkor|Canon FD|SMC Pentax-FA|SMC Pentax|G\.Zuiko|Zuiko|MC Rokkor|Zeiss)\s*/i, '').trim();
   }
 
@@ -2743,86 +2869,135 @@
     document.getElementById('camCardLensArt').innerHTML = lensSvg;
     document.getElementById('camCardFilmArt').innerHTML = filmSvg;
 
-    // Clapperboard summary inside Combo Picker Sheet
+    // Clapperboard summary inside Combo Picker Sheet & Stage caption
     document.getElementById('clapperBodyVal').textContent = body.name;
     document.getElementById('clapperLensVal').textContent = lensShort;
     document.getElementById('clapperFilmVal').textContent = film.name;
+    const liveBadge = document.getElementById('liveGearBadge');
+    if (liveBadge) liveBadge.innerHTML = `${escapeHtml(body.name)} — ${escapeHtml(lensShort)} — <strong>${escapeHtml(film.name)}</strong>`;
     const shotNum = String(Math.max(1, state.camShotCount || 1)).padStart(2, '0');
     const rollNum = String(Math.max(1, state.camRollNumber || 1)).padStart(2, '0');
     document.getElementById('clapperSceneLabel').textContent = `SCENE ${shotNum} · ROLL ${rollNum}`;
   }
 
+  function syncPickerActiveUI() {
+    const tab = state.pickerTab || 'camera';
+    document.querySelectorAll('.clapper-col[data-picker-tab]').forEach(col => {
+      col.classList.toggle('active', col.dataset.pickerTab === tab);
+    });
+    const savedBtn = document.getElementById('btnTabSaved');
+    if (savedBtn) {
+      savedBtn.classList.toggle('active', tab === 'saved');
+      savedBtn.textContent = state.recipes.length ? `★ Saved (${state.recipes.length})` : '★ Saved';
+    }
+    const secMap = { camera: 'pickerSecCamera', lens: 'pickerSecLens', film: 'pickerSecFilm', saved: 'pickerSecSaved' };
+    Object.entries(secMap).forEach(([k, id]) => {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle('active', k === tab);
+    });
+  }
+
   function renderComboPickerSheet() {
+    const { body, lens } = getSelectedGear();
     const bodyIdx = Math.max(0, CAMERA_BODIES.findIndex(b => b.id === state.bodyId)) + 1;
     const lensIdx = Math.max(0, CAMERA_LENSES.findIndex(l => l.id === state.lensId)) + 1;
-    document.getElementById('pickerBodyCount').innerHTML = `<strong>${String(bodyIdx).padStart(2, '0')}</strong> / ${CAMERA_BODIES.length}`;
-    document.getElementById('pickerLensCount').innerHTML = `<strong>${String(lensIdx).padStart(2, '0')}</strong> / ${CAMERA_LENSES.length}`;
+    document.getElementById('pickerBodyCount').innerHTML = `<strong>${String(bodyIdx).padStart(2, '0')}</strong>/${CAMERA_BODIES.length}`;
+    document.getElementById('pickerLensCount').innerHTML = `<strong>${String(lensIdx).padStart(2, '0')}</strong>/${CAMERA_LENSES.length}`;
 
-    // 1. Camera Bodies Track
+    const warmthTag = body.bodyWarmth > 0 ? `+${body.bodyWarmth} Warm` : (body.bodyWarmth < 0 ? `${body.bodyWarmth} Cool` : 'Neutral');
+    document.getElementById('pickerBodyEffect').textContent = body.meta;
+    document.getElementById('pickerBodyStat').textContent = `Contrast ${body.contrast.toFixed(2)} · ${warmthTag}`;
+
+    const lensGlowTag = lens.edgeSoft >= 0.1 ? 'Dreamy edge' : (lens.bloomBase >= 30 ? 'Strong glow' : 'Clean edge');
+    document.getElementById('pickerLensEffect').textContent = `${lens.name} · ${lensGlowTag}`;
+    document.getElementById('pickerLensStat').textContent = `Bloom ${lens.bloomBase} · Vig ${lens.vignetteBase}`;
+
+    // 1. Camera Bodies Track (build once, toggle active class in place so scroll stays smooth)
     const bodyTrack = document.getElementById('pickerBodyTrack');
-    bodyTrack.innerHTML = '';
-    CAMERA_BODIES.forEach(b => {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = `picker-tile ${b.id === state.bodyId ? 'active' : ''}`;
-      btn.innerHTML = `
-        <div class="combo-card-art">${svgCameraBody(b.id)}</div>
-        <span class="picker-tile-name">${escapeHtml(b.name)}</span>
-        <span class="picker-tile-sub">${escapeHtml(b.meta)}</span>
-      `;
-      btn.addEventListener('click', () => selectCameraBody(b.id));
-      bodyTrack.appendChild(btn);
-    });
-
-    // 2. Lenses Track
-    const lensTrack = document.getElementById('pickerLensTrack');
-    lensTrack.innerHTML = '';
-    CAMERA_LENSES.forEach(l => {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = `picker-tile ${l.id === state.lensId ? 'active' : ''}`;
-      btn.innerHTML = `
-        <div class="combo-card-art">${svgLensBarrel(l.id)}</div>
-        <span class="picker-tile-name">${escapeHtml(shortLensLabel(l))}</span>
-        <span class="picker-tile-sub">${escapeHtml(l.name)}</span>
-      `;
-      btn.addEventListener('click', () => {
-        state.lensId = l.id;
-        state.bloom = l.bloomBase;
-        state.vignette = l.vignetteBase;
-        syncAllUI();
-        renderPreview();
+    if (bodyTrack.childElementCount !== CAMERA_BODIES.length) {
+      bodyTrack.innerHTML = '';
+      CAMERA_BODIES.forEach(b => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.dataset.id = b.id;
+        btn.className = 'picker-tile';
+        btn.innerHTML = `
+          <div class="combo-card-art">${svgCameraBody(b.id)}</div>
+          <span class="picker-tile-name">${escapeHtml(b.name)}</span>
+          <span class="picker-tile-sub">${escapeHtml(b.meta)}</span>
+        `;
+        btn.addEventListener('click', () => selectCameraBody(b.id));
+        bodyTrack.appendChild(btn);
       });
-      lensTrack.appendChild(btn);
+    }
+    Array.from(bodyTrack.children).forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.id === state.bodyId);
     });
 
-    // 3. Film Stocks Track
+    // 2. Lenses Track (build once, toggle active class in place)
+    const lensTrack = document.getElementById('pickerLensTrack');
+    if (lensTrack.childElementCount !== CAMERA_LENSES.length) {
+      lensTrack.innerHTML = '';
+      CAMERA_LENSES.forEach(l => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.dataset.id = l.id;
+        btn.className = 'picker-tile';
+        btn.innerHTML = `
+          <div class="combo-card-art">${svgLensBarrel(l.id)}</div>
+          <span class="picker-tile-name">${escapeHtml(shortLensLabel(l))}</span>
+          <span class="picker-tile-sub">${escapeHtml(l.meta)}</span>
+        `;
+        btn.addEventListener('click', () => {
+          state.lensId = l.id;
+          state.bloom = l.bloomBase;
+          state.vignette = l.vignetteBase;
+          syncAllUI();
+          renderPreview();
+        });
+        lensTrack.appendChild(btn);
+      });
+    }
+    Array.from(lensTrack.children).forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.id === state.lensId);
+    });
+
+    // 3. Film Stocks Track (preserve scrollLeft across selection; rebuild only when brand filter changes)
     const filteredFilms = state.filmBrandFilter === 'all'
       ? FILM_STOCKS
       : FILM_STOCKS.filter(f => f.brand === state.filmBrandFilter);
     const filmIdx = Math.max(0, filteredFilms.findIndex(f => f.id === state.filmId)) + 1;
-    document.getElementById('pickerFilmCount').innerHTML = `<strong>${String(filmIdx).padStart(2, '0')}</strong> / ${filteredFilms.length}`;
+    document.getElementById('pickerFilmCount').innerHTML = `<strong>${String(filmIdx).padStart(2, '0')}</strong>/${filteredFilms.length}`;
 
     document.querySelectorAll('#filmBrandPills .filter-chip').forEach(chip => {
       chip.classList.toggle('active', chip.dataset.fbrand === state.filmBrandFilter);
     });
 
     const filmTrack = document.getElementById('pickerFilmTrack');
-    filmTrack.innerHTML = '';
-    filteredFilms.forEach(f => {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = `picker-tile ${f.id === state.filmId ? 'active' : ''}`;
-      btn.innerHTML = `
-        <div class="combo-card-art">${svgFilmCanister(f)}</div>
-        <span class="picker-tile-name">${escapeHtml(f.name)}</span>
-        <span class="picker-tile-sub">${escapeHtml(f.subtitle)}</span>
-      `;
-      btn.addEventListener('click', () => selectFilmStock(f.id));
-      filmTrack.appendChild(btn);
+    if (filmTrack.dataset.filter !== state.filmBrandFilter) {
+      filmTrack.dataset.filter = state.filmBrandFilter;
+      filmTrack.innerHTML = '';
+      filteredFilms.forEach(f => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.dataset.id = f.id;
+        btn.className = 'picker-tile';
+        btn.innerHTML = `
+          <div class="combo-card-art">${svgFilmCanister(f)}</div>
+          <span class="picker-tile-name">${escapeHtml(f.name)}</span>
+          <span class="picker-tile-sub">${escapeHtml(f.subtitle)}</span>
+        `;
+        btn.addEventListener('click', () => selectFilmStock(f.id));
+        filmTrack.appendChild(btn);
+      });
+      filmTrack.scrollLeft = 0;
+    }
+    Array.from(filmTrack.children).forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.id === state.filmId);
     });
 
     renderSavedRecipesList();
+    syncPickerActiveUI();
   }
 
   function renderTweaksDock() {
@@ -2929,6 +3104,7 @@
         state.recipes.splice(idx, 1);
         localStorage.setItem('tees_lab_recipes_v1', JSON.stringify(state.recipes));
         renderSavedRecipesList();
+        syncPickerActiveUI();
       });
       list.appendChild(chip);
     });
@@ -3510,27 +3686,67 @@
   btnHold.addEventListener('pointercancel', () => setHold(false));
   btnHold.addEventListener('pointerleave', () => setHold(false));
 
-  // Open Rollie Combo Picker Sheet from 3-card decks or caption
+  // Open Rollie Docked Clapperboard Combo Picker (Photo stays unobstructed above)
+  const appShell = document.querySelector('.app-shell');
   const comboSheet = document.getElementById('comboSheetBackdrop');
+  function scrollActiveTileIntoView(tabName) {
+    const secMap = { camera: 'pickerSecCamera', lens: 'pickerSecLens', film: 'pickerSecFilm', saved: 'pickerSecSaved' };
+    const secEl = document.getElementById(secMap[tabName || state.pickerTab] || 'pickerSecCamera');
+    if (!secEl) return;
+    requestAnimationFrame(() => {
+      const activeTile = secEl.querySelector('.picker-tile.active');
+      if (activeTile) activeTile.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    });
+  }
+  function closeComboPicker() {
+    appShell.classList.remove('picker-open');
+    comboSheet.classList.remove('open');
+  }
   function openComboPicker(focusSection) {
-    renderComboPickerSheet();
+    state.pickerTab = focusSection || state.pickerTab || 'camera';
+    appShell.classList.add('picker-open');
     comboSheet.classList.add('open');
-    const secMap = { camera: 'pickerSecCamera', lens: 'pickerSecLens', film: 'pickerSecFilm' };
-    const secEl = document.getElementById(secMap[focusSection] || 'pickerSecCamera');
-    if (secEl) {
-      setTimeout(() => {
-        secEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        const activeTile = secEl.querySelector('.picker-tile.active');
-        if (activeTile) activeTile.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-      }, 40);
-    }
+    renderComboPickerSheet();
+    scrollActiveTileIntoView(state.pickerTab);
+  }
+  function setPickerTab(tab) {
+    state.pickerTab = tab;
+    syncPickerActiveUI();
+    scrollActiveTileIntoView(tab);
   }
   document.querySelectorAll('[data-open-combo]').forEach(btn => {
     btn.addEventListener('click', () => openComboPicker(btn.dataset.openCombo));
   });
-  document.getElementById('liveGearBadge').addEventListener('click', () => openComboPicker('film'));
-  document.getElementById('btnCloseComboSheet').addEventListener('click', () => comboSheet.classList.remove('open'));
-  comboSheet.addEventListener('click', e => { if (e.target === comboSheet) comboSheet.classList.remove('open'); });
+  document.querySelectorAll('.clapper-col[data-picker-tab]').forEach(col => {
+    col.addEventListener('click', () => setPickerTab(col.dataset.pickerTab));
+  });
+  document.getElementById('btnTabSaved').addEventListener('click', () => {
+    setPickerTab(state.pickerTab === 'saved' ? 'camera' : 'saved');
+  });
+  document.getElementById('btnRandomCombo').addEventListener('click', () => {
+    const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+    const body = pick(CAMERA_BODIES), lens = pick(CAMERA_LENSES), film = pick(FILM_STOCKS);
+    state.bodyId = body.id;
+    state.lensId = lens.id;
+    state.filmId = film.id;
+    state.filmBrandFilter = 'all';
+    state.bloom = lens.bloomBase;
+    state.vignette = lens.vignetteBase;
+    state.grain = film.grainBase;
+    state.halation = film.halationBase;
+    syncAllUI();
+    renderPreview();
+    scrollActiveTileIntoView(state.pickerTab);
+    showToast(`🎲 ${body.name} · ${shortLensLabel(lens)} · ${film.name}`);
+  });
+  document.getElementById('liveGearBadge').addEventListener('click', () => {
+    if (comboSheet.classList.contains('open')) closeComboPicker();
+    else openComboPicker('film');
+  });
+  document.getElementById('btnCloseComboSheet').addEventListener('click', closeComboPicker);
+  document.getElementById('previewDropZone').addEventListener('click', e => {
+    if (e.target === e.currentTarget && comboSheet.classList.contains('open')) closeComboPicker();
+  });
 
   // Film brand filter pills inside Combo Picker
   document.querySelectorAll('#filmBrandPills .filter-chip').forEach(btn => {
@@ -3577,6 +3793,7 @@
     });
     localStorage.setItem('tees_lab_recipes_v1', JSON.stringify(state.recipes));
     renderSavedRecipesList();
+    syncPickerActiveUI();
     showToast(`💾 Saved combo "${name}"`);
   });
 
@@ -3636,7 +3853,12 @@
 
   // Bootstrap
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
+    const hadController = !!navigator.serviceWorker.controller;
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (hadController && !refreshing) { refreshing = true; location.reload(); }
+    });
+    navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then(reg => reg.update().catch(() => {})).catch(() => {});
   }
   await loadSampleScenePhotos();
   renderSampleStrip();

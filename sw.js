@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tees-lab-shell-v10';
+const CACHE_NAME = 'tees-lab-shell-v12';
 const APP_FILES = [
   './index.html', './manifest.json', './logo.jpg', './version.json',
   './assets/samples/golden-hour.jpg',
@@ -11,7 +11,9 @@ const APP_FILES = [
 ];
 
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_FILES)).then(() => self.skipWaiting()));
+  event.waitUntil(caches.open(CACHE_NAME).then(cache =>
+    Promise.all(APP_FILES.map(url => cache.add(new Request(url, { cache: 'no-cache' }))))
+  ).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', event => {
@@ -25,7 +27,7 @@ self.addEventListener('fetch', event => {
   if (request.method !== 'GET' || new URL(request.url).origin !== self.location.origin) return;
 
   if (request.mode === 'navigate') {
-    event.respondWith(fetch(request).then(async response => {
+    event.respondWith(fetch(new Request(request, { cache: 'no-cache' })).then(async response => {
       if (response.ok) await caches.open(CACHE_NAME).then(cache => cache.put('./index.html', response.clone()));
       return response;
     }).catch(async () => (await caches.match('./index.html')) || Response.error()));
