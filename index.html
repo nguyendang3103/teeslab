@@ -171,10 +171,8 @@
       background: rgba(212, 163, 89, 0.12);
       border: 1px solid rgba(212, 163, 89, 0.28);
       border-radius: 10px;
-      padding: 2px 7px;
-      max-width: 120px;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      padding: 2px 8px;
+      line-height: 1.2;
       white-space: nowrap;
       cursor: default;
       user-select: none;
@@ -336,7 +334,7 @@
       display: inline-flex;
       max-width: 100%;
       flex: 0 1 auto;
-      max-height: calc(100% - 34px);
+      max-height: calc(100% - 56px);
       min-width: 0;
       min-height: 0;
       align-items: center;
@@ -422,6 +420,16 @@
       gap: 6px;
       z-index: 12;
     }
+    .stage-sensor-row {
+      width: 100%;
+      padding: 0 6px;
+      margin-top: 4px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      z-index: 12;
+    }
     .rollie-combo-caption {
       pointer-events: auto;
       font-size: 11px;
@@ -431,7 +439,9 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 62%;
+      flex: 1;
+      min-width: 0;
+      text-align: left;
     }
     .rollie-combo-caption strong {
       color: #f5a623;
@@ -1271,7 +1281,6 @@
         </div>
         <div class="brand-info">
           <div class="brand-title">Tee's Lab</div>
-          <span class="hdr-phone-chip" id="hdrPhoneChip" title="Automatic sensor">Automatic</span>
         </div>
       </div>
 
@@ -1299,10 +1308,13 @@
 
         <div class="stage-overlay-bottom">
           <button class="rollie-combo-caption" id="liveGearBadge" title="Tap to change combo">Rollie 35 S — Sonnar 40 f2.8 — <strong>Pro 400H</strong></button>
-          <div style="display:flex;gap:5px;">
+          <div style="display:flex;gap:5px;flex-shrink:0;">
             <button class="float-pill" id="btnToggleSplit">◧ Split</button>
             <button class="float-pill" id="btnHoldOriginal">👁️ Original</button>
           </div>
+        </div>
+        <div class="stage-sensor-row">
+          <span class="hdr-phone-chip" id="hdrPhoneChip" title="Automatic sensor">Automatic</span>
         </div>
       </div>
 
