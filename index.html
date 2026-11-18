@@ -109,33 +109,32 @@
       border-right: 1px solid #181c24;
       padding-top: env(safe-area-inset-top);
     }
-    /* 1. MOBILE TOPBAR */
+    /* 1. COMPACT MOBILE TOPBAR */
     .topbar {
-      min-height: 64px;
+      height: 50px;
       flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      padding: 0 8px;
-      background: rgba(12, 14, 18, 0.96);
-      border-bottom: 1px solid var(--border);
+      padding: 0 10px;
+      background: #090b0e;
+      border-bottom: 1px solid #1b1f27;
       z-index: 30;
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 7px;
+      gap: 8px;
       min-width: 0;
     }
     .brand-logo-wrap {
-      width: 46px;
-      height: 46px;
+      width: 34px;
+      height: 34px;
       border-radius: 50%;
       overflow: hidden;
-      border: 1.5px solid rgba(34, 211, 238, 0.7);
-      box-shadow: 0 0 10px rgba(34, 211, 238, 0.25);
+      border: 1.5px solid rgba(212, 163, 89, 0.65);
       background: #05070a;
       flex-shrink: 0;
     }
@@ -154,30 +153,25 @@
     .brand-title {
       font-family: 'Caveat', cursive;
       font-weight: 700;
-      font-size: 21px;
-      letter-spacing: 0.15px;
+      font-size: 20px;
+      letter-spacing: 0.2px;
       line-height: 1;
-      color: #f3feff;
-      display: flex;
-      align-items: center;
-      -webkit-text-stroke: 0.45px var(--cyan);
-      text-shadow: 0 0 2px var(--cyan), 0 0 6px rgba(34, 211, 238, 0.9), 0 0 14px rgba(34, 211, 238, 0.55);
+      color: #f5f5f7;
       white-space: nowrap;
     }
     .hdr-phone-chip {
-      font-size: 10px;
+      font-family: var(--mono);
+      font-size: 9.5px;
       font-weight: 600;
-      color: var(--fuji);
-      background: var(--fuji-dim);
-      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--brass);
+      background: rgba(212, 163, 89, 0.12);
+      border: 1px solid rgba(212, 163, 89, 0.28);
       border-radius: 10px;
-      padding: 1px 7px;
-      width: fit-content;
-      max-width: 155px;
+      padding: 2px 7px;
+      max-width: 120px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      margin-top: 0;
     }
 
     .topbar-actions {
@@ -192,56 +186,41 @@
       align-items: center;
       justify-content: center;
       gap: 4px;
-      height: 31px;
+      height: 30px;
       padding: 0 10px;
-      border-radius: 16px;
-      font-size: 12px;
+      border-radius: 15px;
+      font-size: 11.5px;
       font-weight: 700;
       white-space: nowrap;
+      transition: transform 0.12s ease, background 0.15s ease;
     }
+    .btn-pill:active { transform: scale(0.96); }
     .btn-ghost {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
+      background: #171a21;
+      border: 1px solid #282d38;
       color: var(--text-primary);
     }
     .btn-primary {
       background: linear-gradient(135deg, var(--accent), #c94e1c);
       color: #fff;
-      box-shadow: 0 2px 10px rgba(232, 106, 51, 0.35);
+      box-shadow: 0 2px 10px rgba(232, 106, 51, 0.3);
     }
     .btn-brass {
-      background: linear-gradient(135deg, #d4a359, #b07f37);
+      background: linear-gradient(135deg, #e5a93c, #c48320);
       color: #111;
-    }
-
-    /* Primary header actions stay large and legible on touch devices. */
-    #btnGuideTop {
-      height: 36px;
-      border-radius: 12px;
-      font-size: 12px;
       font-weight: 800;
-      letter-spacing: 0.1px;
-      min-width: 78px;
-      padding: 0 12px;
-      background: var(--bg-card);
-      color: var(--text-primary);
-      border: 1px solid var(--border-light);
-      box-shadow: none;
     }
-    #btnGuideTop:active { transform: scale(0.97); }
-    #btnGuideTop:focus-visible {
-      outline: 2px solid var(--cyan);
-      outline-offset: 2px;
-    }
-    @media (max-width: 360px) {
-      .topbar { padding: 0 8px; gap: 6px; }
-      .brand { gap: 6px; }
-      .brand-logo-wrap { width: 42px; height: 42px; }
-      .brand-info { gap: 4px; }
-      .brand-title { font-size: 19px; letter-spacing: 0; }
-      .hdr-phone-chip { max-width: 82px; padding: 1px 5px; font-size: 9px; }
-      .topbar-actions { gap: 5px; }
-      #btnGuideTop { min-width: 72px; padding: 0 10px; }
+    .btn-icon-top {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #171a21;
+      border: 1px solid #282d38;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: var(--text-secondary);
     }
 
     /* MAIN VIEWS */
@@ -256,17 +235,82 @@
       display: flex;
     }
 
-    /* ==================== TAB 1: DARKROOM (FIXED STAGE + BOTTOM DOCK) ==================== */
+    /* ==================== ROLLIE 3-CARD COMBO DECK (SHARED PATTERN) ==================== */
+    .combo-trio-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 7px;
+      width: 100%;
+    }
+    .combo-card {
+      position: relative;
+      background: linear-gradient(180deg, #181a1f 0%, #121418 100%);
+      border: 1px solid #282c35;
+      border-radius: 10px;
+      padding: 7px 6px 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+      text-align: center;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 2px 6px rgba(0,0,0,0.4);
+      transition: border-color 0.15s ease, transform 0.1s ease;
+    }
+    .combo-card:active {
+      transform: scale(0.98);
+      border-color: #f5a623;
+    }
+    .combo-card-tag {
+      font-family: var(--mono);
+      font-size: 8.5px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      color: #8a93a2;
+      text-transform: uppercase;
+    }
+    .combo-card-val {
+      font-size: 11px;
+      font-weight: 700;
+      color: #f5a623;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+      line-height: 1.15;
+    }
+    .combo-card-caret {
+      font-size: 8px;
+      color: #6c7586;
+      line-height: 1;
+      margin-top: -2px;
+    }
+    .combo-card-art {
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+    }
+    .combo-card-art svg {
+      height: 34px;
+      width: auto;
+      display: block;
+      filter: drop-shadow(0 3px 5px rgba(0,0,0,0.55));
+    }
+
+    /* ==================== TAB 1: DARKROOM (CLEAN STAGE + COMPACT DECK) ==================== */
     .stage-area {
       flex: 1 1 auto;
       min-height: 0;
       min-width: 0;
       position: relative;
-      background: #07080b;
+      background: #07080a;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 12px 8px 14px;
+      padding: 10px 10px 28px;
       overflow: hidden;
       user-select: none;
     }
@@ -287,8 +331,8 @@
       width: auto;
       height: auto;
       object-fit: contain;
-      border-radius: 3px;
-      box-shadow: 0 8px 26px rgba(0, 0, 0, 0.7);
+      border-radius: 4px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.75);
     }
     #originalOverlayCanvas {
       position: absolute;
@@ -307,7 +351,7 @@
       bottom: 0;
       left: 50%;
       width: 2px;
-      background: var(--brass);
+      background: #f5a623;
       display: none;
       z-index: 10;
       touch-action: none;
@@ -321,7 +365,7 @@
       width: 28px;
       height: 28px;
       border-radius: 50%;
-      background: var(--brass);
+      background: #f5a623;
       color: #111;
       font-weight: 900;
       font-size: 12px;
@@ -346,26 +390,14 @@
     }
     .canvas-stack.split-active .split-tag { display: block; }
     .split-tag.left { left: 6px; }
-    .split-tag.right { right: 6px; color: var(--brass); }
+    .split-tag.right { right: 6px; color: #f5a623; }
 
-    /* Floating Stage Pills */
-    .stage-overlay-top {
-      position: absolute;
-      top: 6px;
-      left: 8px;
-      right: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 6px;
-      pointer-events: none;
-      z-index: 12;
-    }
+    /* Rollie-style bottom caption & subtle floating controls */
     .stage-overlay-bottom {
       position: absolute;
       bottom: 6px;
-      left: 8px;
-      right: 8px;
+      left: 10px;
+      right: 10px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -373,70 +405,40 @@
       pointer-events: none;
       z-index: 12;
     }
+    .rollie-combo-caption {
+      pointer-events: auto;
+      font-size: 11px;
+      font-weight: 600;
+      color: #d1d5db;
+      letter-spacing: 0.1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 62%;
+    }
+    .rollie-combo-caption strong {
+      color: #f5a623;
+      font-weight: 700;
+    }
     .float-pill {
       pointer-events: auto;
-      background: rgba(16, 19, 25, 0.82);
+      background: rgba(18, 21, 27, 0.85);
       backdrop-filter: blur(8px);
       border: 1px solid rgba(255, 255, 255, 0.12);
-      color: var(--text-primary);
-      border-radius: 14px;
-      padding: 4px 9px;
-      font-size: 10.5px;
+      color: var(--text-secondary);
+      border-radius: 12px;
+      padding: 3px 8px;
+      font-size: 10px;
       font-weight: 600;
       display: inline-flex;
       align-items: center;
       gap: 4px;
       white-space: nowrap;
     }
-    .float-pill.gear {
-      font-family: var(--mono);
-      font-size: 10px;
-      color: var(--brass);
-      border-color: rgba(212, 163, 89, 0.35);
-      max-width: 74%;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
     .float-pill.active {
-      background: var(--brass-dim);
-      color: var(--brass);
-      border-color: rgba(212, 163, 89, 0.55);
-    }
-    .stage-save-button {
-      width: 30px;
-      height: 28px;
-      padding: 0;
-      justify-content: center;
-      color: var(--brass);
-      border-color: rgba(212, 163, 89, 0.55);
-      font-size: 14px;
-    }
-
-    .hist-floating {
-      position: absolute;
-      top: 34px;
-      right: 8px;
-      width: 126px;
-      background: rgba(9, 10, 12, 0.86);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 4px 6px;
-      display: none;
-      z-index: 14;
-    }
-    .hist-floating.open { display: block; }
-    .hist-meta {
-      display: flex;
-      justify-content: space-between;
-      font-family: var(--mono);
-      font-size: 9px;
-      color: var(--text-muted);
-      margin-bottom: 2px;
-    }
-    #histogramCanvas {
-      width: 100%;
-      height: 32px;
-      display: block;
+      background: rgba(245, 166, 35, 0.18);
+      color: #f5a623;
+      border-color: rgba(245, 166, 35, 0.55);
     }
 
     .hold-badge {
@@ -444,9 +446,9 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background: rgba(0, 0, 0, 0.8);
-      color: var(--brass);
-      border: 1px solid var(--brass);
+      background: rgba(0, 0, 0, 0.82);
+      color: #f5a623;
+      border: 1px solid #f5a623;
       padding: 4px 12px;
       border-radius: 16px;
       font-family: var(--mono);
@@ -457,431 +459,202 @@
       pointer-events: none;
     }
 
-    /* BOTTOM TOOL DOCK */
+    /* COMPACT LAB CONTROL DOCK */
     .tool-dock {
       flex-shrink: 0;
-      background: var(--bg-dock);
-      border-top: 1px solid var(--border);
+      background: #0d0f13;
+      border-top: 1px solid #1e222b;
+      padding: 8px 10px 8px;
       display: flex;
       flex-direction: column;
+      gap: 7px;
     }
 
-    .dock-tabs {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      border-bottom: 1px solid var(--border);
-      background: #101318;
-    }
-    .dock-tab {
-      min-width: 0;
-      height: 38px;
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 3px;
-      border-bottom: 2px solid transparent;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .dock-tab.active {
-      color: var(--brass);
-      border-bottom-color: var(--brass);
-      background: rgba(212, 163, 89, 0.06);
-    }
-
-    .dock-body {
-      height: clamp(218px, 32dvh, 270px);
-      overflow-x: hidden;
-      overflow-y: auto;
-      scrollbar-width: none;
-      padding: 8px 10px;
-    }
-    .dock-body::-webkit-scrollbar { display: none; }
-    .dock-panel {
+    /* Collapsible Slider Drawer inside Lab Dock */
+    .tweak-drawer {
       display: none;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .dock-panel.active {
-      display: flex;
-      min-width: 0;
-    }
-    .adjust-frame-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 8px;
-    }
-    #dock-tweak { gap: 6px; }
-    #dock-tweak .adjust-frame-grid { margin-top: 0; }
-    #dock-tweak .recipe-row { min-width: 0; }
-    #dock-tweak .recipe-row .dark-input { min-width: 0; }
-    #recipeList { min-height: 20px; }
-    .adjust-frame-grid .mini-label { margin-bottom: 4px; }
-    .adjust-frame-grid .dark-select { font-size: 11px; }
-
-    /* Dock 1: Phone Match & Smart Recs */
-    .exif-status-line {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 6px;
-      padding: 5px 8px;
-      border-radius: 7px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      font-size: 11px;
-    }
-    .exif-status-line.detected {
-      border-color: rgba(16, 185, 129, 0.4);
-      background: rgba(16, 185, 129, 0.08);
-    }
-    .exif-status-line.fallback {
-      border-color: rgba(245, 158, 11, 0.35);
-      background: rgba(245, 158, 11, 0.07);
-    }
-    .film-stock-row { display: grid; grid-template-columns: minmax(112px, 0.82fr) minmax(0, 1.4fr); gap: 7px; }
-    .film-stock-row .dark-select { min-width: 0; width: 100%; }
-    .mini-label {
-      font-family: var(--mono);
-      font-size: 10px;
-      font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .rec-chip-card {
-      flex-shrink: 0;
-      width: 215px;
-      background: var(--bg-input);
-      border: 1px solid var(--border);
+      background: #14171e;
+      border: 1px solid #262b36;
       border-radius: 9px;
-      padding: 6px 8px;
-      display: flex;
+      padding: 6px 10px 8px;
       flex-direction: column;
-      justify-content: space-between;
-      gap: 3px;
-    }
-    .rec-chip-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 6px;
-    }
-    .rec-chip-title {
-      font-size: 11.5px;
-      font-weight: 700;
-      color: var(--brass);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .rec-chip-reason {
-      font-size: 10.5px;
-      color: var(--text-secondary);
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    @media (max-height: 720px) {
-      .topbar { min-height: 60px; }
-      .dock-body { height: clamp(200px, 30dvh, 225px); }
-      .dock-tab { height: 34px; }
-      .stage-area { padding-top: 10px; padding-bottom: 12px; }
-      .dock-panel { gap: 6px; }
-    }
-    @media (max-width: 380px) {
-      .dock-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .dock-tab { font-size: 11px; }
-      .rec-chip-card { width: min(215px, 78vw); }
-      .adjust-frame-grid { gap: 6px; }
-      .adjust-frame-grid .dark-select { padding: 6px 5px; }
-    }
-
-    .phone-chip-btn {
-      flex-shrink: 0;
-      padding: 6px 10px;
-      border-radius: 8px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      font-size: 11px;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      white-space: nowrap;
-    }
-    .phone-chip-btn.active {
-      border-color: var(--fuji);
-      background: var(--fuji-dim);
-      color: #fff;
-    }
-
-    /* Dock 2: Film Stocks Horizontal Reel */
-    .filter-chip {
-      flex-shrink: 0;
-      padding: 4px 10px;
-      border-radius: 14px;
-      font-size: 11px;
-      font-weight: 600;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      color: var(--text-secondary);
-    }
-    .filter-chip.active {
-      background: var(--text-primary);
-      color: #111;
-      border-color: var(--text-primary);
-    }
-
-    .film-tile {
-      flex-shrink: 0;
-      width: 96px;
-      padding: 7px 6px;
-      border-radius: 9px;
-      background: var(--bg-card);
-      border: 1.5px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
       gap: 5px;
     }
-    .film-tile.active {
-      border-color: var(--accent);
-      background: rgba(232, 106, 51, 0.14);
-    }
-    .canister-mini {
-      width: 24px;
-      height: 36px;
-      border-radius: 4px;
-      border: 1px solid rgba(255,255,255,0.22);
+    .tweak-drawer.open {
       display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      align-items: center;
-      padding: 2px;
-      font-family: var(--mono);
-      font-size: 7.5px;
-      font-weight: 900;
-      color: #111;
     }
-    .canister-mini::before {
-      content: "";
-      width: 11px;
-      height: 3px;
-      background: #1f2937;
-      border-radius: 1px;
-    }
-    .film-tile-name {
-      font-size: 10.5px;
-      font-weight: 700;
-      color: var(--text-primary);
-      line-height: 1.2;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    .film-tile-iso {
-      font-family: var(--mono);
-      font-size: 9px;
-      color: var(--text-muted);
-    }
-
-    /* Dock 3: Bodies & Lenses */
-    .gear-tile {
-      flex-shrink: 0;
-      min-width: 112px;
-      padding: 7px 9px;
-      border-radius: 8px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      text-align: left;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-    .gear-tile.active {
-      border-color: var(--brass);
-      background: var(--brass-dim);
-    }
-    .gear-tile-name {
-      font-size: 11.5px;
-      font-weight: 700;
-      white-space: nowrap;
-    }
-    .gear-tile-meta {
-      font-size: 10px;
-      color: var(--text-muted);
-      white-space: nowrap;
-    }
-
-    /* Dock 4: Single-Slider Smart Tweaks */
     .tweak-header-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
-    }
-    .tweak-slider-box {
-      padding: 4px 2px;
     }
     input[type="range"] {
       -webkit-appearance: none;
       appearance: none;
       width: 100%;
-      height: 6px;
+      height: 5px;
       border-radius: 4px;
-      background: var(--bg-void);
-      border: 1px solid var(--border);
+      background: #08090c;
+      border: 1px solid #2a303c;
       outline: none;
     }
     input[type="range"]::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
       border-radius: 50%;
-      background: var(--brass);
+      background: #f5a623;
       border: 2px solid #111;
-      box-shadow: 0 1px 6px rgba(0,0,0,0.7);
+      box-shadow: 0 1px 5px rgba(0,0,0,0.7);
+    }
+
+    /* Horizontal Tweak Pill Strip */
+    .tweak-strip-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
     .tweak-pill {
       flex-shrink: 0;
-      min-width: 68px;
-      padding: 6px 8px;
-      border-radius: 8px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
+      padding: 5px 9px;
+      border-radius: 14px;
+      background: #151820;
+      border: 1px solid #252a35;
+      display: inline-flex;
       align-items: center;
-      gap: 2px;
+      gap: 5px;
+      font-size: 10.5px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      white-space: nowrap;
     }
     .tweak-pill.active {
-      border-color: var(--brass);
-      background: var(--brass-dim);
-    }
-    .tweak-pill-name {
-      font-size: 10px;
-      color: var(--text-secondary);
+      border-color: #f5a623;
+      background: rgba(245, 166, 35, 0.14);
+      color: #fff;
     }
     .tweak-pill-val {
       font-family: var(--mono);
-      font-size: 10.5px;
+      font-size: 10px;
       font-weight: 700;
-      color: var(--text-primary);
+      color: #f5a623;
     }
 
-    /* Dock 5: Frames, Date Stamp & Recipes */
-    .seg-grid-4 {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 5px;
-    }
-    .seg-grid-3 {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 5px;
-    }
-    .seg-btn {
-      padding: 6px 4px;
-      border-radius: 7px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      font-size: 10.5px;
-      font-weight: 600;
-      text-align: center;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .seg-btn.active {
-      border-color: var(--brass);
-      background: var(--brass-dim);
-      color: var(--brass);
-    }
-    .recipe-row {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-    }
     .dark-input, .dark-select {
       background: var(--bg-input);
       border: 1px solid var(--border);
       color: var(--text-primary);
       border-radius: 7px;
-      padding: 6px 8px;
-      font-size: 11.5px;
+      padding: 5px 8px;
+      font-size: 11px;
       outline: none;
     }
     .recipe-chip {
       flex-shrink: 0;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 4px 8px;
+      gap: 5px;
+      padding: 3px 8px;
       border-radius: 14px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      font-size: 11px;
+      background: #171a22;
+      border: 1px solid #292f3b;
+      font-size: 10.5px;
     }
 
-    /* ==================== TAB 2: LIVE 35MM CAMERA (MOBILE ERGONOMIC) ==================== */
+    /* ==================== TAB 2: ROLLIE SKEUOMORPHIC 35MM CAMERA ==================== */
     .cam-wrap {
       flex: 1;
       min-height: 0;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 8px 10px 10px;
-      background: #0a0b0e;
+      padding: 8px 12px 10px;
+      background:
+        radial-gradient(rgba(255,255,255,0.03) 1px, transparent 0) 0 0 / 6px 6px,
+        radial-gradient(rgba(0,0,0,0.6) 1px, transparent 0) 3px 3px / 6px 6px,
+        #0c0d10;
     }
 
-    .cam-top-bar {
-      display: flex;
-      justify-content: space-between;
+    /* Top Mechanical Camera Plate (Counter + Optical Window + Lever) */
+    .cam-top-plate {
+      height: 40px;
+      flex-shrink: 0;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
       align-items: center;
-      gap: 6px;
+      padding: 0 4px;
     }
-    .roll-led-pill {
+    .cam-counter-slot {
+      justify-self: start;
+      min-width: 48px;
+      height: 24px;
+      padding: 0 8px;
+      border-radius: 5px;
+      background: linear-gradient(180deg, #78746a 0%, #9b968b 50%, #6e6a61 100%);
+      border: 2px solid #26282e;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.65), 0 1px 0 rgba(255,255,255,0.08);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--mono);
+      font-weight: 800;
+      font-size: 12px;
+      color: #161616;
+      letter-spacing: 0.5px;
+    }
+    .cam-optical-eye {
+      width: 52px;
+      height: 36px;
+      border-radius: 8px;
+      background: linear-gradient(180deg, #1b1d22, #0d0e11);
+      border: 2px solid #2b2f38;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.9), 0 2px 6px rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .cam-optical-eye::after {
+      content: "";
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, rgba(120, 180, 255, 0.45), rgba(15, 23, 42, 0.95) 70%);
+      border: 1.5px solid #333842;
+    }
+    .cam-top-right {
+      justify-self: end;
       display: flex;
       align-items: center;
       gap: 8px;
-      background: #050607;
-      border: 1px solid #2b303c;
-      padding: 4px 10px;
-      border-radius: 8px;
-      font-family: var(--mono);
     }
-    .roll-led {
-      color: #ff4d2e;
-      font-weight: 900;
-      font-size: 14px;
-      text-shadow: 0 0 8px rgba(255, 77, 46, 0.5);
+    .cam-lever-knob {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: conic-gradient(#d1d5db, #6b7280, #e5e7eb, #4b5563, #d1d5db);
+      border: 2px solid #262930;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.7);
+      position: relative;
     }
+
+    /* Viewfinder Box with EV Scale & DATE Stamp Badge */
     .cam-vf-box {
       flex: 1;
       min-height: 0;
-      margin: 8px 0;
+      margin: 6px 0 8px;
       position: relative;
-      background: #040506;
-      border: 2px solid #2b303c;
+      background: #040507;
+      border: 2px solid #252830;
       border-radius: 12px;
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
+      box-shadow: inset 0 0 18px rgba(0,0,0,0.85);
     }
     #cameraViewfinderCanvas {
       width: 100%;
@@ -889,36 +662,108 @@
       object-fit: cover;
       display: block;
     }
-    .vf-reticle {
+    /* Rule of thirds grid + Corner Brackets */
+    .vf-grid {
       position: absolute;
-      inset: 8%;
-      border: 1px solid rgba(255,255,255,0.28);
+      inset: 0;
+      background-image:
+        linear-gradient(to right, rgba(255,255,255,0.08) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,0.08) 1px, transparent 1px);
+      background-size: 33.333% 33.333%;
       pointer-events: none;
     }
-    .vf-reticle::after {
-      content: "";
+    .vf-corner {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 22px;
-      height: 22px;
-      border: 1.5px solid rgba(212, 163, 89, 0.7);
-      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      border-color: rgba(255,255,255,0.65);
+      border-style: solid;
+      pointer-events: none;
     }
-    .vf-hud {
+    .vf-corner.tl { top: 10px; left: 10px; border-width: 1.5px 0 0 1.5px; }
+    .vf-corner.tr { top: 10px; right: 10px; border-width: 1.5px 1.5px 0 0; }
+    .vf-corner.bl { bottom: 10px; left: 10px; border-width: 0 0 1.5px 1.5px; }
+    .vf-corner.br { bottom: 10px; right: 10px; border-width: 0 1.5px 1.5px 0; }
+
+    /* EV Ruler Overlay on Viewfinder Top */
+    .vf-top-hud {
       position: absolute;
-      bottom: 8px;
-      left: 10px;
-      right: 10px;
+      top: 10px;
+      left: 14px;
+      right: 14px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      z-index: 6;
+      pointer-events: none;
+    }
+    .vf-badge-btn {
+      pointer-events: auto;
+      font-family: var(--mono);
+      font-size: 9.5px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(10, 12, 16, 0.72);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #a1aab8;
+      letter-spacing: 0.4px;
+      backdrop-filter: blur(4px);
+    }
+    .vf-badge-btn.active {
+      color: #f5a623;
+      border-color: rgba(245, 166, 35, 0.7);
+      background: rgba(245, 166, 35, 0.14);
+    }
+    .vf-ev-ruler-wrap {
+      pointer-events: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 156px;
+      padding: 2px 6px 4px;
+      border-radius: 6px;
+      background: rgba(8, 10, 14, 0.45);
+      backdrop-filter: blur(3px);
+    }
+    .vf-ev-ticks {
+      width: 100%;
       display: flex;
       justify-content: space-between;
+      align-items: center;
       font-family: var(--mono);
-      font-size: 10px;
-      color: rgba(255, 215, 130, 0.92);
-      text-shadow: 0 1px 4px #000;
+      font-size: 9px;
+      color: rgba(255,255,255,0.78);
+      padding: 0 2px;
+      margin-bottom: 2px;
+    }
+    #camExposureControl {
+      width: 100%;
+      height: 4px;
+      margin: 0;
+      background: rgba(255,255,255,0.22);
+      border: none;
+    }
+    #camExposureControl::-webkit-slider-thumb {
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+      background: #f5a623;
+      border: 1px solid #111;
+    }
+
+    .vf-bottom-hud {
+      position: absolute;
+      bottom: 10px;
+      left: 14px;
+      right: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 6;
       pointer-events: none;
     }
+
     .shutter-flash {
       position: absolute;
       inset: 0;
@@ -926,218 +771,99 @@
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.08s;
+      z-index: 10;
     }
     .shutter-flash.active { opacity: 0.85; }
 
-    .cam-gear-strip {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 5px;
-      margin-bottom: 10px;
-    }
-    .cam-gear-strip select {
-      width: 100%;
-      font-size: 10.5px;
-      padding: 5px 4px;
-    }
-    .cam-controls {
-      border: 1px solid var(--border);
-      border-radius: 9px;
-      background: var(--bg-card);
-      overflow: hidden;
-    }
-    .cam-controls summary {
-      min-height: 32px;
-      padding: 6px 9px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      cursor: pointer;
-      color: var(--text-primary);
-      font-weight: 700;
-      font-size: 11px;
-      list-style: none;
-    }
-    .cam-controls summary::-webkit-details-marker { display: none; }
-    .cam-controls summary span { color: var(--text-muted); font-size: 9px; font-weight: 600; }
-    .cam-control-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 7px;
-      padding: 0 8px 8px;
-    }
-    .cam-control { min-width: 0; display: flex; flex-direction: column; gap: 3px; color: var(--text-secondary); font-size: 9px; }
-    .cam-control select { width: 100%; height: 29px; padding: 3px 6px; font-size: 10px; }
-    .cam-control input[type="range"] { width: 100%; height: 29px; margin: 0; accent-color: var(--brass); }
-    .cam-control input:disabled, .cam-control select:disabled { opacity: .48; }
-    .cam-controls-note { grid-column: 1 / -1; color: var(--text-muted); font-size: 9px; line-height: 1.35; }
-    .cam-mechanical-row { display:flex; align-items:center; justify-content:space-between; gap:6px; padding:2px 12px 8px; }
-    .cam-mechanical-row .btn-pill { min-height:32px; height:32px; padding:0 9px; font-size:10px; }
-    .cam-mechanical-row button:disabled { opacity:.45; }
-
+    /* Rollie Bottom Shutter Deck */
     .cam-shutter-deck {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 4px 12px;
+      justify-content: space-around;
+      padding: 8px 12px 2px;
+    }
+    .cam-round-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 50% 30%, #232730, #14171d);
+      border: 2px solid #2d323e;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      color: #d1d5db;
+      font-size: 16px;
+    }
+    .cam-round-btn:active { transform: scale(0.93); }
+    .roll-count-badge {
+      position: absolute;
+      top: -3px;
+      right: -3px;
+      min-width: 17px;
+      height: 17px;
+      padding: 0 4px;
+      border-radius: 9px;
+      background: #f5a623;
+      color: #111;
+      font-family: var(--mono);
+      font-size: 9.5px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .shutter-btn {
-      width: 64px;
-      height: 64px;
+      width: 68px;
+      height: 68px;
       border-radius: 50%;
-      background: radial-gradient(circle at 35% 30%, #f3f4f6, #9ca3af 70%, #4b5563 100%);
-      border: 4px solid #2b303a;
-      box-shadow: 0 5px 16px rgba(0,0,0,0.65);
+      background: #e8e6df;
+      border: 4px solid #1e2128;
+      outline: 2px solid #cfd2d9;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.75), inset 0 2px 4px rgba(255,255,255,0.8);
       display: flex;
       align-items: center;
       justify-content: center;
-    }
-    .shutter-btn::after {
-      content: "";
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      border: 2px solid var(--brass);
-      background: radial-gradient(circle, #ef4444, #991b1b);
+      transition: transform 0.08s ease;
     }
     .shutter-btn:active { transform: scale(0.92); }
-    .shutter-btn:disabled { opacity: 0.45; }
-
-    /* ==================== TAB 3: GUIDE ACCORDION ==================== */
-    .guide-wrap {
-      flex: 1;
-      min-height: 0;
-      overflow-y: auto;
-      padding: 10px;
-    }
-    .guide-top-bar {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 10px;
-      background: var(--bg-dock);
-      border: 1px solid var(--border);
-      padding: 8px 10px;
-      border-radius: 10px;
-    }
-    .accordion-list {
-      display: flex;
-      flex-direction: column;
-      gap: 7px;
-      padding-bottom: 16px;
-    }
-    .accordion-item {
-      background: var(--bg-dock);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      overflow: hidden;
-    }
-    .accordion-item.open { border-color: var(--brass); }
-    .accordion-header {
-      width: 100%;
-      padding: 10px;
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      text-align: left;
-    }
-    .acc-icon {
-      width: 30px;
-      height: 30px;
-      border-radius: 8px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      flex-shrink: 0;
-    }
-    .acc-title-wrap {
-      flex: 1;
-      min-width: 0;
-    }
-    .acc-title {
-      font-size: 12.5px;
-      font-weight: 700;
-      color: var(--text-primary);
-    }
-    .acc-sub {
-      font-size: 11px;
-      color: var(--text-secondary);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .acc-chip {
-      font-family: var(--mono);
-      font-size: 9px;
-      font-weight: 700;
-      padding: 2px 6px;
-      border-radius: 10px;
-      flex-shrink: 0;
-    }
-    .chip-fuji { background: var(--fuji-dim); color: var(--fuji); }
-    .chip-kodak { background: var(--kodak-dim); color: var(--kodak); }
-    .chip-cinema { background: var(--cinema-dim); color: var(--cinema); }
-    .chip-phone { background: var(--brass-dim); color: var(--brass); }
-    .acc-arrow {
-      font-size: 13px;
-      color: var(--text-muted);
-      width: 14px;
-      text-align: center;
-      flex-shrink: 0;
-    }
-    .accordion-body {
-      display: none;
-      padding: 8px 10px 10px;
-      border-top: 1px solid rgba(255,255,255,0.06);
-      font-size: 11.5px;
-      color: var(--text-secondary);
-      line-height: 1.45;
-    }
-    .accordion-item.open .accordion-body { display: block; }
-    .acc-bullet { margin-bottom: 5px; }
-    .acc-bullet strong { color: var(--brass); }
 
     /* 3. FIXED BOTTOM TAB BAR */
     .bottom-nav {
-      height: calc(48px + env(safe-area-inset-bottom));
+      height: calc(46px + env(safe-area-inset-bottom));
       padding-bottom: env(safe-area-inset-bottom);
       flex-shrink: 0;
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      background: #0d0f13;
-      border-top: 1px solid var(--border);
+      background: #090b0e;
+      border-top: 1px solid #1b1f27;
       z-index: 30;
     }
     .bnav-btn {
       min-width: 0;
       width: 100%;
-      height: 48px;
-      overflow: hidden;
+      height: 46px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 1px;
+      gap: 2px;
       color: var(--text-muted);
       font-size: 10px;
       font-weight: 600;
     }
-    .bnav-btn .ico { display: block; width: 100%; font-size: 14px; line-height: 1; text-align: center; }
-    .bnav-btn > span:last-child { display: block; width: 100%; line-height: 12px; text-align: center; }
+    .bnav-btn .ico { font-size: 14px; line-height: 1; }
     .bnav-btn.active {
-      color: var(--cyan);
+      color: #f5a623;
     }
 
-    /* BOTTOM SHEET DRAWERS (Samples & Contact Sheet) */
+    /* ==================== ROLLIE COMBO PICKER SHEET (IMG_0493) ==================== */
     .sheet-backdrop {
       position: absolute;
       inset: 0;
-      background: rgba(0,0,0,0.68);
-      backdrop-filter: blur(4px);
+      background: rgba(0,0,0,0.72);
+      backdrop-filter: blur(5px);
       display: none;
       align-items: flex-end;
       z-index: 80;
@@ -1145,13 +871,15 @@
     .sheet-backdrop.open { display: flex; }
     .sheet-card {
       width: 100%;
-      max-height: 70vh;
-      background: var(--bg-dock);
-      border-top: 1px solid var(--border-light);
-      border-radius: 16px 16px 0 0;
+      max-height: 82vh;
+      background: #111318;
+      border-top: 1px solid #2b303c;
+      border-radius: 18px 18px 0 0;
       padding: 12px 12px calc(16px + env(safe-area-inset-bottom));
       overflow-y: auto;
+      scrollbar-width: none;
     }
+    .sheet-card::-webkit-scrollbar { display: none; }
     .sheet-head {
       display: flex;
       justify-content: space-between;
@@ -1160,6 +888,132 @@
       font-weight: 700;
       font-size: 13px;
     }
+
+    /* Clapperboard Summary Box in Combo Picker */
+    .clapper-box {
+      border: 1px solid #282c36;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 12px;
+      background: #15181f;
+    }
+    .clapper-stripes {
+      height: 10px;
+      background: repeating-linear-gradient(
+        -45deg,
+        #e5e7eb,
+        #e5e7eb 8px,
+        #15181f 8px,
+        #15181f 16px
+      );
+      border-bottom: 1px solid #282c36;
+    }
+    .clapper-cols {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .clapper-col {
+      padding: 6px 8px;
+      border-right: 1px solid #222630;
+      min-width: 0;
+    }
+    .clapper-col:last-child { border-right: none; }
+    .clapper-col-lbl {
+      font-family: var(--mono);
+      font-size: 8.5px;
+      color: #6c7586;
+      letter-spacing: 0.8px;
+      margin-bottom: 2px;
+    }
+    .clapper-col-val {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #f3f4f6;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .clapper-col.film-col .clapper-col-val { color: #f5a623; }
+
+    .picker-section {
+      margin-bottom: 12px;
+    }
+    .picker-sec-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.8px;
+      color: #8a93a2;
+      margin-bottom: 6px;
+    }
+    .picker-sec-count strong { color: #f5a623; }
+
+    /* Visual tiles inside Rollie Combo Picker */
+    .picker-tile {
+      flex-shrink: 0;
+      width: 84px;
+      padding: 7px 5px 6px;
+      border-radius: 10px;
+      background: #171a21;
+      border: 1.5px solid #242934;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      gap: 5px;
+      text-align: center;
+      opacity: 0.65;
+      transition: all 0.15s ease;
+    }
+    .picker-tile.active {
+      opacity: 1;
+      border-color: #f5a623;
+      background: rgba(245, 166, 35, 0.1);
+      box-shadow: 0 0 12px rgba(245, 166, 35, 0.18);
+    }
+    .picker-tile-name {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 8px;
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--text-primary);
+    }
+    .picker-tile.active .picker-tile-name {
+      background: #f5a623;
+      color: #111;
+    }
+    .picker-tile-sub {
+      font-size: 8.5px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    .filter-chip {
+      flex-shrink: 0;
+      padding: 3px 9px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 600;
+      background: #181c24;
+      border: 1px solid #292f3c;
+      color: var(--text-secondary);
+    }
+    .filter-chip.active {
+      background: #f5a623;
+      color: #111;
+      border-color: #f5a623;
+      font-weight: 700;
+    }
+
     .sample-grid-3 {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -1172,7 +1026,7 @@
       border: 2px solid transparent;
       aspect-ratio: 3 / 2;
     }
-    .sample-thumb.active { border-color: var(--brass); }
+    .sample-thumb.active { border-color: #f5a623; }
     .sample-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .sample-thumb span {
       position: absolute;
@@ -1204,22 +1058,7 @@
       font-size: 10px;
     }
 
-
     select { color-scheme: dark; }
-    .dd-full {
-      width: 100%;
-      padding: 9px 30px 9px 10px;
-      font-size: 12.5px;
-      font-weight: 600;
-      appearance: none;
-      -webkit-appearance: none;
-      background-color: var(--bg-card);
-      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1l5 5 5-5' fill='none' stroke='%23a1aab8' stroke-width='2'/></svg>");
-      background-repeat: no-repeat;
-      background-position: right 11px center;
-      border: 1px solid var(--border-light);
-    }
-    .dd-full:focus { border-color: var(--brass); }
 
     /* Toast */
     .toast-box {
@@ -1227,12 +1066,12 @@
       top: 56px;
       left: 50%;
       transform: translateX(-50%) translateY(-16px);
-      background: #1b2029;
+      background: #191d26;
       color: var(--text-primary);
-      border: 1px solid var(--cyan);
-      padding: 6px 14px;
+      border: 1px solid #f5a623;
+      padding: 5px 13px;
       border-radius: 20px;
-      font-size: 11.5px;
+      font-size: 11px;
       font-weight: 600;
       z-index: 99;
       opacity: 0;
@@ -1261,12 +1100,12 @@
     .sync-modal input { width: 100%; height: 40px; padding: 0 10px; border: 1px solid var(--border-light); border-radius: 9px; background: var(--bg-input); }
     .sync-modal-actions { display: flex; gap: 8px; margin-top: 12px; }
     .sync-modal-actions button { flex: 1; min-height: 36px; border: 1px solid var(--border-light); border-radius: 9px; background: var(--bg-elevated); }
-    .sync-modal-actions .sync-save { border-color: var(--cyan); background: var(--cyan-dim); color: var(--cyan); font-weight: 700; }
+    .sync-modal-actions .sync-save { border-color: #f5a623; background: rgba(245,166,35,0.16); color: #f5a623; font-weight: 700; }
   </style>
 </head>
 <body>
   <div class="app-shell">
-    <!-- 1. COMPACT MOBILE TOPBAR -->
+    <!-- 1. MINIMAL TOPBAR -->
     <header class="topbar">
       <div class="brand">
         <div class="brand-logo-wrap">
@@ -1274,28 +1113,25 @@
         </div>
         <div class="brand-info">
           <div class="brand-title">Tee's Lab</div>
+          <button class="hdr-phone-chip" id="hdrPhoneChip" title="Phone sensor calibration (tap to cycle)">Auto Sensor</button>
         </div>
       </div>
 
       <div class="topbar-actions">
         <input type="file" id="fileInput" accept="image/*" hidden />
-        <button class="hdr-phone-chip" id="hdrPhoneChip" title="Change phone profile">Automatic</button>
-        <button class="btn-pill btn-primary" id="btnGuideTop" title="Open film guide" aria-label="Open film guide">📔 Guide</button>
+        <button class="btn-icon-top" id="btnOpenSamples" title="Sample photos" aria-label="Sample photos">🖼️</button>
+        <button class="btn-icon-top" id="btnCloudSync" title="Cloud backup" aria-label="Cloud backup">☁️</button>
+        <button class="btn-pill btn-brass" id="btnExport" title="Save edited photo" aria-label="Save edited photo">Save</button>
       </div>
     </header>
 
-    <!-- 2A. VIEW: PHÒNG TỐI -->
+    <!-- 2A. VIEW: LAB (DARKROOM) -->
     <main id="view-darkroom" class="view-section active">
       <div class="stage-area" id="previewDropZone">
-        <div class="stage-overlay-top">
-          <div class="float-pill gear" id="liveGearBadge">Phone photo • Pro 400H</div>
-          <button class="float-pill stage-save-button" id="btnExport" title="Save edited photo to your library" aria-label="Save edited photo">💾</button>
-        </div>
-
         <div class="canvas-stack" id="canvasStack">
           <canvas id="previewCanvas"></canvas>
           <canvas id="originalOverlayCanvas"></canvas>
-        <div class="split-tag left">ORIGINAL</div>
+          <div class="split-tag left">ORIGINAL</div>
           <div class="split-tag right">FILM</div>
           <div class="split-divider" id="splitDivider">
             <div class="split-handle">⇄</div>
@@ -1304,7 +1140,7 @@
         <div class="hold-badge" id="holdCompareBadge">ORIGINAL</div>
 
         <div class="stage-overlay-bottom">
-          <button class="float-pill" id="btnOpenSamples">🖼️ Samples</button>
+          <button class="rollie-combo-caption" id="liveGearBadge" title="Tap to change combo">Rollie 35 S — 40mm f/2.8 — <strong>Pro 400H</strong></button>
           <div style="display:flex;gap:5px;">
             <button class="float-pill" id="btnToggleSplit">◧ Split</button>
             <button class="float-pill" id="btnHoldOriginal">👁️ Original</button>
@@ -1312,190 +1148,204 @@
         </div>
       </div>
 
-      <!-- BOTTOM THUMB DOCK -->
+      <!-- ROLLIE-STYLE COMPACT BOTTOM DOCK -->
       <div class="tool-dock">
-        <div class="dock-tabs">
-          <button class="dock-tab active" data-dock="phone">Film Roll</button>
-          <button class="dock-tab" data-dock="tweak">Adjust</button>
+        <!-- Collapsible Slider Drawer (Opens only when an adjustment pill is tapped) -->
+        <div class="tweak-drawer" id="tweakDrawer">
+          <div class="tweak-header-row">
+            <span id="activeTweakTitle" style="color:#f5a623;">Film strength: 100%</span>
+            <div style="display:flex;gap:6px;align-items:center;">
+              <select class="dark-select" id="leakTypeSelect" style="display:none;padding:2px 6px;font-size:10px;"></select>
+              <button class="filter-chip" id="btnResetTweaks" style="padding:2px 8px;font-size:9.5px;">↺ Reset</button>
+              <button class="filter-chip" id="btnCloseTweakDrawer" style="padding:2px 7px;font-size:9.5px;">✕</button>
+            </div>
+          </div>
+          <input type="range" id="activeTweakSlider" min="0" max="100" value="100" />
         </div>
 
-        <div class="dock-body">
-          <!-- Film Roll: film selection and suggestions -->
-          <div class="dock-panel active" id="dock-phone">
-            <div class="mini-label"><span>Choose film</span><span id="activeFilmName" style="color:var(--brass);text-transform:none;"></span></div>
-            <div class="film-stock-row">
-              <select class="dark-select" id="filmBrandSelect" aria-label="Film brand">
-                <option value="all">All (20)</option>
-                <option value="fuji">Fujifilm (7)</option>
-                <option value="kodak">Kodak (8)</option>
-                <option value="cinema">CineStill (2)</option>
-                <option value="bw">Black &amp; white (3)</option>
-              </select>
-              <select class="dark-select" id="filmSelect" aria-label="Film stock"></select>
-            </div>
+        <!-- 3-Card Combo Selector (CAMERA • LENS • FILM) -->
+        <div class="combo-trio-grid" id="labComboTrio">
+          <button class="combo-card" data-open-combo="camera" type="button">
+            <span class="combo-card-tag">CAMERA</span>
+            <span class="combo-card-val" id="labCardBodyName">Rollie 35 S</span>
+            <span class="combo-card-caret">▾</span>
+            <div class="combo-card-art" id="labCardBodyArt"></div>
+          </button>
+          <button class="combo-card" data-open-combo="lens" type="button">
+            <span class="combo-card-tag">LENS</span>
+            <span class="combo-card-val" id="labCardLensName">40mm f/2.8</span>
+            <span class="combo-card-caret">▾</span>
+            <div class="combo-card-art" id="labCardLensArt"></div>
+          </button>
+          <button class="combo-card" data-open-combo="film" type="button">
+            <span class="combo-card-tag">FILM</span>
+            <span class="combo-card-val" id="labCardFilmName">Pro 400H</span>
+            <span class="combo-card-caret">▾</span>
+            <div class="combo-card-art" id="labCardFilmArt"></div>
+          </button>
+        </div>
 
-            <div class="mini-label"><span>Phone Sensor Balancing</span></div>
-            <select class="dark-select" id="phoneProfileSelect" aria-label="Phone sensor profile"></select>
-
-            <div class="exif-status-line" id="phoneStatusBanner">Analyzing photo...</div>
-
-            <div class="mini-label">
-              <span>✨ Top 3 matches</span>
-              <span id="sceneBadgeText" style="color:var(--brass);text-transform:none;font-weight:600;"></span>
-            </div>
-            <div class="h-scroll" id="smartRecsList"></div>
-
-          </div>
-
-          <!-- Dock Panel 3: Single-Slider Smart Tweaks -->
-          <div class="dock-panel" id="dock-tweak">
-            <div class="tweak-header-row">
-              <span id="activeTweakTitle" style="color:var(--brass);">Film strength: 100%</span>
-              <button class="filter-chip" id="btnResetTweaks" style="padding:3px 9px;font-size:10.5px;">↺ Reset</button>
-            </div>
-
-            <select class="dd-full dark-select" id="tweakSelect"></select>
-
-            <div class="tweak-slider-box">
-              <input type="range" id="activeTweakSlider" min="0" max="100" value="100" />
-            </div>
-
-            <select class="dd-full dark-select" id="leakTypeSelect" style="display:none;"></select>
-
-            <div class="adjust-frame-grid">
-              <div>
-                <div class="mini-label"><span>35mm frame</span></div>
-                <select class="dd-full dark-select" id="frameSelect">
-                  <option value="none">No frame</option>
-                  <option value="35mm-sprocket">35mm sprocket</option>
-                  <option value="darkroom-white">White border</option>
-                  <option value="polaroid">Polaroid</option>
-                </select>
-              </div>
-              <div>
-                <div class="mini-label"><span>Date stamp</span></div>
-                <select class="dd-full dark-select" id="dateSelect">
-                  <option value="off">Off</option>
-                  <option value="retro98">'98 style</option>
-                  <option value="exif-or-today">Photo date</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="recipe-row">
-              <input type="text" class="dark-input" id="recipeNameInput" placeholder="Saved recipe name..." style="flex:1;" />
-              <button class="btn-pill btn-brass" id="btnSaveRecipe" style="height:29px;">+ Save</button>
-            </div>
-            <div class="h-scroll" id="recipeList"></div>
-          </div>
-
+        <!-- Single-Row Quick Adjust & Frame/Date/Recipe Pills -->
+        <div class="tweak-strip-row">
+          <div class="h-scroll" id="tweakPillsStrip" style="flex:1;"></div>
         </div>
       </div>
     </main>
 
-    <!-- 2B. VIEW: MÁY ẢNH 35MM -->
+    <!-- 2B. VIEW: ROLLIE 35MM CAMERA -->
     <section id="view-camera" class="view-section">
       <div class="cam-wrap">
-        <div class="cam-top-bar">
-          <div class="roll-led-pill">
-            <span class="roll-led" id="camRollCounter">01 / 36</span>
-            <span style="font-size:10.5px;color:var(--text-secondary);" id="camSourceStatus">Simulated</span>
-          </div>
-          <div style="display:flex;gap:5px;">
-            <button class="btn-pill btn-ghost" id="btnStartCam" style="height:28px;font-size:11px;">📷 Enable camera</button>
-            <button class="btn-pill btn-ghost" id="btnFlipCam" style="height:28px;font-size:11px;">🔄</button>
-            <button class="btn-pill btn-ghost" id="btnToggleSound" style="height:28px;font-size:11px;">🔊</button>
+        <!-- Mechanical Top Plate (Counter + Viewfinder Eye + Lever/Audio) -->
+        <div class="cam-top-plate">
+          <div class="cam-counter-slot" id="camRollCounter" title="Frame counter">01</div>
+          <div class="cam-optical-eye" aria-hidden="true"></div>
+          <div class="cam-top-right">
+            <button class="btn-icon-top" id="btnToggleSound" title="Shutter sound" style="width:28px;height:28px;font-size:12px;">🔊</button>
+            <div class="cam-lever-knob" title="Auto film advance"></div>
           </div>
         </div>
 
+        <!-- Clean Viewfinder with EV Ruler & DATE Stamp Toggle -->
         <div class="cam-vf-box">
           <video id="camVideo" autoplay playsinline muted style="display:none;"></video>
           <canvas id="cameraViewfinderCanvas"></canvas>
-          <div class="vf-reticle"></div>
-          <div class="vf-hud">
-            <span id="vfHudLeft">f/2.8 • 1/125s • ISO 400</span>
-            <span id="camGearSummary">Rollie 35 S • Pro 400H</span>
+          <div class="vf-grid"></div>
+          <div class="vf-corner tl"></div>
+          <div class="vf-corner tr"></div>
+          <div class="vf-corner bl"></div>
+          <div class="vf-corner br"></div>
+
+          <div class="vf-top-hud">
+            <button class="vf-badge-btn" id="btnVfDateToggle" type="button" title="Toggle retro date stamp">DATE</button>
+            <div class="vf-ev-ruler-wrap" title="Exposure compensation">
+              <div class="vf-ev-ticks"><span>-2</span><span>-1</span><span>0</span><span>+1</span><span>+2</span></div>
+              <input id="camExposureControl" type="range" min="-2" max="2" step="0.1" value="0" aria-label="Exposure compensation" />
+            </div>
+            <button class="vf-badge-btn" id="camExposureValue" type="button" title="Tap to reset EV">0.0</button>
           </div>
+
+          <div class="vf-bottom-hud">
+            <button class="vf-badge-btn" id="btnVfFrameToggle" type="button" title="Cycle film border">FRAME: OFF</button>
+            <span id="camSourceStatus" style="font-family:var(--mono);font-size:9.5px;color:rgba(255,255,255,0.65);text-shadow:0 1px 3px #000;">Rear</span>
+          </div>
+
           <div class="shutter-flash" id="shutterFlash"></div>
         </div>
 
-        <div class="cam-gear-strip">
-          <select class="dark-select" id="camSelBody"></select>
-          <select class="dark-select" id="camSelLens"></select>
-          <select class="dark-select" id="camSelFilm"></select>
-          <select class="dark-select" id="camSelFrame">
-            <option value="none">Full Frame</option>
-            <option value="35mm-sprocket">35mm sprocket</option>
-            <option value="polaroid">Polaroid</option>
-          </select>
-        </div>
-
-        <details class="cam-controls">
-          <summary>⚙ Exposure &amp; camera controls <span id="camControlSupport">Connect camera for hardware controls</span></summary>
-          <div class="cam-control-grid">
-            <label class="cam-control">Exposure compensation <input id="camExposureControl" type="range" min="-2" max="2" step="0.1" value="0" /><span id="camExposureValue">0 EV · app</span></label>
-            <label class="cam-control">ISO / ASA <select class="dark-select" id="camIsoControl"><option value="film">Film ASA</option></select><span id="camIsoMode">Matched to selected film</span></label>
-            <label class="cam-control">Shutter speed <select class="dark-select" id="camShutterControl"><option value="auto">Auto</option></select><span id="camShutterMode">Hardware if supported</span></label>
-            <label class="cam-control">White balance <select class="dark-select" id="camWhiteBalanceControl"><option value="auto">Auto</option><option value="daylight">Daylight</option><option value="cloudy">Cloudy</option><option value="shade">Shade</option><option value="tungsten">Tungsten</option><option value="fluorescent">Fluorescent</option></select><span id="camWhiteBalanceMode">App simulation until camera connects</span></label>
-            <label class="cam-control">Self timer <select class="dark-select" id="camTimerControl"><option value="0">Off</option><option value="3">3 seconds</option><option value="10">10 seconds</option></select><span>Delay before shutter release</span></label>
-            <label class="cam-control">Multiple exposure <button class="btn-pill btn-ghost" id="btnMultipleExposure" type="button">Off</button><span id="camMultipleExposureHint">One exposure per frame</span></label>
-            <label class="cam-control">AE lock <button class="btn-pill btn-ghost" id="btnAELock" type="button">🔓 Unlocked</button><span>Hold current exposure value</span></label>
-            <div class="cam-controls-note">Phone cameras do not expose physical aperture or depth-of-field preview controls here; the selected film lens changes the render only. ISO/ASA and shutter speed use camera controls when available, otherwise they adjust the saved render. Multiple exposure combines held frames; AE lock holds exposure.</div>
-          </div>
-        </details>
-
-        <div class="cam-shutter-deck">
-          <button class="btn-pill btn-ghost" id="btnOpenContactSheet" style="height:38px;">
-            🎞️ Roll (<span id="contactCount">0</span>)
+        <!-- 3-Card Combo Selector in Camera (Identical to Rollie IMG_0492) -->
+        <div class="combo-trio-grid" id="camComboTrio">
+          <button class="combo-card" data-open-combo="camera" type="button">
+            <span class="combo-card-tag">CAMERA</span>
+            <span class="combo-card-val" id="camCardBodyName">Rollie 35 S</span>
+            <span class="combo-card-caret">▾</span>
+            <div class="combo-card-art" id="camCardBodyArt"></div>
           </button>
-          <button class="shutter-btn" id="btnShutter" title="Take a shot"></button>
-          <button class="btn-pill btn-brass" id="btnNewRoll" style="height:38px;">🔄 New roll</button>
+          <button class="combo-card" data-open-combo="lens" type="button">
+            <span class="combo-card-tag">LENS</span>
+            <span class="combo-card-val" id="camCardLensName">40mm f/2.8</span>
+            <span class="combo-card-caret">▾</span>
+            <div class="combo-card-art" id="camCardLensArt"></div>
+          </button>
+          <button class="combo-card" data-open-combo="film" type="button">
+            <span class="combo-card-tag">FILM</span>
+            <span class="combo-card-val" id="camCardFilmName">Pro 400H</span>
+            <span class="combo-card-caret">▾</span>
+            <div class="combo-card-art" id="camCardFilmArt"></div>
+          </button>
         </div>
-        <div class="cam-mechanical-row">
-          <button class="btn-pill btn-ghost" id="btnFilmAdvance" type="button">Film advance →</button>
-          <button class="btn-pill btn-ghost" id="btnRewindRoll" type="button">↶ Rewind roll</button>
-          <span id="camMechanicStatus" style="font-size:9px;color:var(--text-muted);">Shutter cocked</span>
-        </div>
-      </div>
-    </section>
 
-    <!-- FILM GUIDE -->
-    <section id="view-guide" class="view-section">
-      <div class="guide-wrap">
-        <div class="guide-top-bar">
-          <div class="h-scroll" id="guideFilterPills">
-            <button class="filter-chip active" data-gfilter="all">All</button>
-            <button class="filter-chip" data-gfilter="fuji">Fujifilm</button>
-            <button class="filter-chip" data-gfilter="kodak">Kodak</button>
-            <button class="filter-chip" data-gfilter="cinema">Cine &amp; B&amp;W</button>
-            <button class="filter-chip" data-gfilter="phone">Phones</button>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:11px;color:var(--text-muted);">Tap an item to view details</span>
-            <div style="display:flex;gap:6px;">
-              <button class="filter-chip" id="btnGuideExpandAll">📖 Expand all</button>
-              <button class="filter-chip" id="btnGuideCollapseAll">📁 Collapse all</button>
-            </div>
-          </div>
+        <!-- Minimal 3-Button Shutter Deck (Roll Gallery • Shutter • Flip Camera) -->
+        <div class="cam-shutter-deck">
+          <button class="cam-round-btn" id="btnOpenContactSheet" type="button" title="Open camera roll">
+            🖼️
+            <span class="roll-count-badge" id="contactCount">0</span>
+          </button>
+          <button class="shutter-btn" id="btnShutter" type="button" title="Take photo"></button>
+          <button class="cam-round-btn" id="btnFlipCam" type="button" title="Flip camera">🔄</button>
         </div>
-        <div class="accordion-list" id="guideAccordionList"></div>
       </div>
     </section>
 
     <nav class="bottom-nav" role="tablist">
       <button class="bnav-btn active" data-tab="darkroom"><span class="ico">🎞️</span><span>Lab</span></button>
-      <button class="bnav-btn" id="btnBottomPhoto" type="button"><span class="ico">➕</span><span>Photo</span></button>
+      <button class="bnav-btn" id="btnBottomPhoto" type="button"><span class="ico">➕</span><span>Open Photo</span></button>
       <button class="bnav-btn" data-tab="camera"><span class="ico">📷</span><span>Camera</span></button>
     </nav>
+
+    <!-- ROLLIE-STYLE COMBO PICKER SHEET (CAMERA • LENS • FILM + RECIPES) -->
+    <div class="sheet-backdrop" id="comboSheetBackdrop">
+      <div class="sheet-card">
+        <div class="sheet-head">
+          <span style="font-family:var(--mono);font-size:11px;letter-spacing:0.6px;color:var(--text-secondary);" id="clapperSceneLabel">SCENE 01 · ROLL 01</span>
+          <button class="btn-pill btn-ghost" id="btnCloseComboSheet" style="height:26px;">✕ Done</button>
+        </div>
+
+        <div class="clapper-box">
+          <div class="clapper-stripes"></div>
+          <div class="clapper-cols">
+            <div class="clapper-col">
+              <div class="clapper-col-lbl">CAMERA</div>
+              <div class="clapper-col-val" id="clapperBodyVal">Rollie 35 S</div>
+            </div>
+            <div class="clapper-col">
+              <div class="clapper-col-lbl">LENS</div>
+              <div class="clapper-col-val" id="clapperLensVal">40mm f/2.8</div>
+            </div>
+            <div class="clapper-col film-col">
+              <div class="clapper-col-lbl">FILM</div>
+              <div class="clapper-col-val" id="clapperFilmVal">Pro 400H</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="picker-section" id="pickerSecCamera">
+          <div class="picker-sec-head">
+            <span>CAMERA</span>
+            <span class="picker-sec-count" id="pickerBodyCount"><strong>01</strong> / 11</span>
+          </div>
+          <div class="h-scroll" id="pickerBodyTrack"></div>
+        </div>
+
+        <div class="picker-section" id="pickerSecLens">
+          <div class="picker-sec-head">
+            <span>LENS</span>
+            <span class="picker-sec-count" id="pickerLensCount"><strong>01</strong> / 23</span>
+          </div>
+          <div class="h-scroll" id="pickerLensTrack"></div>
+        </div>
+
+        <div class="picker-section" id="pickerSecFilm">
+          <div class="picker-sec-head">
+            <span>FILM</span>
+            <span class="picker-sec-count" id="pickerFilmCount"><strong>01</strong> / 20</span>
+          </div>
+          <div class="h-scroll" id="filmBrandPills" style="margin-bottom:7px;">
+            <button class="filter-chip active" data-fbrand="all" type="button">All (20)</button>
+            <button class="filter-chip" data-fbrand="fuji" type="button">Fujifilm</button>
+            <button class="filter-chip" data-fbrand="kodak" type="button">Kodak</button>
+            <button class="filter-chip" data-fbrand="cinema" type="button">CineStill</button>
+            <button class="filter-chip" data-fbrand="bw" type="button">B&amp;W</button>
+          </div>
+          <div class="h-scroll" id="pickerFilmTrack"></div>
+        </div>
+
+        <div class="picker-section" style="margin-bottom:0;padding-top:8px;border-top:1px solid #222630;">
+          <div class="picker-sec-head">
+            <span>SAVED COMBOS</span>
+            <button class="filter-chip" id="btnSaveRecipe" type="button" style="color:#f5a623;border-color:rgba(245,166,35,0.4);">+ Save current combo</button>
+          </div>
+          <div class="h-scroll" id="recipeList"></div>
+        </div>
+      </div>
+    </div>
 
     <!-- BOTTOM SHEET: SAMPLE SCENES -->
     <div class="sheet-backdrop" id="sampleSheetBackdrop">
       <div class="sheet-card">
         <div class="sheet-head">
-          <span>🖼️ Choose a sample photo</span>
+          <span>🖼️ Sample photos</span>
           <button class="btn-pill btn-ghost" id="btnCloseSampleSheet" style="height:26px;">✕</button>
         </div>
-        <p style="margin:0 0 10px;color:var(--text-muted);font-size:10px;">Real photos from <a href="https://unsplash.com/license" target="_blank" rel="noreferrer" style="color:var(--brass);">Unsplash</a> · available offline</p>
         <div class="sample-grid-3" id="sampleStrip"></div>
       </div>
     </div>
@@ -1504,9 +1354,9 @@
     <div class="sheet-backdrop" id="contactSheetBackdrop">
       <div class="sheet-card">
         <div class="sheet-head">
-          <span>🎞️ Roll photos</span>
+          <span>🎞️ Camera Roll</span>
           <div style="display:flex;gap:6px;">
-            <button class="btn-pill btn-ghost" id="btnClearRollShots" style="height:26px;font-size:11px;">🗑️ Clear all</button>
+            <button class="btn-pill btn-ghost" id="btnClearRollShots" style="height:26px;font-size:11px;">🗑️ Clear</button>
             <button class="btn-pill btn-ghost" id="btnCloseContactSheet" style="height:26px;">✕</button>
           </div>
         </div>
@@ -1517,7 +1367,7 @@
     <div class="sync-modal-backdrop" id="syncModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="syncModalTitle">
       <div class="sync-modal">
         <h2 id="syncModalTitle">Sync settings with GitHub</h2>
-        <p>Back up camera settings and saved recipes to a private GitHub Gist. Use a personal access token with <strong>gist</strong> access. Your photos stay on this device.</p>
+        <p>Back up camera settings and saved combos to a private GitHub Gist. Use a personal access token with <strong>gist</strong> access. Your photos stay on this device.</p>
         <input id="syncTokenInput" type="password" autocomplete="off" placeholder="GitHub token" aria-label="GitHub token" />
         <div class="sync-modal-actions">
           <button id="syncDisconnect" type="button">Disconnect</button>
@@ -1571,33 +1421,16 @@
   ];
 
   const CAMERA_LENSES = [
-    { id: 'zeiss-sonnar-38', name: 'Zeiss 38mm T*', meta: 'f/2.8 • Dimensional', coatingWarmth: 3, coatingTint: 0, bloomBase: 14, vignetteBase: 26, chromaticAb: 0.4, edgeSoft: 0.05 },
-    { id: 'leitz-summicron-35', name: 'Summicron 35', meta: 'f/2.0 • Soft light', coatingWarmth: 1, coatingTint: 1, bloomBase: 32, vignetteBase: 20, chromaticAb: 0.3, edgeSoft: 0.06 },
-    { id: 'fujinon-35-14', name: 'Fujinon EBC 35', meta: 'f/1.4 • Clear', coatingWarmth: -2, coatingTint: -2, bloomBase: 16, vignetteBase: 18, chromaticAb: 0.2, edgeSoft: 0.02 },
-    { id: 'voigtlander-40', name: 'Voigtländer 40', meta: 'f/1.4 • Classic warmth', coatingWarmth: 5, coatingTint: 1, bloomBase: 38, vignetteBase: 35, chromaticAb: 0.8, edgeSoft: 0.10 },
     { id: 'helios-44', name: 'Helios 44-2', meta: '58mm • Dreamy', coatingWarmth: 4, coatingTint: -4, bloomBase: 48, vignetteBase: 38, chromaticAb: 1.4, edgeSoft: 0.18 },
-    { id: 'holga-plastic', name: 'Holga 60 Lo-Fi', meta: 'f/8 • Raw color shift', coatingWarmth: 6, coatingTint: -3, bloomBase: 44, vignetteBase: 68, chromaticAb: 2.8, edgeSoft: 0.32 },
     { id: 'nikon-50-18', name: 'Nikkor 50mm f/1.8', meta: 'Natural standard lens', coatingWarmth: 0, coatingTint: 0, bloomBase: 14, vignetteBase: 20, chromaticAb: 0.3, edgeSoft: 0.03 },
-    { id: 'nikon-105-25', name: 'Nikkor 105mm f/2.5', meta: 'Portrait compression', coatingWarmth: 1, coatingTint: 0, bloomBase: 20, vignetteBase: 18, chromaticAb: 0.25, edgeSoft: 0.03 },
     { id: 'canon-fd-50', name: 'Canon FD 50mm f/1.4', meta: 'Warm classic rendering', coatingWarmth: 2, coatingTint: 1, bloomBase: 22, vignetteBase: 23, chromaticAb: 0.4, edgeSoft: 0.05 },
-    { id: 'pentax-55-2', name: 'Super-Takumar 55mm f/2', meta: 'Gentle vintage glow', coatingWarmth: 3, coatingTint: 1, bloomBase: 28, vignetteBase: 25, chromaticAb: 0.5, edgeSoft: 0.07 },
     { id: 'olympus-zuiko-50', name: 'Zuiko 50mm f/1.8', meta: 'Compact clear standard', coatingWarmth: 0, coatingTint: -1, bloomBase: 16, vignetteBase: 19, chromaticAb: 0.3, edgeSoft: 0.03 },
-    { id: 'nikon-noct-58', name: 'Nikkor 58mm f/1.2 Noct', meta: 'Nikon F • legendary night lens', coatingWarmth: 2, coatingTint: 0, bloomBase: 34, vignetteBase: 24, chromaticAb: 0.35, edgeSoft: 0.04 },
-    { id: 'nikon-105-25-ai', name: 'Nikkor 105mm f/2.5 AI-S', meta: 'Nikon F • classic portrait', coatingWarmth: 1, coatingTint: 0, bloomBase: 20, vignetteBase: 18, chromaticAb: 0.25, edgeSoft: 0.03 },
-    { id: 'canon-fd-85-12l', name: 'Canon FD 85mm f/1.2L', meta: 'Canon FD • portrait L glass', coatingWarmth: 2, coatingTint: 1, bloomBase: 40, vignetteBase: 22, chromaticAb: 0.35, edgeSoft: 0.05 },
-    { id: 'canon-fd-50-12l', name: 'Canon FD 50mm f/1.2L', meta: 'Canon FD • fast standard prime', coatingWarmth: 2, coatingTint: 1, bloomBase: 32, vignetteBase: 22, chromaticAb: 0.3, edgeSoft: 0.04 },
     { id: 'pentax-k-50-12', name: 'SMC Pentax 50mm f/1.2', meta: 'Pentax K • bright standard prime', coatingWarmth: 2, coatingTint: 1, bloomBase: 30, vignetteBase: 22, chromaticAb: 0.35, edgeSoft: 0.04 },
-    { id: 'pentax-k-43-19', name: 'SMC Pentax-FA 43mm f/1.9 Limited', meta: 'Pentax K • celebrated compact prime', coatingWarmth: 1, coatingTint: 0, bloomBase: 22, vignetteBase: 18, chromaticAb: 0.25, edgeSoft: 0.03 },
-    { id: 'olympus-zuiko-50-12', name: 'G.Zuiko 50mm f/1.2', meta: 'Olympus OM • fast standard prime', coatingWarmth: 2, coatingTint: 0, bloomBase: 32, vignetteBase: 22, chromaticAb: 0.3, edgeSoft: 0.04 },
-    { id: 'olympus-zuiko-90-2', name: 'Zuiko 90mm f/2 Macro', meta: 'Olympus OM • legendary macro portrait', coatingWarmth: 0, coatingTint: 0, bloomBase: 18, vignetteBase: 18, chromaticAb: 0.2, edgeSoft: 0.02 },
     { id: 'minolta-rokkor-58-12', name: 'MC Rokkor 58mm f/1.2', meta: 'Minolta SR • famous portrait glow', coatingWarmth: 4, coatingTint: 1, bloomBase: 42, vignetteBase: 26, chromaticAb: 0.45, edgeSoft: 0.06 },
-    { id: 'minolta-rokkor-85-17', name: 'MC Rokkor 85mm f/1.7', meta: 'Minolta SR • classic portrait', coatingWarmth: 2, coatingTint: 0, bloomBase: 28, vignetteBase: 20, chromaticAb: 0.3, edgeSoft: 0.04 },
     { id: 'leica-summilux-35', name: 'Leica Summilux-M 35mm f/1.4', meta: 'Leica M • iconic fast wide angle', coatingWarmth: 2, coatingTint: 0, bloomBase: 30, vignetteBase: 20, chromaticAb: 0.25, edgeSoft: 0.03 },
     { id: 'leica-noctilux-50', name: 'Leica Noctilux-M 50mm f/1.0', meta: 'Leica M • ultra-fast classic portrait', coatingWarmth: 3, coatingTint: 0, bloomBase: 44, vignetteBase: 26, chromaticAb: 0.35, edgeSoft: 0.05 },
     { id: 'hasselblad-planar-80', name: 'Zeiss Planar 80mm f/2.8 CFE', meta: 'Hasselblad V • standard prime', coatingWarmth: 0, coatingTint: 0, bloomBase: 18, vignetteBase: 16, chromaticAb: 0.15, edgeSoft: 0.02 },
-    { id: 'hasselblad-sonnar-150', name: 'Zeiss Sonnar 150mm f/4 CFi', meta: 'Hasselblad V • portrait telephoto', coatingWarmth: 1, coatingTint: 0, bloomBase: 20, vignetteBase: 18, chromaticAb: 0.2, edgeSoft: 0.025 },
     { id: 'fuji-xpan-45', name: 'Fujinon 45mm f/4', meta: 'Fuji TX-1 / XPan • panoramic standard', coatingWarmth: 0, coatingTint: -1, bloomBase: 16, vignetteBase: 18, chromaticAb: 0.2, edgeSoft: 0.02 },
-    { id: 'fuji-xpan-90', name: 'Fujinon 90mm f/4', meta: 'Fuji TX-1 / XPan • panoramic portrait', coatingWarmth: 1, coatingTint: 0, bloomBase: 20, vignetteBase: 17, chromaticAb: 0.2, edgeSoft: 0.02 },
     { id: 'contax-t2-sonnar', name: 'Carl Zeiss Sonnar 38mm f/2.8', meta: 'Contax T2 • built-in autofocus lens', coatingWarmth: 1, coatingTint: 0, bloomBase: 24, vignetteBase: 19, chromaticAb: 0.2, edgeSoft: 0.025 },
     { id: 'rollei-sonnar-40', name: 'Carl Zeiss Sonnar 40mm f/2.8 HFT', meta: 'Rollei 35 S • built-in lens', coatingWarmth: 2, coatingTint: 0, bloomBase: 24, vignetteBase: 22, chromaticAb: 0.25, edgeSoft: 0.03 }
   ];
@@ -1862,35 +1695,7 @@
     else if (meanSat > 0.46 && (blueR > 0.14 || greenR > 0.14)) suggestedPhoneId = 'samsung-vivid';
     else if (shadowR > 0.30 && meanLum < 0.42) suggestedPhoneId = 'xiaomi-leica';
 
-    const recsByScene = {
-      night: [
-        { bodyId: 'leica-m6', lensId: 'voigtlander-40', filmId: 'cinestill-800t', title: 'CineStill 800T + Leica M6', reason: 'Creates red halation around night lights with cinematic teal shadows.' },
-        { bodyId: 'contax-t2', lensId: 'contax-t2-sonnar', filmId: 'fuji-natura-1600', title: 'Fuji Natura 1600 + Contax T2', reason: 'Preserves warm streetlights with expressive film grain.' },
-        { bodyId: 'leica-m6', lensId: 'zeiss-sonnar-38', filmId: 'kodak-trix-400', title: 'Kodak Tri-X 400 + Zeiss 38', reason: 'Turns night light into gritty documentary black and white.' }
-      ],
-      nature: [
-        { bodyId: 'fuji-tx1', lensId: 'fujinon-35-14', filmId: 'fuji-pro-400h', title: 'Fuji Pro 400H + TX-1', reason: 'Renders foliage in signature Japanese pastel teal.' },
-        { bodyId: 'rollie-35', lensId: 'zeiss-sonnar-38', filmId: 'fuji-classic-neg', title: 'Fuji Classic Neg. + Rollie', reason: 'Deep cool green shadows contrast with warm light.' },
-        { bodyId: 'hasselblad-500', lensId: 'zeiss-sonnar-38', filmId: 'fuji-velvia-50', title: 'Fuji Velvia 50 + Hasselblad', reason: 'Enhances landscape vibrance like a positive slide film.' }
-      ],
-      'warm-portrait': [
-        { bodyId: 'contax-t2', lensId: 'leitz-summicron-35', filmId: 'kodak-portra-400', title: 'Portra 400 + Contax T2', reason: 'Smooths highlights while preserving flattering warm cream skin tones.' },
-        { bodyId: 'rollie-35', lensId: 'voigtlander-40', filmId: 'kodak-gold-200', title: 'Gold 200 + Rollie 35 S', reason: 'Brings out nostalgic 90s golden sunlight.' },
-        { bodyId: 'hasselblad-500', lensId: 'fujinon-35-14', filmId: 'fuji-astia-100f', title: 'Fuji Astia 100F + Hasselblad', reason: 'Gives skin a soft, rosy Japanese-editorial finish.' }
-      ],
-      'bright-sky': [
-        { bodyId: 'fuji-tx1', lensId: 'zeiss-sonnar-38', filmId: 'kodak-ultramax-400', title: 'UltraMax 400 + Fuji TX-1', reason: 'Deepens blue skies and enriches golden sunlight.' },
-        { bodyId: 'contax-t2', lensId: 'fujinon-35-14', filmId: 'fuji-superia-400', title: 'Fuji Superia 400 + Contax', reason: 'Clear, cool blue skies in a Japanese film style.' },
-        { bodyId: 'rollie-35', lensId: 'zeiss-sonnar-38', filmId: 'kodak-ektar-100', title: 'Ektar 100 + Zeiss 38mm', reason: 'Ultra-fine grain with bold ocean blues and reds.' }
-      ],
-      balanced: [
-        { bodyId: 'leica-m6', lensId: 'zeiss-sonnar-38', filmId: 'fuji-classic-chrome', title: 'Classic Chrome + Leica M6', reason: 'Muted, refined vintage editorial color.' },
-        { bodyId: 'contax-t2', lensId: 'leitz-summicron-35', filmId: 'kodak-portra-400', title: 'Portra 400 + Contax T2', reason: 'Balances all light with gentle tonal transitions.' },
-        { bodyId: 'rollie-35', lensId: 'helios-44', filmId: 'kodak-colorplus-200', title: 'ColorPlus 200 + Helios', reason: 'Creates classic sandy gold with dreamy edge light.' }
-      ]
-    };
-
-    return { sceneType, sceneKey, suggestedPhoneId, recs: recsByScene[sceneKey] };
+    return { sceneType, sceneKey, suggestedPhoneId };
   }
 
   /* ==========================================================================
@@ -2606,7 +2411,7 @@
       if (remote && remote.v === 1 && (!local || (remote.t || 0) > (local.t || 0))) {
         remote.recipes = mergeRecipes(local && local.recipes, remote.recipes);
         applyAppSnapshot(remote);
-        renderPhoneProfileGrid(); renderGearRack(); renderTweaksDock(); renderFrameAndRecipes(); renderPreview();
+        syncAllUI(); renderPreview();
         if (!quiet) showToast('Settings synced from GitHub');
         return true;
       }
@@ -2635,7 +2440,7 @@
             outgoing.recipes = mergeRecipes(local.recipes, remote.recipes);
             outgoing.t = Math.max(local.t || 0, remote.t || 0, Date.now()) + 1;
             applyAppSnapshot(outgoing);
-            if (remoteWins) { renderPhoneProfileGrid(); renderGearRack(); renderTweaksDock(); renderFrameAndRecipes(); renderPreview(); }
+            if (remoteWins) { syncAllUI(); renderPreview(); }
           }
         }
       }
@@ -2683,6 +2488,7 @@
     document.getElementById('syncTokenInput').value = getGhConfig().token || '';
     syncModal.classList.add('open');
   }
+  document.getElementById('btnCloudSync')?.addEventListener('click', openSyncModal);
   document.getElementById('syncModalClose').addEventListener('click', () => syncModal.classList.remove('open'));
   syncModal.addEventListener('click', e => { if (e.target === syncModal) syncModal.classList.remove('open'); });
   document.getElementById('syncDisconnect').addEventListener('click', () => {
@@ -2730,6 +2536,74 @@
     };
   }
 
+  function shortLensLabel(lens) {
+    const m = lens.name.match(/(\d+mm\s*f\/[\d.]+)/i) || lens.meta.match(/(f\/[\d.]+)/i);
+    if (m && /\d+mm/i.test(m[1])) return m[1].replace(/\s+/g, ' ').replace('f/', 'f');
+    const focal = lens.name.match(/(\d{2,3})\b/);
+    const ap = (lens.name + ' ' + lens.meta).match(/f\/?([\d.]+)/i);
+    if (focal && ap) return `${focal[1]}mm f${ap[1]}`;
+    return lens.name.replace(/^(Carl Zeiss|Leica|Fujinon|Voigtländer|Nikkor|Canon FD|SMC Pentax-FA|SMC Pentax|G\.Zuiko|Zuiko|MC Rokkor|Zeiss)\s*/i, '').trim();
+  }
+
+  /* ==========================================================================
+     6. ROLLIE-STYLE TACTILE SVG ILLUSTRATIONS (CAMERA • LENS • FILM)
+     ========================================================================== */
+
+  function svgCameraBody(bodyId) {
+    const styles = {
+      'rollie-35': { top: '#d1d5db', body: '#1f232a', accent: '#f5a623', badge: '#ef4444' },
+      'fuji-tx1': { top: '#c7b299', body: '#262930', accent: '#10b981', badge: '#f59e0b' },
+      'leica-m6': { top: '#181a20', body: '#121418', accent: '#ef4444', badge: '#ef4444' },
+      'contax-t2': { top: '#d6cfc2', body: '#b8b0a2', accent: '#d97706', badge: '#10b981' },
+      'hasselblad-500': { top: '#cfd4dc', body: '#17191e', accent: '#60a5fa', badge: '#f5a623' }
+    };
+    const st = styles[bodyId] || { top: '#d1d5db', body: '#1b1e24', accent: '#f5a623', badge: '#9ca3af' };
+    return `<svg viewBox="0 0 64 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="8" y="6" width="12" height="5" rx="1.5" fill="#9ca3af"/>
+      <rect x="44" y="5" width="10" height="6" rx="1.5" fill="#d1d5db"/>
+      <rect x="4" y="9" width="56" height="30" rx="5" fill="${st.body}" stroke="#4b5563" stroke-width="1.2"/>
+      <path d="M4 14C4 11.2386 6.23858 9 9 9H55C57.7614 9 60 11.2386 60 14V18H4V14Z" fill="${st.top}"/>
+      <rect x="10" y="12" width="9" height="4" rx="1" fill="#111827" stroke="#4b5563" stroke-width="0.8"/>
+      <circle cx="49" cy="14" r="2.2" fill="${st.badge}"/>
+      <circle cx="34" cy="25" r="11.5" fill="#111318" stroke="#9ca3af" stroke-width="1.8"/>
+      <circle cx="34" cy="25" r="8" fill="#090d16" stroke="${st.accent}" stroke-width="1"/>
+      <circle cx="31.5" cy="22.5" r="2.2" fill="rgba(255,255,255,0.45)"/>
+    </svg>`;
+  }
+
+  function svgLensBarrel(lensId) {
+    const isWarm = /voigt|helios|rokkor|noct|fd-85/i.test(lensId);
+    const ringColor = isWarm ? '#f5a623' : '#10b981';
+    return `<svg viewBox="0 0 54 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="31" cy="21" rx="14" ry="15" fill="#181b20" stroke="#4b5563" stroke-width="1.2"/>
+      <rect x="17" y="6" width="14" height="30" rx="3" fill="#232730" stroke="#4b5563" stroke-width="1"/>
+      <line x1="21" y1="7" x2="21" y2="35" stroke="${ringColor}" stroke-width="1.4"/>
+      <line x1="25" y1="8" x2="25" y2="34" stroke="#6b7280" stroke-width="1" stroke-dasharray="2 2"/>
+      <ellipse cx="17" cy="21" rx="11" ry="14" fill="#111317" stroke="#9ca3af" stroke-width="1.5"/>
+      <ellipse cx="17" cy="21" rx="7.5" ry="10" fill="#0b1320" stroke="${ringColor}" stroke-width="0.9"/>
+      <ellipse cx="15" cy="17.5" rx="2.5" ry="3.5" fill="rgba(147,197,253,0.45)"/>
+    </svg>`;
+  }
+
+  function svgFilmCanister(film) {
+    const brandColors = {
+      fuji: { body: '#059669', band: '#10b981', top: '#e5e7eb' },
+      kodak: { body: '#d97706', band: '#fbbf24', top: '#fef3c7' },
+      cinema: { body: '#0e7490', band: '#ef4444', top: '#cbd5e1' },
+      bw: { body: '#374151', band: '#9ca3af', top: '#e5e7eb' }
+    };
+    const c = brandColors[film.brand] || brandColors.fuji;
+    return `<svg viewBox="0 0 44 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="15" y="3" width="10" height="5" rx="1" fill="#9ca3af"/>
+      <path d="M29 12H36C37.1 12 38 12.9 38 14V27C38 28.1 37.1 29 36 29H29V12Z" fill="#374151" fill-opacity="0.75"/>
+      <rect x="9" y="7" width="22" height="30" rx="3" fill="${c.body}" stroke="#1f2937" stroke-width="1.2"/>
+      <rect x="9" y="13" width="22" height="8" fill="${c.band}"/>
+      <rect x="9" y="25" width="22" height="4" fill="${c.top}" fill-opacity="0.85"/>
+      <rect x="7.5" y="6" width="25" height="3" rx="1.2" fill="#374151"/>
+      <rect x="7.5" y="35" width="25" height="3" rx="1.2" fill="#374151"/>
+    </svg>`;
+  }
+
   function formatDateStamp() {
     if (state.dateStamp === 'off') return '';
     if (state.dateStamp === 'retro98') {
@@ -2747,9 +2621,9 @@
   function loadSourceCanvas(srcCanvas, exifData = null) {
     state.fullSourceCanvas = srcCanvas;
     state.exif = exifData;
+    const openSamplesBtn = document.getElementById('btnOpenSamples');
+    if (openSamplesBtn) openSamplesBtn.style.display = SAMPLES.some(x => x.canvas === srcCanvas) ? '' : 'none';
 
-    // Keep interactive pixel processing lighter on phones; export still uses
-    // state.fullSourceCanvas at its full (up to 2400px) source size.
     const maxDim = window.matchMedia('(max-width: 700px)').matches ? 680 : 860;
     const scale = Math.min(1, maxDim / Math.max(srcCanvas.width, srcCanvas.height));
     const pw = Math.max(100, Math.round(srcCanvas.width * scale));
@@ -2762,10 +2636,13 @@
     state.previewSourceData = prevC.getContext('2d').getImageData(0, 0, pw, ph);
     state.analysis = analyzeImageCharacteristics(srcCanvas);
 
-    if (exifData && exifData.mappedProfile) state.phoneId = normalizePhoneProfileId(exifData.mappedProfile);
+    if (exifData && exifData.mappedProfile) {
+      state.phoneId = normalizePhoneProfileId(exifData.mappedProfile);
+    } else if (state.analysis && state.analysis.suggestedPhoneId) {
+      state.phoneId = state.analysis.suggestedPhoneId;
+    }
 
-    renderExifAndAnalysisUI();
-    renderPhoneProfileGrid();
+    syncAllUI();
     renderPreview();
   }
 
@@ -2822,61 +2699,239 @@
         oCtx.drawImage(sourceCanvas, sx, sy);
       }
 
-      document.getElementById('liveGearBadge').textContent = `Phone photo • ${film.name}`;
+      const lensShort = shortLensLabel(lens);
+      document.getElementById('liveGearBadge').innerHTML = `${escapeHtml(body.name)} — ${escapeHtml(lensShort)} — <strong>${escapeHtml(film.name)}</strong>`;
       output.bitmap?.close();
     } catch (error) { console.error('Preview rendering failed', error); }
   }
 
   /* ==========================================================================
-     6. MOBILE UI RENDERERS
+     7. ROLLIE COMBO CARDS, CLAPPER SHEET & COMPACT LAB RENDERERS
      ========================================================================== */
 
-  function renderExifAndAnalysisUI() {
-    const banner = document.getElementById('phoneStatusBanner');
+  function renderPhoneChipUI() {
     const hdrChip = document.getElementById('hdrPhoneChip');
-    const sceneText = document.getElementById('sceneBadgeText');
-    const exif = state.exif, ana = state.analysis;
+    if (!hdrChip) return;
     const prof = PHONE_PROFILES.find(p => p.id === state.phoneId) || PHONE_PROFILES[0];
-
-    hdrChip.textContent = prof.name;
-    sceneText.textContent = ana.sceneType;
-
-    if (exif) {
-      const specs = [exif.focalStr, exif.fNumberStr, exif.exposureStr, exif.isoStr].filter(Boolean).join(' • ');
-      banner.className = 'exif-status-line detected';
-      banner.innerHTML = `<span>✅ <strong>${escapeHtml(exif.commercialModel)}</strong></span><span style="color:var(--text-secondary);font-family:var(--mono);font-size:10px;">${escapeHtml(specs || 'EXIF')}</span>`;
+    if (state.exif && state.exif.commercialModel) {
+      hdrChip.textContent = `📱 ${state.exif.commercialModel}`;
     } else {
-      banner.className = 'exif-status-line fallback';
-      banner.innerHTML = `<span>🔍 No EXIF (shared/sample)</span><span style="color:var(--kodak);font-size:10px;">Choose a camera or suggestion ↓</span>`;
+      hdrChip.textContent = prof.id === 'auto-detect' ? 'Auto Sensor' : prof.name;
+    }
+  }
+
+  function renderComboCards() {
+    const { body, lens, film } = getSelectedGear();
+    const lensShort = shortLensLabel(lens);
+    const bodySvg = svgCameraBody(body.id);
+    const lensSvg = svgLensBarrel(lens.id);
+    const filmSvg = svgFilmCanister(film);
+
+    // Lab 3-card deck
+    document.getElementById('labCardBodyName').textContent = body.name;
+    document.getElementById('labCardLensName').textContent = lensShort;
+    document.getElementById('labCardFilmName').textContent = film.name;
+    document.getElementById('labCardBodyArt').innerHTML = bodySvg;
+    document.getElementById('labCardLensArt').innerHTML = lensSvg;
+    document.getElementById('labCardFilmArt').innerHTML = filmSvg;
+
+    // Camera 3-card deck
+    document.getElementById('camCardBodyName').textContent = body.name;
+    document.getElementById('camCardLensName').textContent = lensShort;
+    document.getElementById('camCardFilmName').textContent = film.name;
+    document.getElementById('camCardBodyArt').innerHTML = bodySvg;
+    document.getElementById('camCardLensArt').innerHTML = lensSvg;
+    document.getElementById('camCardFilmArt').innerHTML = filmSvg;
+
+    // Clapperboard summary inside Combo Picker Sheet
+    document.getElementById('clapperBodyVal').textContent = body.name;
+    document.getElementById('clapperLensVal').textContent = lensShort;
+    document.getElementById('clapperFilmVal').textContent = film.name;
+    const shotNum = String(Math.max(1, state.camShotCount || 1)).padStart(2, '0');
+    const rollNum = String(Math.max(1, state.camRollNumber || 1)).padStart(2, '0');
+    document.getElementById('clapperSceneLabel').textContent = `SCENE ${shotNum} · ROLL ${rollNum}`;
+  }
+
+  function renderComboPickerSheet() {
+    const bodyIdx = Math.max(0, CAMERA_BODIES.findIndex(b => b.id === state.bodyId)) + 1;
+    const lensIdx = Math.max(0, CAMERA_LENSES.findIndex(l => l.id === state.lensId)) + 1;
+    document.getElementById('pickerBodyCount').innerHTML = `<strong>${String(bodyIdx).padStart(2, '0')}</strong> / ${CAMERA_BODIES.length}`;
+    document.getElementById('pickerLensCount').innerHTML = `<strong>${String(lensIdx).padStart(2, '0')}</strong> / ${CAMERA_LENSES.length}`;
+
+    // 1. Camera Bodies Track
+    const bodyTrack = document.getElementById('pickerBodyTrack');
+    bodyTrack.innerHTML = '';
+    CAMERA_BODIES.forEach(b => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = `picker-tile ${b.id === state.bodyId ? 'active' : ''}`;
+      btn.innerHTML = `
+        <div class="combo-card-art">${svgCameraBody(b.id)}</div>
+        <span class="picker-tile-name">${escapeHtml(b.name)}</span>
+        <span class="picker-tile-sub">${escapeHtml(b.meta)}</span>
+      `;
+      btn.addEventListener('click', () => selectCameraBody(b.id));
+      bodyTrack.appendChild(btn);
+    });
+
+    // 2. Lenses Track
+    const lensTrack = document.getElementById('pickerLensTrack');
+    lensTrack.innerHTML = '';
+    CAMERA_LENSES.forEach(l => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = `picker-tile ${l.id === state.lensId ? 'active' : ''}`;
+      btn.innerHTML = `
+        <div class="combo-card-art">${svgLensBarrel(l.id)}</div>
+        <span class="picker-tile-name">${escapeHtml(shortLensLabel(l))}</span>
+        <span class="picker-tile-sub">${escapeHtml(l.name)}</span>
+      `;
+      btn.addEventListener('click', () => {
+        state.lensId = l.id;
+        state.bloom = l.bloomBase;
+        state.vignette = l.vignetteBase;
+        syncAllUI();
+        renderPreview();
+      });
+      lensTrack.appendChild(btn);
+    });
+
+    // 3. Film Stocks Track
+    const filteredFilms = state.filmBrandFilter === 'all'
+      ? FILM_STOCKS
+      : FILM_STOCKS.filter(f => f.brand === state.filmBrandFilter);
+    const filmIdx = Math.max(0, filteredFilms.findIndex(f => f.id === state.filmId)) + 1;
+    document.getElementById('pickerFilmCount').innerHTML = `<strong>${String(filmIdx).padStart(2, '0')}</strong> / ${filteredFilms.length}`;
+
+    document.querySelectorAll('#filmBrandPills .filter-chip').forEach(chip => {
+      chip.classList.toggle('active', chip.dataset.fbrand === state.filmBrandFilter);
+    });
+
+    const filmTrack = document.getElementById('pickerFilmTrack');
+    filmTrack.innerHTML = '';
+    filteredFilms.forEach(f => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = `picker-tile ${f.id === state.filmId ? 'active' : ''}`;
+      btn.innerHTML = `
+        <div class="combo-card-art">${svgFilmCanister(f)}</div>
+        <span class="picker-tile-name">${escapeHtml(f.name)}</span>
+        <span class="picker-tile-sub">${escapeHtml(f.subtitle)}</span>
+      `;
+      btn.addEventListener('click', () => selectFilmStock(f.id));
+      filmTrack.appendChild(btn);
+    });
+
+    renderSavedRecipesList();
+  }
+
+  function renderTweaksDock() {
+    const drawer = document.getElementById('tweakDrawer');
+    const isDrawerOpen = drawer.classList.contains('open');
+    const def = TWEAK_DEFS.find(d => d.key === state.activeTweakKey) || TWEAK_DEFS[0];
+
+    document.getElementById('activeTweakTitle').textContent = `${def.label}: ${def.fmt(state[def.key])}`;
+    const slider = document.getElementById('activeTweakSlider');
+    slider.min = def.min;
+    slider.max = def.max;
+    slider.value = state[def.key];
+
+    const lsel = document.getElementById('leakTypeSelect');
+    if (def.key === 'leakAmt') {
+      lsel.style.display = 'inline-block';
+      lsel.innerHTML = LEAK_TYPES.map(lt => `<option value="${lt.id}">Leak: ${lt.name}</option>`).join('');
+      lsel.value = state.leakType;
+    } else {
+      lsel.style.display = 'none';
     }
 
-    const recList = document.getElementById('smartRecsList');
-    recList.innerHTML = '';
-    ana.recs.forEach(rec => {
-      const card = document.createElement('div');
-      card.className = 'rec-chip-card';
-      card.innerHTML = `
-        <div class="rec-chip-top">
-          <div class="rec-chip-title">${FILM_STOCKS.find(f => f.id === rec.filmId)?.name || 'Film look'}</div>
-          <button class="btn-pill btn-brass" style="height:22px;padding:0 8px;font-size:10.5px;">Use</button>
-        </div>
-        <div class="rec-chip-reason">${rec.reason}</div>
-      `;
-      card.querySelector('button').addEventListener('click', () => {
-        selectFilmStock(rec.filmId);
-        showToast(`Applied: ${FILM_STOCKS.find(f => f.id === rec.filmId)?.name || 'film look'}`);
+    // Render single-row horizontal pills for tweaks + Frame + Date
+    const strip = document.getElementById('tweakPillsStrip');
+    strip.innerHTML = '';
+
+    // Frame quick-cycle pill
+    const frameLabels = { 'none': 'Off', '35mm-sprocket': '35mm', 'darkroom-white': 'Border', 'polaroid': 'Polaroid' };
+    const framePill = document.createElement('button');
+    framePill.type = 'button';
+    framePill.className = `tweak-pill ${state.frameType !== 'none' ? 'active' : ''}`;
+    framePill.innerHTML = `<span>Frame</span><span class="tweak-pill-val">${frameLabels[state.frameType] || 'Off'}</span>`;
+    framePill.addEventListener('click', () => {
+      const order = ['none', '35mm-sprocket', 'darkroom-white', 'polaroid'];
+      state.frameType = order[(order.indexOf(state.frameType) + 1) % order.length];
+      syncAllUI();
+      renderPreview();
+    });
+    strip.appendChild(framePill);
+
+    // Date quick-cycle pill
+    const dateLabels = { 'off': 'Off', 'retro98': "'98", 'exif-or-today': 'Today' };
+    const datePill = document.createElement('button');
+    datePill.type = 'button';
+    datePill.className = `tweak-pill ${state.dateStamp !== 'off' ? 'active' : ''}`;
+    datePill.innerHTML = `<span>Date</span><span class="tweak-pill-val">${dateLabels[state.dateStamp] || 'Off'}</span>`;
+    datePill.addEventListener('click', () => {
+      const order = ['off', 'retro98', 'exif-or-today'];
+      state.dateStamp = order[(order.indexOf(state.dateStamp) + 1) % order.length];
+      syncAllUI();
+      renderPreview();
+    });
+    strip.appendChild(datePill);
+
+    // Parameter tweak pills
+    TWEAK_DEFS.forEach(t => {
+      const pill = document.createElement('button');
+      pill.type = 'button';
+      const active = isDrawerOpen && state.activeTweakKey === t.key;
+      pill.className = `tweak-pill ${active ? 'active' : ''}`;
+      pill.innerHTML = `<span>${t.label}</span><span class="tweak-pill-val">${t.fmt(state[t.key])}</span>`;
+      pill.addEventListener('click', () => {
+        if (drawer.classList.contains('open') && state.activeTweakKey === t.key) {
+          drawer.classList.remove('open');
+        } else {
+          state.activeTweakKey = t.key;
+          if (t.key === 'leakAmt' && state.leakType === 'none') {
+            state.leakType = 'amber-edge';
+            if (state.leakAmt === 0) state.leakAmt = 40;
+            renderPreview();
+          }
+          drawer.classList.add('open');
+        }
+        renderTweaksDock();
       });
-      recList.appendChild(card);
+      strip.appendChild(pill);
     });
   }
 
-  function renderPhoneProfileGrid() {
-    const sel = document.getElementById('phoneProfileSelect');
-    const hdrChip = document.getElementById('hdrPhoneChip');
-    const activeProf = PHONE_PROFILES.find(p => p.id === state.phoneId) || PHONE_PROFILES[0];
-    hdrChip.textContent = activeProf.name;
-    sel.innerHTML = PHONE_PROFILES.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
-    sel.value = activeProf.id;
+  function renderSavedRecipesList() {
+    const list = document.getElementById('recipeList');
+    if (!list) return;
+    if (state.recipes.length === 0) {
+      list.innerHTML = `<span style="font-size:10.5px;color:var(--text-muted);">Tap "+ Save current combo" to bookmark your favorite setup</span>`;
+      return;
+    }
+    list.innerHTML = '';
+    state.recipes.forEach((r, idx) => {
+      const chip = document.createElement('div');
+      chip.className = 'recipe-chip';
+      chip.innerHTML = `<button class="btn-use" type="button" style="font-weight:700;color:#f5a623;">${escapeHtml(r.name)}</button><button class="btn-del" type="button" style="color:var(--danger);font-weight:700;">×</button>`;
+      chip.querySelector('.btn-use').addEventListener('click', () => {
+        Object.assign(state, {
+          phoneId: normalizePhoneProfileId(r.phoneId), bodyId: r.bodyId, lensId: r.lensId, filmId: r.filmId,
+          strength: r.strength, exposure: r.exposure, warmth: r.warmth, grain: r.grain,
+          halation: r.halation, bloom: r.bloom, vignette: r.vignette,
+          leakType: r.leakType, leakAmt: r.leakAmt, frameType: r.frameType, dateStamp: r.dateStamp
+        });
+        syncAllUI();
+        renderPreview();
+        showToast(`Applied: ${r.name}`);
+      });
+      chip.querySelector('.btn-del').addEventListener('click', () => {
+        state.recipes.splice(idx, 1);
+        localStorage.setItem('tees_lab_recipes_v1', JSON.stringify(state.recipes));
+        renderSavedRecipesList();
+      });
+      list.appendChild(chip);
+    });
   }
 
   function renderSampleStrip() {
@@ -2902,199 +2957,43 @@
     });
   }
 
-  function renderGearRack() {
-    const fill = (id, arr, cur, label) => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.innerHTML = arr.map(x => `<option value="${x.id}">${label(x)}</option>`).join('');
-      el.value = cur;
-    };
-    fill('bodySelect', CAMERA_BODIES, state.bodyId, b => `${b.name} — ${b.meta}`);
-    fill('lensSelect', CAMERA_LENSES, state.lensId, l => `${l.name} — ${l.meta}`);
-    let filtered = state.filmBrandFilter === 'all' ? FILM_STOCKS : FILM_STOCKS.filter(f => f.brand === state.filmBrandFilter);
-    if (!filtered.some(f => f.id === state.filmId)) { state.filmBrandFilter = 'all'; filtered = FILM_STOCKS; }
-    document.getElementById('filmBrandSelect').value = state.filmBrandFilter;
-    fill('filmSelect', filtered, state.filmId, f => `${f.name} (ISO ${f.iso}) — ${f.subtitle}`);
-    const activeFilmName = document.getElementById('activeFilmName');
-    if (activeFilmName) activeFilmName.textContent = FILM_STOCKS.find(f => f.id === state.filmId)?.name || '';
-  }
-
   function selectFilmStock(filmId) {
     state.filmId = filmId;
     const f = FILM_STOCKS.find(x => x.id === filmId);
     if (f) { state.grain = f.grainBase; state.halation = f.halationBase; }
-    renderTweaksDock(); renderGearRack(); syncCameraDropdowns(); renderPreview();
+    syncAllUI();
+    scheduleCameraSettingsApply();
+    renderPreview();
   }
 
-  function applyGearPreset(bodyId, lensId, filmId) {
-    if (bodyId === 'olympus-mju') { bodyId = 'contax-t2'; lensId = 'contax-t2-sonnar'; }
-    const body = CAMERA_BODIES.find(item => item.id === bodyId) || CAMERA_BODIES[0];
-    const lens = CAMERA_LENSES.find(item => item.id === lensId);
-    bodyId = body.id;
-    lensId = lens ? lens.id : (body.defaultLensId || CAMERA_LENSES[0].id);
-    state.bodyId = bodyId; state.lensId = lensId; state.filmId = filmId;
-    const selectedLens = CAMERA_LENSES.find(l => l.id === lensId);
-    const film = FILM_STOCKS.find(f => f.id === filmId);
-    if (selectedLens) { state.bloom = selectedLens.bloomBase; state.vignette = selectedLens.vignetteBase; }
-    if (film) { state.grain = film.grainBase; state.halation = film.halationBase; }
-    renderTweaksDock(); renderGearRack(); syncCameraDropdowns(); renderPreview();
-  }
-
-  function renderTweaksDock() {
-    const def = TWEAK_DEFS.find(d => d.key === state.activeTweakKey) || TWEAK_DEFS[0];
-    document.getElementById('activeTweakTitle').textContent = `${def.label}: ${def.fmt(state[def.key])}`;
-    const slider = document.getElementById('activeTweakSlider');
-    slider.min = def.min; slider.max = def.max; slider.value = state[def.key];
-
-    const tsel = document.getElementById('tweakSelect');
-    tsel.innerHTML = TWEAK_DEFS.map(t => `<option value="${t.key}">${t.label} — ${t.fmt(state[t.key])}</option>`).join('');
-    tsel.value = state.activeTweakKey;
-
-    const lsel = document.getElementById('leakTypeSelect');
-    if (def.key === 'leakAmt') {
-      lsel.style.display = 'block';
-      lsel.innerHTML = LEAK_TYPES.map(lt => `<option value="${lt.id}">Light leak: ${lt.name}</option>`).join('');
-      lsel.value = state.leakType;
-    } else {
-      lsel.style.display = 'none';
+  function selectCameraBody(bodyId) {
+    state.bodyId = bodyId;
+    const body = CAMERA_BODIES.find(item => item.id === bodyId);
+    const matchedLens = body && CAMERA_LENSES.find(item => item.id === body.defaultLensId);
+    if (matchedLens) {
+      state.lensId = matchedLens.id;
+      state.bloom = matchedLens.bloomBase;
+      state.vignette = matchedLens.vignetteBase;
     }
+    syncAllUI();
+    renderPreview();
   }
 
-  function renderFrameAndRecipes() {
-    document.getElementById('frameSelect').value = state.frameType;
-    document.getElementById('dateSelect').value = state.dateStamp;
-
-    const list = document.getElementById('recipeList');
-    if (state.recipes.length === 0) {
-      list.innerHTML = `<span style="font-size:11px;color:var(--text-muted);">No saved recipes yet</span>`;
-      return;
-    }
-    list.innerHTML = '';
-    state.recipes.forEach((r, idx) => {
-      const chip = document.createElement('div');
-      chip.className = 'recipe-chip';
-      chip.innerHTML = `<button class="btn-use" style="font-weight:700;">${escapeHtml(r.name)}</button><button class="btn-del" style="color:var(--danger);font-weight:700;">×</button>`;
-      chip.querySelector('.btn-use').addEventListener('click', () => {
-        Object.assign(state, {
-          phoneId: normalizePhoneProfileId(r.phoneId), bodyId: r.bodyId, lensId: r.lensId, filmId: r.filmId,
-          strength: r.strength, exposure: r.exposure, warmth: r.warmth, grain: r.grain,
-          halation: r.halation, bloom: r.bloom, vignette: r.vignette,
-          leakType: r.leakType, leakAmt: r.leakAmt, frameType: r.frameType, dateStamp: r.dateStamp
-        });
-        renderPhoneProfileGrid(); renderGearRack(); renderTweaksDock(); renderFrameAndRecipes(); renderPreview();
-        showToast(`Used: ${r.name}`);
-      });
-      chip.querySelector('.btn-del').addEventListener('click', () => {
-        state.recipes.splice(idx, 1);
-        localStorage.setItem('tees_lab_recipes_v1', JSON.stringify(state.recipes));
-        renderFrameAndRecipes();
-      });
-      list.appendChild(chip);
-    });
+  function syncAllUI() {
+    renderPhoneChipUI();
+    renderComboCards();
+    renderComboPickerSheet();
+    renderTweaksDock();
+    syncCameraHudUI();
   }
 
   /* ==========================================================================
-     7. GUIDE ACCORDION (CONCISE MOBILE)
-     ========================================================================== */
-
-  const GUIDE_ITEMS = [
-    ...FILM_STOCKS.map(f => ({
-      id: `g-${f.id}`,
-      category: f.brand === 'bw' ? 'cinema' : f.brand,
-      icon: f.brand === 'fuji' ? '🌿' : (f.brand === 'kodak' ? '☀️' : (f.brand === 'cinema' ? '🎬' : '🎞️')),
-      chipClass: f.brand === 'fuji' ? 'chip-fuji' : (f.brand === 'kodak' ? 'chip-kodak' : 'chip-cinema'),
-      chipLabel: f.brandLabel,
-      title: `${f.name} (ISO ${f.iso})`,
-      subtitle: f.subtitle,
-      colorNote: f.isBW ? `Black-and-white RGB weights [${f.bwWeights.join('/')}] • Grain ${f.grainBase}%` : `Shadow RGB(${f.shadowTint.join(',')}) • Highlight RGB(${f.highlightTint.join(',')})`,
-      bestFor: f.brand === 'fuji' ? 'Greenery, nature, soft daylight, and clear skin.' : (f.brand === 'kodak' ? 'Golden sunlight, portraits, sunsets, and warm memories.' : (f.id === 'cinestill-800t' ? 'Night streets, neon scenes, and city lights.' : 'Street scenes and high-contrast architecture.')),
-      tryGear: {
-        bodyId: f.brand === 'fuji' ? 'fuji-tx1' : (f.id === 'cinestill-800t' ? 'leica-m6' : 'contax-t2'),
-        lensId: f.brand === 'fuji' ? 'fujinon-35-14' : (f.id === 'cinestill-800t' ? 'voigtlander-40' : 'zeiss-sonnar-38'),
-        filmId: f.id
-      }
-    })),
-    {
-      id: 'g-phone-iphone', category: 'phone', icon: '📱', chipClass: 'chip-phone', chipLabel: 'PHONE',
-      title: 'iPhone', subtitle: 'Balanced handling for Smart HDR, Deep Fusion, and Photonic Engine processing',
-      colorNote: 'iPhone processing can increase edge sharpness, highlight control, and shadow brightness.',
-      bestFor: 'The unified iPhone profile softens edges, reduces HDR yellow cast, and restores natural shadow depth.',
-      phoneProfile: 'iphone'
-    },
-    {
-      id: 'g-phone-samsung', category: 'phone', icon: '🌌', chipClass: 'chip-phone', chipLabel: 'PHONE',
-      title: 'Samsung Galaxy S23 – S26 Ultra & Z Fold/Flip', subtitle: 'Reduces intense blue and green saturation (De-Neon)',
-      colorNote: 'Samsung ISP pushes sky and foliage saturation strongly on AMOLED displays.',
-      bestFor: 'The Samsung S23–S26 profile reduces blue intensity by 28% before applying film.',
-      phoneProfile: 'samsung-vivid'
-    },
-    {
-      id: 'g-phone-flagship-cn', category: 'phone', icon: '🔴', chipClass: 'chip-phone', chipLabel: 'PHONE',
-      title: 'Xiaomi 13–17 Leica, Vivo X200–300 Zeiss & OPPO Find X8–9', subtitle: 'Balances Leica shadows and softens AI skin color',
-      colorNote: 'Flagships with 1-inch sensors can have strong shadow contrast or AI skin brightening.',
-      bestFor: 'Choose Xiaomi 13–17 Leica or OPPO/Vivo to open shadow detail before applying Kodak or Fuji color.',
-      phoneProfile: 'xiaomi-leica'
-    },
-    {
-      id: 'g-phone-zalo', category: 'phone', icon: '🔍', chipClass: 'chip-phone', chipLabel: 'EXIF',
-      title: 'When a photo loses EXIF through chat apps', subtitle: 'How Tee\'s Lab automatically suggests film stocks',
-      colorNote: 'Chat apps commonly strip device EXIF when sending photos.',
-      bestFor: 'The app measures brightness, sky, foliage, and skin colors to suggest the three best film combinations.',
-      tryGear: null
-    }
-  ];
-
-  let guideFilter = 'all';
-  const openGuideIds = new Set();
-
-  function renderGuideAccordion() {
-    const container = document.getElementById('guideAccordionList');
-    container.innerHTML = '';
-    const items = guideFilter === 'all' ? GUIDE_ITEMS : GUIDE_ITEMS.filter(i => i.category === guideFilter);
-    items.forEach(item => {
-      const isOpen = openGuideIds.has(item.id);
-      const card = document.createElement('div');
-      card.className = `accordion-item ${isOpen ? 'open' : ''}`;
-      card.innerHTML = `
-        <button class="accordion-header" type="button">
-          <div class="acc-icon">${item.icon}</div>
-          <div class="acc-title-wrap">
-            <div class="acc-title">${item.title}</div>
-            <div class="acc-sub">${item.subtitle}</div>
-          </div>
-          <span class="acc-chip ${item.chipClass}">${item.chipLabel}</span>
-          <span class="acc-arrow">${isOpen ? '▴' : '▾'}</span>
-        </button>
-        <div class="accordion-body">
-          <div class="acc-bullet"><strong>🎨 Color:</strong> ${item.colorNote}</div>
-          <div class="acc-bullet"><strong>🌤️ Best for:</strong> ${item.bestFor}</div>
-          ${item.tryGear ? `<button class="btn-pill btn-brass btn-try" style="margin-top:6px;height:28px;">🎞️ Try in Darkroom</button>` : ''}
-          ${item.phoneProfile ? `<button class="btn-pill btn-ghost btn-phone" style="margin-top:6px;height:28px;">📱 Enable this profile</button>` : ''}
-        </div>
-      `;
-      card.querySelector('.accordion-header').addEventListener('click', () => {
-        if (openGuideIds.has(item.id)) openGuideIds.delete(item.id);
-        else openGuideIds.add(item.id);
-        renderGuideAccordion();
-      });
-      const btnT = card.querySelector('.btn-try');
-      if (btnT) btnT.addEventListener('click', () => { applyGearPreset(item.tryGear.bodyId, item.tryGear.lensId, item.tryGear.filmId); switchMainTab('darkroom'); showToast(`Trying ${item.title}`); });
-      const btnP = card.querySelector('.btn-phone');
-      if (btnP) btnP.addEventListener('click', () => { state.phoneId = item.phoneProfile; renderPhoneProfileGrid(); renderPreview(); switchMainTab('darkroom'); showToast(`Enabled ${item.title}`); });
-      container.appendChild(card);
-    });
-  }
-
-  /* ==========================================================================
-     8. LIVE 35MM CAMERA VIEWFINDER
+     8. ROLLIE 35MM CAMERA VIEWFINDER & AUTO FILM ADVANCE
      ========================================================================== */
 
   const vfCanvas = document.getElementById('cameraViewfinderCanvas');
   const camVideo = document.getElementById('camVideo');
 
-  // Distinct shutter timbres modeled around each camera's mechanism:
-  // leaf shutters are short/snappy, rangefinder curtains lack mirror slap,
-  // while SLRs and the Hasselblad add a heavier body/mirror impact.
   const SHUTTER_SOUND_PROFILES = {
     'rollie-35': { level: 1.0, clickFreq: 3300, clickLevel: 0.18, impactDelay: 0.004, impactDuration: 0.038, impactFreq: 1450, impactLevel: 0.30, curtainDelay: 0.014, curtainFreq: 2550, curtainLevel: 0.16, returnDelay: 0.070, returnFreq: 3100, returnLevel: 0.12, bodyFreq: 168, bodyLevel: 0.07, bodyTail: 0.075 },
     'fuji-tx1': { level: 0.98, clickFreq: 3700, clickLevel: 0.20, impactDelay: 0.003, impactDuration: 0.032, impactFreq: 1750, impactLevel: 0.26, curtainDelay: 0.012, curtainFreq: 2850, curtainLevel: 0.17, returnDelay: 0.062, returnFreq: 3400, returnLevel: 0.10, bodyFreq: 185, bodyLevel: 0.055, bodyTail: 0.065 },
@@ -3132,8 +3031,6 @@
           source.start(start); source.stop(start + duration + 0.005);
         };
 
-        // A mechanical shutter has a sharp release, a heavier mirror/body clack,
-        // then a lighter return click. Separate bands give the clicks some body.
         noiseClick(0, 0.016, sound.clickFreq, 0.8, sound.clickLevel);
         noiseClick(sound.impactDelay, sound.impactDuration, sound.impactFreq, 0.55, sound.impactLevel);
         noiseClick(sound.curtainDelay, 0.032, sound.curtainFreq, 1.1, sound.curtainLevel);
@@ -3154,180 +3051,84 @@
     } catch (e) {}
   }
 
-  function syncCameraDropdowns() {
-    const fill = (id, arr, cur) => {
-      document.getElementById(id).innerHTML = arr.map(x => `<option value="${x.id}" ${x.id === cur ? 'selected' : ''}>${x.name}</option>`).join('');
-    };
-    fill('camSelBody', CAMERA_BODIES, state.bodyId);
-    fill('camSelLens', CAMERA_LENSES, state.lensId);
-    fill('camSelFilm', FILM_STOCKS, state.filmId);
-    const { body, film } = getSelectedGear();
-    document.getElementById('camGearSummary').textContent = `${body.name} • ${film.name}`;
-    updateCameraHud();
-    const frame = state.camIsCocked ? state.camShotCount + 1 : Math.max(1, state.camShotCount);
-    document.getElementById('camRollCounter').textContent = `${String(Math.min(frame, state.camMaxShots)).padStart(2, '0')} / ${state.camMaxShots}`;
+  function cameraTrack() { return state.camStream?.getVideoTracks?.()[0] || null; }
+
+  function cameraExposureEV() {
+    return state.exposure / 100 + (state.camAppliedHardware?.exposureCompensation ? 0 : state.camExposureEV);
   }
 
-  function cameraTrack() { return state.camStream?.getVideoTracks?.()[0] || null; }
-  function formatCameraShutter(seconds) {
-    if (!Number.isFinite(seconds) || seconds <= 0) return 'Auto';
-    return seconds >= 1 ? `${seconds.toFixed(1)}s` : `1/${Math.round(1 / seconds)}s`;
+  function syncCameraHudUI() {
+    const frame = Math.min((state.camShotCount || 0) + 1, state.camMaxShots);
+    const counterEl = document.getElementById('camRollCounter');
+    if (counterEl) counterEl.textContent = String(frame).padStart(2, '0');
+
+    const dateBtn = document.getElementById('btnVfDateToggle');
+    if (dateBtn) {
+      const on = state.dateStamp !== 'off';
+      dateBtn.classList.toggle('active', on);
+      dateBtn.textContent = on ? 'DATE' : 'DATE OFF';
+    }
+
+    const frameBtn = document.getElementById('btnVfFrameToggle');
+    if (frameBtn) {
+      const labels = { 'none': 'FRAME: OFF', '35mm-sprocket': 'FRAME: 35MM', 'darkroom-white': 'FRAME: BORDER', 'polaroid': 'FRAME: POLAROID' };
+      frameBtn.textContent = labels[state.frameType] || 'FRAME: OFF';
+      frameBtn.classList.toggle('active', state.frameType !== 'none');
+    }
+
+    const evSlider = document.getElementById('camExposureControl');
+    const evBadge = document.getElementById('camExposureValue');
+    if (evSlider) evSlider.value = state.camExposureEV;
+    if (evBadge) {
+      const val = Number(state.camExposureEV) || 0;
+      evBadge.textContent = `${val > 0 ? '+' : ''}${val.toFixed(1)}`;
+      evBadge.classList.toggle('active', Math.abs(val) > 0.04);
+    }
   }
-  function updateCameraHud() {
-    const settings = cameraTrack()?.getSettings?.() || {};
-    const shutter = settings.exposureTime ? formatCameraShutter(settings.exposureTime) : (state.camShutter === 'auto' ? 'Auto' : `1/${state.camShutter}s`);
-    const selectedFilm = FILM_STOCKS.find(item => item.id === state.filmId);
-    const iso = Number.isFinite(settings.iso) ? Math.round(settings.iso) : (state.camIso === 'film' ? (selectedFilm?.iso || 'Auto') : state.camIso);
-    document.getElementById('vfHudLeft').textContent = `Phone aperture • ${shutter} • ISO ${iso}`;
-  }
-  function cameraIsoShiftEV(film) {
-    if (state.camIso === 'film' || !Number.isFinite(Number(state.camIso))) return 0;
-    if (state.camAppliedHardware?.iso) return 0;
-    return Math.max(-3, Math.min(3, Math.log2(Number(state.camIso) / film.iso)));
-  }
-  function cameraShutterShiftEV() {
-    if (state.camShutter === 'auto' || state.camAppliedHardware?.exposureTime) return 0;
-    return Math.max(-3, Math.min(3, Math.log2((1 / Number(state.camShutter)) / (1 / 125))));
-  }
-  function cameraExposureEV(film) {
-    return state.camAELocked && Number.isFinite(state.camLockedEV)
-      ? state.camLockedEV
-      : state.exposure / 100 + (state.camAppliedHardware?.exposureCompensation ? 0 : state.camExposureEV) + cameraIsoShiftEV(film) + cameraShutterShiftEV();
-  }
-  function setAELock(locked) {
-    if (locked) {
-      const film = FILM_STOCKS.find(item => item.id === state.filmId) || FILM_STOCKS[0];
-      state.camLockedEV = cameraExposureEV(film);
-      state.camAELocked = true;
-    } else { state.camAELocked = false; state.camLockedEV = null; }
-    const button = document.getElementById('btnAELock');
-    button.textContent = state.camAELocked ? '🔒 AE locked' : '🔓 Unlocked';
-    button.classList.toggle('btn-brass', state.camAELocked);
-    scheduleCameraSettingsApply();
-  }
-  function cameraWhiteBalanceShift() {
-    const kelvin = { daylight: 5600, cloudy: 6800, shade: 7800, tungsten: 3200, fluorescent: 4300 }[state.camWhiteBalance];
-    return kelvin ? Math.round((kelvin - 5600) / 260) : 0;
-  }
-  function cameraWhiteBalanceUsesHardware() {
-    if (state.camWhiteBalance === 'auto') return !!state.camAppliedHardware?.whiteBalanceMode;
-    return !!state.camAppliedHardware?.colorTemperature;
-  }
+
   let cameraSettingsTimer = 0;
   function scheduleCameraSettingsApply() {
     window.clearTimeout(cameraSettingsTimer);
     cameraSettingsTimer = window.setTimeout(() => applyCameraHardwareSettings(), 140);
   }
-  function populateCameraHardwareControls() {
-    const track = cameraTrack();
-    let capabilities = null;
-    try { capabilities = track?.getCapabilities?.() || null; } catch (error) {}
-    state.camTrackCapabilities = capabilities;
-    const iso = document.getElementById('camIsoControl');
-    const shutter = document.getElementById('camShutterControl');
-    const exposure = document.getElementById('camExposureControl');
-    document.getElementById('camTimerControl').value = String(state.camTimer);
-    const range = capabilities?.iso;
-    const selectedFilm = FILM_STOCKS.find(item => item.id === state.filmId) || FILM_STOCKS[0];
-    iso.innerHTML = `<option value="film">Film ASA ${selectedFilm.iso}</option><option value="auto">Auto</option>`;
-    if (range && Number.isFinite(range.min) && Number.isFinite(range.max)) {
-      [50, 100, 200, 400, 800, 1600, 3200, 6400].filter(value => value >= range.min && value <= range.max).forEach(value => iso.add(new Option(String(value), String(value))));
-      if (state.camIso !== 'film' && state.camIso !== 'auto' && ![...iso.options].some(option => option.value === state.camIso)) state.camIso = 'film';
-    } else if (state.camIso !== 'film' && state.camIso !== 'auto') state.camIso = 'film';
-    iso.value = state.camIso;
-    iso.disabled = false;
 
-    const shutterRange = capabilities?.exposureTime;
-    shutter.innerHTML = '<option value="auto">Auto</option>';
-    if (shutterRange && Number.isFinite(shutterRange.min) && Number.isFinite(shutterRange.max)) {
-      [2, 4, 8, 15, 30, 60, 125, 250, 500, 1000, 2000].filter(speed => 1 / speed >= shutterRange.min && 1 / speed <= shutterRange.max).forEach(speed => shutter.add(new Option(`1/${speed}s`, String(speed))));
-      if (state.camShutter !== 'auto' && ![...shutter.options].some(option => option.value === state.camShutter)) state.camShutter = 'auto';
-    } else {
-      [2, 4, 8, 15, 30, 60, 125, 250, 500, 1000].forEach(speed => shutter.add(new Option(`1/${speed}s · app`, String(speed))));
-    }
-    shutter.value = state.camShutter;
-    shutter.disabled = false;
-
-    const exposureRange = capabilities?.exposureCompensation;
-    if (exposureRange && Number.isFinite(exposureRange.min) && Number.isFinite(exposureRange.max)) {
-      exposure.min = Math.max(-4, exposureRange.min);
-      exposure.max = Math.min(4, exposureRange.max);
-      exposure.step = exposureRange.step > 0 ? exposureRange.step : 0.1;
-    } else { exposure.min = -2; exposure.max = 2; exposure.step = 0.1; }
-    state.camExposureEV = Math.max(Number(exposure.min), Math.min(Number(exposure.max), Number(state.camExposureEV) || 0));
-    exposure.value = state.camExposureEV;
-    document.getElementById('camExposureValue').textContent = `${state.camExposureEV > 0 ? '+' : ''}${state.camExposureEV.toFixed(1)} EV · ${state.camAppliedHardware?.exposureCompensation ? 'camera' : 'app'}`;
-    document.getElementById('camIsoMode').textContent = state.camAppliedHardware?.iso ? 'Camera sensor' : 'ASA exposure simulation';
-    document.getElementById('camShutterMode').textContent = state.camAppliedHardware?.exposureTime ? 'Camera sensor' : 'Exposure simulation';
-
-    const wb = document.getElementById('camWhiteBalanceControl');
-    const canSetWb = !!track && !!capabilities?.colorTemperature;
-    wb.value = state.camWhiteBalance;
-    document.getElementById('camWhiteBalanceMode').textContent = canSetWb && cameraWhiteBalanceUsesHardware() ? 'Camera sensor' : 'Film render simulation';
-    document.getElementById('camControlSupport').textContent = track
-      ? `${[range && 'ISO sensor', shutterRange && 'shutter sensor', exposureRange && 'EV sensor', canSetWb && 'WB sensor'].filter(Boolean).join(' · ') || 'App simulation'}`
-      : 'App simulation · camera off';
-    updateCameraHud();
-    updateFilmMechanics();
-  }
   async function applyCameraHardwareSettings() {
-    const track = cameraTrack(), capabilities = state.camTrackCapabilities;
-    if (!track || !capabilities || !track.applyConstraints) { updateCameraHud(); return; }
+    const track = cameraTrack();
+    if (!track || !track.applyConstraints) return;
+    let capabilities = null;
+    try { capabilities = track.getCapabilities?.() || null; } catch (error) {}
+    state.camTrackCapabilities = capabilities;
+    if (!capabilities) return;
+
     const advanced = {};
-    if (capabilities.exposureCompensation) advanced.exposureCompensation = Number(state.camExposureEV);
-    const selectedFilm = FILM_STOCKS.find(item => item.id === state.filmId) || FILM_STOCKS[0];
-    const requestedIso = state.camIso === 'film' ? selectedFilm.iso : Number(state.camIso);
-    if (capabilities.iso && Number.isFinite(requestedIso) && state.camIso !== 'auto') advanced.iso = requestedIso;
-    if (capabilities.exposureMode?.length) advanced.exposureMode = state.camAELocked || state.camShutter !== 'auto' ? 'manual' : 'continuous';
-    if (capabilities.exposureTime && state.camShutter !== 'auto') advanced.exposureTime = 1 / Number(state.camShutter);
-    if (state.camAELocked) {
-      const settings = track.getSettings?.() || {};
-      if (capabilities.exposureTime && settings.exposureTime) advanced.exposureTime = settings.exposureTime;
-      if (capabilities.iso && settings.iso) advanced.iso = settings.iso;
+    if (capabilities.exposureCompensation) {
+      const min = capabilities.exposureCompensation.min ?? -2;
+      const max = capabilities.exposureCompensation.max ?? 2;
+      advanced.exposureCompensation = Math.max(min, Math.min(max, Number(state.camExposureEV) || 0));
     }
-    if (state.camWhiteBalance === 'auto') {
-      if (capabilities.whiteBalanceMode?.includes('continuous')) advanced.whiteBalanceMode = 'continuous';
-    } else if (capabilities.colorTemperature && (!capabilities.whiteBalanceMode || capabilities.whiteBalanceMode.includes('manual'))) {
-      if (capabilities.whiteBalanceMode?.includes('manual')) advanced.whiteBalanceMode = 'manual';
-      advanced.colorTemperature = { daylight: 5600, cloudy: 6800, shade: 7800, tungsten: 3200, fluorescent: 4300 }[state.camWhiteBalance];
+    const selectedFilm = FILM_STOCKS.find(item => item.id === state.filmId) || FILM_STOCKS[0];
+    if (capabilities.iso && Number.isFinite(capabilities.iso.min) && Number.isFinite(capabilities.iso.max)) {
+      advanced.iso = Math.max(capabilities.iso.min, Math.min(capabilities.iso.max, selectedFilm.iso));
     }
     state.camAppliedHardware = {};
     if (Object.keys(advanced).length) {
       try {
         await track.applyConstraints({ advanced: [advanced] });
         Object.keys(advanced).forEach(key => { state.camAppliedHardware[key] = true; });
-      }
-      catch (error) {
-        // Try independently so one unsupported setting does not block the rest.
+      } catch (error) {
         for (const [key, value] of Object.entries(advanced)) {
           try { await track.applyConstraints({ advanced: [{ [key]: value }] }); state.camAppliedHardware[key] = true; } catch (ignored) {}
         }
       }
     }
-    populateCameraHardwareControls();
-  }
-
-  function selectCameraBody(bodyId) {
-    state.bodyId = bodyId;
-    const body = CAMERA_BODIES.find(item => item.id === bodyId);
-    const matchedLens = body && CAMERA_LENSES.find(item => item.id === body.defaultLensId);
-    if (matchedLens) {
-      state.lensId = matchedLens.id;
-      state.bloom = matchedLens.bloomBase;
-      state.vignette = matchedLens.vignetteBase;
-    }
-    renderTweaksDock();
-    renderGearRack();
-    syncCameraDropdowns();
-    renderPreview();
   }
 
   async function startRealCamera() {
     if (state.camStream?.getTracks().some(track => track.readyState === 'live')) {
-      document.getElementById('camSourceStatus').textContent = state.camFacing === 'environment' ? 'Rear camera' : 'Front camera';
+      document.getElementById('camSourceStatus').textContent = state.camFacing === 'environment' ? 'Rear' : 'Front';
       return;
     }
-    document.getElementById('camSourceStatus').textContent = 'Opening camera…';
+    document.getElementById('camSourceStatus').textContent = 'Opening…';
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: state.camFacing, width: { ideal: 1280 }, height: { ideal: 960 } }, audio: false });
       if (!document.getElementById('view-camera').classList.contains('active')) {
@@ -3337,18 +3138,13 @@
       state.camStream = stream;
       camVideo.srcObject = stream;
       await camVideo.play();
-      populateCameraHardwareControls();
       await applyCameraHardwareSettings();
-      document.getElementById('camSourceStatus').textContent = state.camFacing === 'environment' ? 'Rear camera' : 'Front camera';
-      document.getElementById('btnStartCam').textContent = '📷 Restart camera';
+      document.getElementById('camSourceStatus').textContent = state.camFacing === 'environment' ? 'Rear' : 'Front';
     } catch (e) {
       if (state.camStream) state.camStream.getTracks().forEach(track => track.stop());
       state.camStream = null;
       camVideo.srcObject = null;
-      document.getElementById('camSourceStatus').textContent = 'Camera unavailable';
-      document.getElementById('btnStartCam').textContent = '📷 Enable camera';
-      populateCameraHardwareControls();
-      showToast('Allow camera access, then tap Enable camera');
+      document.getElementById('camSourceStatus').textContent = 'Simulated';
     }
   }
 
@@ -3360,32 +3156,27 @@
     let last = 0;
     const loop = (ts) => {
       state.camAnimId = requestAnimationFrame(loop);
-      if (ts - last < 50) return;
+      if (ts - last < 55) return;
       last = ts;
       if (state.camStream && camVideo.readyState >= 2) {
         const vw = camVideo.videoWidth || 420, vh = camVideo.videoHeight || 280, tr = 3/2, sr = vw/vh;
         let sx = 0, sy = 0, sw = vw, sh = vh;
         if (sr > tr) { sw = vh * tr; sx = (vw - sw) / 2; } else { sh = vw / tr; sy = (vh - sh) / 2; }
         tCtx.drawImage(camVideo, sx, sy, sw, sh, 0, 0, 420, 280);
+      } else if (state.previewSourceCanvas) {
+        // Fallback live simulation using current loaded photo so viewfinder is always vivid
+        tCtx.drawImage(state.previewSourceCanvas, 0, 0, 420, 280);
       } else {
-        tCtx.fillStyle = '#090a0c';
-        tCtx.fillRect(0, 0, 420, 280);
-        tCtx.fillStyle = '#a1aab8';
-        tCtx.textAlign = 'center';
-        tCtx.font = 'bold 15px sans-serif';
-        const status = document.getElementById('camSourceStatus').textContent;
-        tCtx.fillText(status === 'Opening camera…' ? 'Opening camera…' : 'Enable camera access to begin', 210, 145);
-        vfCtx.drawImage(tmp, 0, 0);
         return;
       }
       const { phone, body, lens, film } = getSelectedGear();
       const version = ++cameraPreviewFrameVersion;
       processFilmImage(tCtx.getImageData(0, 0, 420, 280), 420, 280, {
-        phone, body, lens, film, strength: 100, exposureEV: cameraExposureEV(film), warmth: state.warmth + (cameraWhiteBalanceUsesHardware() ? 0 : cameraWhiteBalanceShift()),
+        phone, body, lens, film, strength: 100, exposureEV: cameraExposureEV(), warmth: state.warmth,
         grainAmt: Math.round(film.grainBase * 0.65), halationAmt: Math.round(film.halationBase * 0.6),
-        bloomAmt: lens.bloomBase, vignetteAmt: lens.vignetteBase, leakType: 'none', leakAmt: 0, frameType: 'none', dateStampText: '', frameNumberStr: ''
+        bloomAmt: lens.bloomBase, vignetteAmt: lens.vignetteBase, leakType: 'none', leakAmt: 0, frameType: 'none', dateStampText: formatDateStamp(), frameNumberStr: ''
       }, { output: 'bitmap', coalesceKey: 'camera-preview' }).then(output => {
-        if (!output || version !== cameraPreviewFrameVersion || !state.camStream) { output?.bitmap?.close(); return; }
+        if (!output || version !== cameraPreviewFrameVersion) { output?.bitmap?.close(); return; }
         vfCtx.drawImage(output.bitmap || output.canvas, 0, 0);
         output.bitmap?.close();
       }).catch(() => {});
@@ -3403,20 +3194,16 @@
     state.camTrackCapabilities = null;
     state.camAppliedHardware = {};
     camVideo.srcObject = null;
-    document.getElementById('camSourceStatus').textContent = 'Camera off';
-    document.getElementById('btnStartCam').textContent = '📷 Enable camera';
-    populateCameraHardwareControls();
   }
 
   function pauseCameraWhenHidden() {
     stopCameraLoop();
-    if (shutterTimerInterval) { clearInterval(shutterTimerInterval); shutterTimerInterval = 0; shutterTimerResolve?.(); shutterTimerResolve = null; }
     if (state.camStream) stopRealCamera();
   }
 
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) pauseCameraWhenHidden();
-    else if (document.getElementById('view-camera').classList.contains('active')) startCameraLoop();
+    else if (document.getElementById('view-camera').classList.contains('active')) { startCameraLoop(); startRealCamera(); }
   });
   window.addEventListener('pagehide', pauseCameraWhenHidden);
   window.addEventListener('beforeunload', pauseCameraWhenHidden);
@@ -3432,19 +3219,6 @@
     return canvasToJpegBlob(canvas, 0.72);
   }
 
-  async function blendExposureBlobs(blobs) {
-    if (blobs.length === 1) return blobs[0];
-    const bitmaps = await Promise.all(blobs.map(blob => createImageBitmap(blob)));
-    const width = bitmaps[0].width, height = bitmaps[0].height;
-    const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
-    const ctx = canvas.getContext('2d');
-    ctx.globalCompositeOperation = 'lighter';
-    bitmaps.forEach(bitmap => { ctx.globalAlpha = 1 / bitmaps.length; ctx.drawImage(bitmap, 0, 0, width, height); bitmap.close(); });
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.globalAlpha = 1;
-    return canvasToJpegBlob(canvas, 0.92);
-  }
-
   async function saveCameraExposure(rawBlob, shotNumber) {
     const rawBitmap = await createImageBitmap(rawBlob);
     const scale = Math.min(1, 1280 / Math.max(rawBitmap.width, rawBitmap.height));
@@ -3454,124 +3228,79 @@
     const cCtx = capC.getContext('2d');
     cCtx.drawImage(rawBitmap, 0, 0, capW, capH); rawBitmap.close();
     const { phone, body, lens, film } = getSelectedGear();
-    const cf = document.getElementById('camSelFrame').value;
     const numStr = `${String(shotNumber).padStart(2, '0')}A`;
     const processed = await processFilmImage(cCtx.getImageData(0, 0, capW, capH), capW, capH, {
-      phone, body, lens, film, strength: 100, exposureEV: cameraExposureEV(film), warmth: state.warmth + (cameraWhiteBalanceUsesHardware() ? 0 : cameraWhiteBalanceShift()),
+      phone, body, lens, film, strength: 100, exposureEV: cameraExposureEV(), warmth: state.warmth,
       grainAmt: film.grainBase, halationAmt: film.halationBase, bloomAmt: lens.bloomBase, vignetteAmt: lens.vignetteBase,
-      leakType: state.leakType, leakAmt: state.leakAmt, frameType: cf, dateStampText: formatDateStamp(), frameNumberStr: numStr
+      leakType: state.leakType, leakAmt: state.leakAmt, frameType: state.frameType, dateStampText: formatDateStamp(), frameNumberStr: numStr
     }, { output: 'blob', quality: 0.92 });
     const photoBlob = processed.blob;
     const thumbnailBlob = await createShotThumbnail(photoBlob);
     const shot = { id: createRollId(), rollId: state.camRollId, rollNumber: state.camRollNumber, num: shotNumber, createdAt: Date.now(), filmName: film.name, rawBlob, photoBlob, thumbnailBlob };
     let persisted = true;
     try { await storeCameraRollShot(shot); } catch (error) { persisted = false; }
-    state.camShotCount = shotNumber;
-    state.camIsCocked = false;
+
+    // Automatic film advance & automatic new roll after 36 frames
+    if (shotNumber >= state.camMaxShots) {
+      state.camRollNumber += 1;
+      state.camRollId = createRollId();
+      state.camShotCount = 0;
+    } else {
+      state.camShotCount = shotNumber;
+    }
+    state.camIsCocked = true;
+    state.camRollRewound = false;
     saveCameraRollMeta();
+
     state.camRollShots.unshift(persisted
       ? { id: shot.id, rollId: shot.rollId, rollNumber: shot.rollNumber, num: shot.num, createdAt: shot.createdAt, filmName: shot.filmName, thumbnailBlob: shot.thumbnailBlob }
       : shot);
-    syncCameraDropdowns(); renderContactSheet();
-    if (!persisted) showToast('Photo added for this session, but could not be kept after closing');
-  }
-
-  function updateFilmMechanics() {
-    const canTake = !!state.camStream && !state.camRollRewound && state.camShotCount < state.camMaxShots && state.camIsCocked && state.camPendingExposures.length < 4;
-    document.getElementById('btnShutter').disabled = !canTake;
-    document.getElementById('btnFilmAdvance').disabled = state.camRollRewound || (state.camIsCocked && state.camPendingExposures.length === 0);
-    document.getElementById('btnRewindRoll').disabled = state.camRollRewound || state.camPendingExposures.length > 0;
-    document.getElementById('btnNewRoll').disabled = !state.camRollRewound;
-    const status = state.camRollRewound ? 'Roll rewound' : state.camPendingExposures.length
-      ? `${state.camPendingExposures.length} exposure${state.camPendingExposures.length > 1 ? 's' : ''} held · advance to save`
-      : state.camIsCocked ? 'Shutter cocked' : 'Advance film to cock';
-    document.getElementById('camMechanicStatus').textContent = status;
-    const frame = state.camIsCocked ? state.camShotCount + 1 : Math.max(1, state.camShotCount);
-    document.getElementById('camRollCounter').textContent = `${String(Math.min(frame, state.camMaxShots)).padStart(2, '0')} / ${state.camMaxShots}`;
-  }
-
-  async function advanceFilm() {
-    if (state.camRollRewound) return;
-    if (state.camPendingExposures.length) {
-      const pending = state.camPendingExposures.slice();
-      document.getElementById('btnFilmAdvance').disabled = true;
-      const shotNumber = state.camShotCount + 1;
-      try {
-        const composite = await blendExposureBlobs(pending);
-        state.camIsCocked = true;
-        await saveCameraExposure(composite, shotNumber);
-        state.camPendingExposures = [];
-        state.camIsCocked = true;
-        document.getElementById('camMultipleExposureHint').textContent = state.camMultipleExposure ? 'Ready for another multiple exposure' : 'One exposure per frame';
-        saveCameraRollMeta();
-        showToast('Multiple exposure saved to this frame');
-      } catch (error) { showToast('Could not develop the multiple exposure'); }
-    } else if (!state.camIsCocked) {
-      state.camIsCocked = true;
-      saveCameraRollMeta();
-      showToast('Film advanced · shutter cocked');
-    }
-    updateFilmMechanics();
-  }
-
-  let shutterTimerInterval = 0;
-  let shutterTimerResolve = null;
-  async function requestShutterRelease() {
-    if (!state.camStream || !state.camIsCocked || state.camRollRewound) { showToast('Advance the film and enable the camera first'); return; }
-    if (state.camPendingExposures.length >= 4) { showToast('Advance film to save these four exposures'); return; }
-    let remaining = Number(state.camTimer) || 0;
-    if (!remaining) return captureCameraShot();
-    const shutter = document.getElementById('btnShutter');
-    shutter.disabled = true;
-    await new Promise(resolve => {
-      shutterTimerResolve = resolve;
-      document.getElementById('camMechanicStatus').textContent = `Self timer · ${remaining}s`;
-      shutterTimerInterval = window.setInterval(() => {
-        remaining -= 1;
-        if (remaining <= 0) { clearInterval(shutterTimerInterval); shutterTimerInterval = 0; shutterTimerResolve = null; resolve(); }
-        else document.getElementById('camMechanicStatus').textContent = `Self timer · ${remaining}s`;
-      }, 1000);
-    });
-    if (state.camStream && state.camIsCocked && !state.camRollRewound) await captureCameraShot();
-    updateFilmMechanics();
+    syncAllUI();
+    renderContactSheet();
+    showToast(`🎞️ Shot #${String(shotNumber).padStart(2, '0')} saved to Roll`);
   }
 
   let cameraRollReady = Promise.resolve();
+  let shutterBusy = false;
   async function captureCameraShot() {
-    if (!state.camStream || camVideo.readyState < 2) { showToast('Camera is not ready yet'); return; }
-    if (state.camRollRewound || !state.camIsCocked) { showToast('Advance the film before taking the next shot'); return; }
+    if (shutterBusy) return;
+    if (!state.camStream && !state.fullSourceCanvas) {
+      await startRealCamera();
+      return;
+    }
+    shutterBusy = true;
     const shutterButton = document.getElementById('btnShutter');
     shutterButton.disabled = true;
     await cameraRollReady;
-    if (state.camShotCount >= state.camMaxShots) { showToast('36-shot roll finished! Tap New roll'); return; }
+
     const fl = document.getElementById('shutterFlash');
     fl.classList.add('active'); setTimeout(() => fl.classList.remove('active'), 110);
     playShutterSound();
 
     try {
-    const shotNumber = state.camShotCount + 1;
-    const capW = Math.min(1280, camVideo.videoWidth);
-    const capH = Math.round(capW * (2 / 3));
-    const capC = document.createElement('canvas'); capC.width = capW; capC.height = capH;
-    const cCtx = capC.getContext('2d');
-    const vw = camVideo.videoWidth, vh = camVideo.videoHeight, tr = 3/2, sr = vw/vh;
-    let sx = 0, sy = 0, sw = vw, sh = vh;
-    if (sr > tr) { sw = vh * tr; sx = (vw - sw) / 2; } else { sh = vw / tr; sy = (vh - sh) / 2; }
-    cCtx.drawImage(camVideo, sx, sy, sw, sh, 0, 0, capW, capH);
-    const rawBlob = await canvasToJpegBlob(capC, 0.9);
-    if (state.camMultipleExposure) {
-      state.camPendingExposures.push(rawBlob);
-      state.camIsCocked = true;
-      document.getElementById('camMultipleExposureHint').textContent = `${state.camPendingExposures.length} exposure${state.camPendingExposures.length > 1 ? 's' : ''} on one frame`;
-      saveCameraRollMeta();
-      showToast('Exposure held on this frame · tap Film advance to save');
-    } else {
+      const shotNumber = (state.camShotCount % state.camMaxShots) + 1;
+      const capC = document.createElement('canvas');
+      if (state.camStream && camVideo.readyState >= 2) {
+        const capW = Math.min(1280, camVideo.videoWidth || 900);
+        const capH = Math.round(capW * (2 / 3));
+        capC.width = capW; capC.height = capH;
+        const cCtx = capC.getContext('2d');
+        const vw = camVideo.videoWidth, vh = camVideo.videoHeight, tr = 3/2, sr = vw/vh;
+        let sx = 0, sy = 0, sw = vw, sh = vh;
+        if (sr > tr) { sw = vh * tr; sx = (vw - sw) / 2; } else { sh = vw / tr; sy = (vh - sh) / 2; }
+        cCtx.drawImage(camVideo, sx, sy, sw, sh, 0, 0, capW, capH);
+      } else {
+        const src = state.fullSourceCanvas || SAMPLES[0].canvas;
+        capC.width = src.width; capC.height = src.height;
+        capC.getContext('2d').drawImage(src, 0, 0);
+      }
+      const rawBlob = await canvasToJpegBlob(capC, 0.9);
       await saveCameraExposure(rawBlob, shotNumber);
-    }
     } catch (error) {
       showToast('Could not process this shot');
     } finally {
-      updateFilmMechanics();
+      shutterBusy = false;
+      shutterButton.disabled = false;
     }
   }
 
@@ -3582,7 +3311,7 @@
     document.getElementById('contactCount').textContent = state.camRollShots.length;
     const grid = document.getElementById('contactSheetGrid');
     if (state.camRollShots.length === 0) {
-      grid.innerHTML = `<div style="grid-column:1/-1;color:var(--text-muted);font-size:11.5px;padding:12px 0;">There are no photos on this roll yet.</div>`;
+      grid.innerHTML = `<div style="grid-column:1/-1;color:var(--text-muted);font-size:11.5px;padding:12px 0;">No photos on this roll yet. Tap the shutter in Camera to shoot!</div>`;
       return;
     }
     grid.innerHTML = '';
@@ -3596,8 +3325,8 @@
         <div class="shot-foot">
           <span>R${s.rollNumber || 1} · #${String(s.num).padStart(2, '0')}</span>
           <div style="display:flex;gap:4px;">
-            <button class="btn-pill btn-ghost btn-edit" style="height:24px;padding:0 7px;font-size:10.5px;">Edit</button>
-            <button class="btn-pill btn-primary btn-save-shot" type="button" style="height:24px;padding:0 7px;font-size:10.5px;">Save</button>
+            <button class="btn-pill btn-ghost btn-edit" style="height:24px;padding:0 7px;font-size:10.5px;">Lab</button>
+            <button class="btn-pill btn-brass btn-save-shot" type="button" style="height:24px;padding:0 7px;font-size:10.5px;">Save</button>
           </div>
         </div>
       `;
@@ -3613,7 +3342,7 @@
           bitmap.close();
           loadSourceCanvas(source, null);
           switchMainTab('darkroom');
-          showToast(`Shot #${s.num} moved to Darkroom`);
+          showToast(`Shot #${s.num} opened in Lab`);
         } catch (error) { showToast('Could not open the original photo'); }
       });
       card.querySelector('.btn-save-shot').addEventListener('click', () => saveRollPhoto(s));
@@ -3626,11 +3355,8 @@
       const savedShots = await loadCameraRollFromStorage();
       state.camRollShots = savedShots.reverse();
       renderContactSheet();
-      syncCameraDropdowns();
-      updateFilmMechanics();
-    } catch (error) {
-      // Keep camera capture usable in private browsing or when local storage is blocked.
-    }
+      syncCameraHudUI();
+    } catch (error) {}
   }
 
   async function saveRollPhoto(shot) {
@@ -3649,7 +3375,7 @@
       const link = document.createElement('a');
       link.href = url; link.download = filename; link.click();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
-      showToast('Image downloaded — move it to Photos from Downloads');
+      showToast('Image downloaded');
     } catch (error) {
       if (error?.name === 'AbortError') { showToast('Save cancelled'); return; }
       showToast('Could not save this photo');
@@ -3661,15 +3387,11 @@
      ========================================================================== */
 
   function switchMainTab(tabId) {
-    document.querySelectorAll('.bnav-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tabId));
+    if (!tabId) return;
+    document.querySelectorAll('.bnav-btn[data-tab]').forEach(b => b.classList.toggle('active', b.dataset.tab === tabId));
     document.querySelectorAll('.view-section').forEach(s => s.classList.toggle('active', s.id === `view-${tabId}`));
-    if (tabId === 'camera') { syncCameraDropdowns(); startCameraLoop(); startRealCamera(); }
+    if (tabId === 'camera') { syncAllUI(); startCameraLoop(); startRealCamera(); }
     else { stopCameraLoop(); if (state.camStream) stopRealCamera(); }
-  }
-
-  function switchDockTab(dockId) {
-    document.querySelectorAll('.dock-tab').forEach(b => b.classList.toggle('active', b.dataset.dock === dockId));
-    document.querySelectorAll('.dock-panel').forEach(p => p.classList.toggle('active', p.id === `dock-${dockId}`));
   }
 
   async function handleImageFile(file) {
@@ -3690,8 +3412,7 @@
         renderSampleStrip();
         loadSourceCanvas(c, exif);
         switchMainTab('darkroom');
-        switchDockTab('phone');
-        showToast(exif ? `📱 Detected: ${exif.commercialModel}` : 'Photo loaded — see film suggestions');
+        showToast(exif ? `📱 Auto-calibrated: ${exif.commercialModel}` : 'Photo loaded');
       };
       img.onerror = () => { URL.revokeObjectURL(url); showToast('❌ Unsupported image format'); };
       img.src = url;
@@ -3732,24 +3453,32 @@
     const u = URL.createObjectURL(blob), a = document.createElement('a');
     a.href = u; a.download = filename; a.click();
     setTimeout(() => URL.revokeObjectURL(u), 1000);
-    showToast('✅ Image downloaded — add it to Photos from Downloads');
+    showToast('✅ Image downloaded');
   }
 
   function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
   }
 
-  // Wire Nav & Dock
-  document.querySelectorAll('.bnav-btn').forEach(b => b.addEventListener('click', () => switchMainTab(b.dataset.tab)));
-  document.querySelectorAll('.dock-tab').forEach(b => b.addEventListener('click', () => switchDockTab(b.dataset.dock)));
-  document.getElementById('hdrPhoneChip').addEventListener('click', () => { switchMainTab('darkroom'); switchDockTab('phone'); });
+  // Wire Bottom Nav
+  document.querySelectorAll('.bnav-btn[data-tab]').forEach(b => b.addEventListener('click', () => switchMainTab(b.dataset.tab)));
+
+  // Phone Sensor Chip (Tap to cycle sensor calibration profile if manual override desired)
+  document.getElementById('hdrPhoneChip').addEventListener('click', () => {
+    const idx = PHONE_PROFILES.findIndex(p => p.id === state.phoneId);
+    const next = PHONE_PROFILES[(idx + 1) % PHONE_PROFILES.length];
+    state.phoneId = next.id;
+    state.exif = null;
+    renderPhoneChipUI();
+    renderPreview();
+    showToast(`Sensor calibration: ${next.name}`);
+  });
 
   // File & Export
   const fileInput = document.getElementById('fileInput');
   document.getElementById('btnBottomPhoto').addEventListener('click', () => fileInput.click());
   fileInput.addEventListener('change', e => { if (e.target.files[0]) handleImageFile(e.target.files[0]); e.target.value = ''; });
   document.getElementById('btnExport').addEventListener('click', exportFullResolution);
-  document.getElementById('btnGuideTop').addEventListener('click', () => switchMainTab('guide'));
 
   // Split & Hold Original
   document.getElementById('btnToggleSplit').addEventListener('click', (e) => {
@@ -3781,33 +3510,46 @@
   btnHold.addEventListener('pointercancel', () => setHold(false));
   btnHold.addEventListener('pointerleave', () => setHold(false));
 
-  // Dropdown selects
-  document.getElementById('phoneProfileSelect').addEventListener('change', e => {
-    state.phoneId = e.target.value; renderPhoneProfileGrid(); renderPreview();
+  // Open Rollie Combo Picker Sheet from 3-card decks or caption
+  const comboSheet = document.getElementById('comboSheetBackdrop');
+  function openComboPicker(focusSection) {
+    renderComboPickerSheet();
+    comboSheet.classList.add('open');
+    const secMap = { camera: 'pickerSecCamera', lens: 'pickerSecLens', film: 'pickerSecFilm' };
+    const secEl = document.getElementById(secMap[focusSection] || 'pickerSecCamera');
+    if (secEl) {
+      setTimeout(() => {
+        secEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        const activeTile = secEl.querySelector('.picker-tile.active');
+        if (activeTile) activeTile.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      }, 40);
+    }
+  }
+  document.querySelectorAll('[data-open-combo]').forEach(btn => {
+    btn.addEventListener('click', () => openComboPicker(btn.dataset.openCombo));
   });
-  document.getElementById('filmBrandSelect').addEventListener('change', e => {
-    state.filmBrandFilter = e.target.value;
-    const list = state.filmBrandFilter === 'all' ? FILM_STOCKS : FILM_STOCKS.filter(f => f.brand === state.filmBrandFilter);
-    if (!list.some(f => f.id === state.filmId)) selectFilmStock(list[0].id);
-    else renderGearRack();
+  document.getElementById('liveGearBadge').addEventListener('click', () => openComboPicker('film'));
+  document.getElementById('btnCloseComboSheet').addEventListener('click', () => comboSheet.classList.remove('open'));
+  comboSheet.addEventListener('click', e => { if (e.target === comboSheet) comboSheet.classList.remove('open'); });
+
+  // Film brand filter pills inside Combo Picker
+  document.querySelectorAll('#filmBrandPills .filter-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.filmBrandFilter = btn.dataset.fbrand;
+      renderComboPickerSheet();
+    });
   });
-  document.getElementById('filmSelect').addEventListener('change', e => selectFilmStock(e.target.value));
-  document.getElementById('tweakSelect').addEventListener('change', e => {
-    state.activeTweakKey = e.target.value; renderTweaksDock();
+
+  // Collapsible Tweak Drawer events
+  document.getElementById('btnCloseTweakDrawer').addEventListener('click', () => {
+    document.getElementById('tweakDrawer').classList.remove('open');
+    renderTweaksDock();
   });
   document.getElementById('leakTypeSelect').addEventListener('change', e => {
     state.leakType = e.target.value;
     if (state.leakType !== 'none' && state.leakAmt === 0) state.leakAmt = 45;
     renderTweaksDock(); renderPreview();
   });
-  document.getElementById('frameSelect').addEventListener('change', e => {
-    state.frameType = e.target.value; renderFrameAndRecipes(); renderPreview();
-  });
-  document.getElementById('dateSelect').addEventListener('change', e => {
-    state.dateStamp = e.target.value; renderFrameAndRecipes(); renderPreview();
-  });
-
-  // Single Tweak Slider
   document.getElementById('activeTweakSlider').addEventListener('input', (e) => {
     state[state.activeTweakKey] = Number(e.target.value);
     renderTweaksDock();
@@ -3820,13 +3562,13 @@
     state.bloom = lens.bloomBase; state.vignette = lens.vignetteBase;
     state.leakType = 'none'; state.leakAmt = 0;
     renderTweaksDock(); renderPreview();
-    showToast('↺ Settings reset');
+    showToast('↺ Adjustments reset');
   });
 
-  // Frame, Date & Recipes
+  // Save current combo as a Recipe
   document.getElementById('btnSaveRecipe').addEventListener('click', () => {
-    const inp = document.getElementById('recipeNameInput');
-    const name = inp.value.trim() || `${getSelectedGear().film.name}`;
+    const { body, lens, film } = getSelectedGear();
+    const name = `${body.name} • ${shortLensLabel(lens)} • ${film.name}`;
     state.recipes.unshift({
       name, phoneId: state.phoneId, bodyId: state.bodyId, lensId: state.lensId, filmId: state.filmId,
       strength: state.strength, exposure: state.exposure, warmth: state.warmth, grain: state.grain,
@@ -3834,9 +3576,8 @@
       leakType: state.leakType, leakAmt: state.leakAmt, frameType: state.frameType, dateStamp: state.dateStamp
     });
     localStorage.setItem('tees_lab_recipes_v1', JSON.stringify(state.recipes));
-    inp.value = '';
-    renderFrameAndRecipes();
-    showToast(`💾 Saved "${name}"`);
+    renderSavedRecipesList();
+    showToast(`💾 Saved combo "${name}"`);
   });
 
   // Bottom Sheets (Samples & Contact Sheet)
@@ -3850,81 +3591,48 @@
   document.getElementById('btnCloseContactSheet').addEventListener('click', () => contactSheet.classList.remove('open'));
   contactSheet.addEventListener('click', e => { if (e.target === contactSheet) contactSheet.classList.remove('open'); });
 
-  // Camera Events
+  // Camera Viewfinder HUD Events (EV Ruler, DATE toggle, FRAME toggle)
   const camExposureControl = document.getElementById('camExposureControl');
   camExposureControl.addEventListener('input', e => {
     state.camExposureEV = Number(e.target.value);
-    document.getElementById('camExposureValue').textContent = `${state.camExposureEV > 0 ? '+' : ''}${state.camExposureEV.toFixed(1)} EV · ${state.camAppliedHardware?.exposureCompensation ? 'camera' : 'app'}`;
+    syncCameraHudUI();
     scheduleCameraSettingsApply();
   });
-  document.getElementById('camIsoControl').addEventListener('change', e => { state.camIso = e.target.value; scheduleCameraSettingsApply(); });
-  document.getElementById('camShutterControl').addEventListener('change', e => { state.camShutter = e.target.value; scheduleCameraSettingsApply(); });
-  document.getElementById('camTimerControl').addEventListener('change', e => { state.camTimer = Number(e.target.value); });
-  document.getElementById('btnMultipleExposure').addEventListener('click', e => {
-    state.camMultipleExposure = !state.camMultipleExposure;
-    e.currentTarget.textContent = state.camMultipleExposure ? 'On' : 'Off';
-    e.currentTarget.classList.toggle('btn-brass', state.camMultipleExposure);
-    document.getElementById('camMultipleExposureHint').textContent = state.camPendingExposures.length
-      ? `${state.camPendingExposures.length} exposure${state.camPendingExposures.length > 1 ? 's' : ''} held · advance to save`
-      : state.camMultipleExposure ? 'Hold exposures on one frame' : 'One exposure per frame';
+  document.getElementById('camExposureValue').addEventListener('click', () => {
+    state.camExposureEV = 0;
+    syncCameraHudUI();
+    scheduleCameraSettingsApply();
+    showToast('EV reset to 0.0');
   });
-  document.getElementById('btnAELock').addEventListener('click', () => setAELock(!state.camAELocked));
-  document.getElementById('camWhiteBalanceControl').addEventListener('change', e => { state.camWhiteBalance = e.target.value; scheduleCameraSettingsApply(); renderPreview(); });
-  document.getElementById('btnStartCam').addEventListener('click', () => { if (state.camStream) stopRealCamera(); startRealCamera(); });
+  document.getElementById('btnVfDateToggle').addEventListener('click', () => {
+    state.dateStamp = state.dateStamp === 'off' ? 'retro98' : 'off';
+    syncAllUI();
+    renderPreview();
+  });
+  document.getElementById('btnVfFrameToggle').addEventListener('click', () => {
+    const order = ['none', '35mm-sprocket', 'darkroom-white', 'polaroid'];
+    state.frameType = order[(order.indexOf(state.frameType) + 1) % order.length];
+    syncAllUI();
+    renderPreview();
+  });
+
   document.getElementById('btnFlipCam').addEventListener('click', () => {
     state.camFacing = state.camFacing === 'environment' ? 'user' : 'environment';
     if (state.camStream) { stopRealCamera(); startRealCamera(); }
-    else showToast(state.camFacing === 'environment' ? 'Rear camera' : 'Front camera');
+    else { startRealCamera(); }
   });
   document.getElementById('btnToggleSound').addEventListener('click', e => {
     state.camSound = !state.camSound;
     e.currentTarget.textContent = state.camSound ? '🔊' : '🔇';
   });
-  document.getElementById('btnNewRoll').addEventListener('click', () => {
-    state.camRollNumber += 1;
-    state.camRollId = createRollId();
-    state.camShotCount = 0;
-    state.camIsCocked = true; state.camRollRewound = false; state.camPendingExposures = []; state.camMultipleExposure = false;
-    saveCameraRollMeta();
-    document.getElementById('btnMultipleExposure').textContent = 'Off';
-    document.getElementById('camMultipleExposureHint').textContent = 'One exposure per frame';
-    syncCameraDropdowns();
-    updateFilmMechanics();
-    showToast('🎞️ New roll loaded — earlier photos are kept');
-  });
-  document.getElementById('btnFilmAdvance').addEventListener('click', advanceFilm);
-  document.getElementById('btnRewindRoll').addEventListener('click', () => {
-    if (state.camPendingExposures.length) { showToast('Advance film to save held exposures before rewinding'); return; }
-    state.camRollRewound = true; state.camIsCocked = false;
-    saveCameraRollMeta(); updateFilmMechanics();
-    showToast('Film rewound · your saved photos remain on the roll');
-  });
   document.getElementById('btnClearRollShots').addEventListener('click', async () => {
     try { await clearCameraRollStorage(); } catch (error) { showToast('Could not clear saved roll photos'); return; }
     state.camRollShots = []; state.camShotCount = 0;
     state.camRollId = createRollId(); saveCameraRollMeta();
-    state.camIsCocked = true; state.camRollRewound = false; state.camPendingExposures = []; state.camMultipleExposure = false;
-    document.getElementById('btnMultipleExposure').textContent = 'Off';
-    document.getElementById('camMultipleExposureHint').textContent = 'One exposure per frame';
-    renderContactSheet(); syncCameraDropdowns(); updateFilmMechanics();
+    renderContactSheet(); syncCameraHudUI();
     showToast('Roll photos cleared');
   });
-  document.getElementById('btnShutter').addEventListener('click', requestShutterRelease);
-  document.getElementById('camSelBody').addEventListener('change', e => selectCameraBody(e.target.value));
-  document.getElementById('camSelLens').addEventListener('change', e => { state.lensId = e.target.value; renderGearRack(); syncCameraDropdowns(); renderPreview(); });
-  document.getElementById('camSelFilm').addEventListener('change', e => { selectFilmStock(e.target.value); syncCameraDropdowns(); populateCameraHardwareControls(); scheduleCameraSettingsApply(); });
-
-  // Guide Events
-  document.querySelectorAll('#guideFilterPills .filter-chip').forEach(b => {
-    b.addEventListener('click', () => {
-      document.querySelectorAll('#guideFilterPills .filter-chip').forEach(x => x.classList.remove('active'));
-      b.classList.add('active');
-      guideFilter = b.dataset.gfilter;
-      renderGuideAccordion();
-    });
-  });
-  document.getElementById('btnGuideExpandAll').addEventListener('click', () => { GUIDE_ITEMS.forEach(i => openGuideIds.add(i.id)); renderGuideAccordion(); });
-  document.getElementById('btnGuideCollapseAll').addEventListener('click', () => { openGuideIds.clear(); renderGuideAccordion(); });
+  document.getElementById('btnShutter').addEventListener('click', captureCameraShot);
 
   // Bootstrap
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
@@ -3932,14 +3640,9 @@
   }
   await loadSampleScenePhotos();
   renderSampleStrip();
-  renderPhoneProfileGrid();
-  renderGearRack();
-  renderTweaksDock();
-  renderFrameAndRecipes();
+  syncAllUI();
   renderContactSheet();
   cameraRollReady = restoreCameraRoll();
-  populateCameraHardwareControls();
-  renderGuideAccordion();
   loadSourceCanvas(SAMPLES[0].canvas, null);
   updateSyncButton();
   startGhSync();
