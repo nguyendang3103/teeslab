@@ -2176,42 +2176,41 @@
       fCtx.fillStyle = '#f7f4ed'; fCtx.fillRect(0, 0, framed.width, framed.height);
       fCtx.drawImage(photoCanvas, fp.left, fp.top);
 
-      // Thin asymmetric organic analog print edge inspired by film darkroom easels
+      // Clean, sleek asymmetric analog darkroom easel mask (straight edges, subtle organic drift & soft corner radius)
       const sc = Math.max(0.55, Math.min(width, height) / 450);
       const innerL = fp.left, innerT = fp.top, innerR = fp.left + width, innerB = fp.top + height;
       const edgeOff = (t, amp, phase) => {
-        const tilt = (t - 0.5) * amp * 0.45;
-        const wave = (Math.sin(t * Math.PI * 1.6 + phase) * 0.55 + Math.cos(t * Math.PI * 3.4 + phase * 1.7) * 0.3 + 0.55) * amp;
-        const fiber = (Math.sin(t * 89.0 + phase * 2.3) * Math.cos(t * 173.0 + phase * 0.8) + 1) * 0.5 * (sc * 1.15);
-        const notch = Math.pow(Math.max(0, Math.sin(t * 31.0 + phase * 5.1) * Math.sin(t * 53.0 + phase * 2.9)), 6) * (sc * 1.5);
-        return Math.max(0, wave + tilt + fiber + notch);
+        const tilt = (t - 0.5) * amp * 0.35;
+        const gentleBow = Math.sin(t * Math.PI + phase * 0.4) * amp * 0.45;
+        const microTexture = Math.sin(t * Math.PI * 6.0 + phase) * (0.18 * sc);
+        return Math.max(0, 0.35 * amp + tilt + gentleBow + microTexture);
       };
-      const stepPx = Math.max(3, Math.round(4 * sc));
-      const stepsT = Math.max(24, Math.round(width / stepPx)), stepsR = Math.max(24, Math.round(height / stepPx));
-      const cTLx = innerL + edgeOff(0, 1.8 * sc, 0.4), cTLy = innerT + edgeOff(0, 1.9 * sc, 1.1);
+      const stepPx = Math.max(8, Math.round(12 * sc));
+      const stepsT = Math.max(16, Math.round(width / stepPx)), stepsR = Math.max(16, Math.round(height / stepPx));
+      const cTLx = innerL + edgeOff(0, 0.85 * sc, 0.4), cTLy = innerT + edgeOff(0, 0.8 * sc, 1.1);
       fCtx.save();
       fCtx.beginPath();
       fCtx.rect(0, 0, framed.width, framed.height);
       fCtx.moveTo(cTLx, cTLy);
       for (let i = 1; i <= stepsR; i++) {
         const t = i / stepsR;
-        fCtx.lineTo(innerL + edgeOff(t, 2.2 * sc, 0.4), innerT + t * height);
+        fCtx.lineTo(innerL + edgeOff(t, 0.95 * sc, 0.4), innerT + t * height);
       }
       for (let i = 1; i <= stepsT; i++) {
         const t = i / stepsT;
-        fCtx.lineTo(innerL + t * width, innerB - edgeOff(t, 2.5 * sc, 2.3));
+        fCtx.lineTo(innerL + t * width, innerB - edgeOff(t, 1.05 * sc, 2.3));
       }
       for (let i = 1; i <= stepsR; i++) {
         const t = i / stepsR;
-        fCtx.lineTo(innerR - edgeOff(1 - t, 1.9 * sc, 4.1), innerB - t * height);
+        fCtx.lineTo(innerR - edgeOff(1 - t, 0.85 * sc, 4.1), innerB - t * height);
       }
       for (let i = 1; i < stepsT; i++) {
         const t = i / stepsT;
-        fCtx.lineTo(innerR - t * width, innerT + edgeOff(1 - t, 2.0 * sc, 1.1));
+        fCtx.lineTo(innerR - t * width, innerT + edgeOff(1 - t, 0.8 * sc, 1.1));
       }
       fCtx.closePath();
-      fCtx.shadowColor = 'rgba(28, 24, 18, 0.22)';
-      fCtx.shadowBlur = Math.max(1.2, sc * 1.4);
+      fCtx.shadowColor = 'rgba(28, 24, 18, 0.18)';
+      fCtx.shadowBlur = Math.max(0.9, sc * 1.1);
       fCtx.fillStyle = '#f7f4ed';
       fCtx.fill('evenodd');
       fCtx.restore();
