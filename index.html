@@ -10,6 +10,7 @@
   <link rel="icon" type="image/jpeg" href="./logo.jpg" />
   <link rel="apple-touch-icon" href="./logo.jpg" />
   <link rel="manifest" href="./manifest.json" />
+  <link rel="preload" as="image" href="./assets/samples/coffee.jpg" />
   <style>
     @font-face {
       font-family: 'Caveat';
@@ -1413,6 +1414,7 @@
 
     /* ==================== ROLLIE DOCKED COMBO PICKER (LIVE PREVIEW ABOVE) ==================== */
     .app-shell.picker-open #view-darkroom .tool-dock,
+    .app-shell.picker-open #view-camera .vf-bottom-hud,
     .app-shell.picker-open #camComboTrio,
     .app-shell.picker-open .cam-shutter-deck,
     .app-shell.picker-open .bottom-nav {
@@ -1792,7 +1794,7 @@
     </header>
 
     <!-- 2A. VIEW: LAB (DARKROOM) -->
-    <main id="view-darkroom" class="view-section active">
+    <main id="view-darkroom" class="view-section">
       <div class="stage-area" id="previewDropZone">
         <div class="canvas-stack" id="canvasStack" title="Hold photo to view Original">
           <canvas id="previewCanvas"></canvas>
@@ -1858,7 +1860,7 @@
     </main>
 
     <!-- 2B. VIEW: CAMERA -->
-    <section id="view-camera" class="view-section">
+    <section id="view-camera" class="view-section active">
       <div class="cam-wrap">
         <!-- Mechanical Top Plate (Counter + Viewfinder Eye + Lever/Audio) -->
         <div class="cam-top-plate">
@@ -1997,9 +1999,9 @@
     </section>
 
     <nav class="bottom-nav" role="tablist">
-      <button class="bnav-btn active" data-tab="darkroom"><span class="ico">🎞️</span><span>Lab</span></button>
+      <button class="bnav-btn" data-tab="darkroom"><span class="ico">🎞️</span><span>Lab</span></button>
       <button class="bnav-btn" id="btnBottomPhoto" type="button"><span class="ico">➕</span><span>Open Photo</span></button>
-      <button class="bnav-btn" data-tab="camera"><span class="ico">📷</span><span>Camera</span></button>
+      <button class="bnav-btn active" data-tab="camera"><span class="ico">📷</span><span>Camera</span></button>
     </nav>
 
     <!-- DOCKED COMBO PICKER (PHOTO / VIEWFINDER STAYS CLEAR ABOVE) -->
@@ -2544,29 +2546,47 @@
 
   function generateSampleScenes() {
     const scenes = [
+      { id: 'morning-cafe', title: 'Coffee', src: './assets/samples/coffee.jpg' },
       { id: 'golden-street', title: 'Golden hour', src: './assets/samples/golden-hour.jpg' },
       { id: 'neon-night', title: 'Neon night', src: './assets/samples/neon-street.jpg' },
       { id: 'emerald-forest', title: 'Forest', src: './assets/samples/forest.jpg' },
       { id: 'portrait-window', title: 'Portrait', src: './assets/samples/portrait.jpg' },
-      { id: 'morning-cafe', title: 'Coffee', src: './assets/samples/coffee.jpg' },
       { id: 'ocean-breeze', title: 'Ocean', src: './assets/samples/ocean.jpg' }
     ];
-    return scenes.map(scene => ({ ...scene, canvas: Object.assign(document.createElement('canvas'), { width: 900, height: 600 }) }));
+    return scenes.map(scene => ({
+      ...scene,
+      loaded: false,
+      _promise: null,
+      canvas: Object.assign(document.createElement('canvas'), { width: 900, height: 600 })
+    }));
   }
 
-  async function loadSampleScenePhotos() {
-    await Promise.all(SAMPLES.map(scene => new Promise((resolve, reject) => {
+  function ensureSampleLoaded(scene) {
+    if (!scene) return Promise.resolve();
+    if (scene.loaded) return Promise.resolve();
+    if (scene._promise) return scene._promise;
+    scene._promise = new Promise((resolve, reject) => {
       const image = new Image();
       image.onload = () => {
         const canvas = scene.canvas, ctx = canvas.getContext('2d');
         const scale = Math.max(canvas.width / image.width, canvas.height / image.height);
         const width = image.width * scale, height = image.height * scale;
         ctx.drawImage(image, (canvas.width - width) / 2, (canvas.height - height) / 2, width, height);
+        scene.loaded = true;
         resolve();
       };
-      image.onerror = () => reject(new Error(`Could not load sample photo: ${scene.title}`));
+      image.onerror = () => {
+        scene._promise = null;
+        reject(new Error(`Could not load sample photo: ${scene.title}`));
+      };
       image.src = scene.src;
-    })));
+    });
+    return scene._promise;
+  }
+
+  async function loadSampleScenePhotos() {
+    await ensureSampleLoaded(SAMPLES[0]);
+    Promise.all(SAMPLES.slice(1).map(s => ensureSampleLoaded(s).catch(() => {})));
   }
   /* ==========================================================================
      4. GRAIN TEXTURE, OPTICAL BLUR & FILM COLOR ENGINE
@@ -3215,7 +3235,8 @@
           filmWorkerUnavailable = true; filmWorkerReady = false;
           const queued = filmWorkerQueue.splice(0);
           filmWorker.terminate(); filmWorker = null;
-          runFilmJobFallback(job).then(job.resolve, job.reject);
+          if (job.imageData?.data?.byteLength) runFilmJobFallback(job).then(job.resolve, job.reject);
+          else job.resolve(null);
           queued.forEach(item => runFilmJobFallback(item).then(item.resolve, item.reject));
           return;
         }
@@ -3227,7 +3248,10 @@
         if (filmWorkerUrl) { URL.revokeObjectURL(filmWorkerUrl); filmWorkerUrl = ''; }
         const failed = [filmWorkerActiveJob, ...filmWorkerQueue].filter(Boolean);
         filmWorkerActiveJob = null; filmWorkerQueue.length = 0;
-        failed.forEach(job => runFilmJobFallback(job).then(job.resolve, job.reject));
+        failed.forEach(job => {
+          if (job.imageData?.data?.byteLength) runFilmJobFallback(job).then(job.resolve, job.reject);
+          else job.resolve(null);
+        });
         filmWorker.terminate(); filmWorker = null;
       };
       const grainTile = GRAIN_TILE.slice().buffer;
@@ -3256,11 +3280,14 @@
     const job = filmWorkerQueue.shift();
     filmWorkerActiveJob = job;
     try {
-      const pixels = job.imageData.data.slice().buffer;
+      const data = job.imageData.data;
+      const canZeroCopy = !!job.coalesceKey && data.byteOffset === 0 && data.byteLength === data.buffer.byteLength;
+      const pixels = canZeroCopy ? data.buffer : data.slice().buffer;
       filmWorker.postMessage({ id: job.id, width: job.width, height: job.height, pixels, config: job.config, output: job.output, quality: job.quality }, [pixels]);
     } catch (error) {
       filmWorkerActiveJob = null;
-      runFilmJobFallback(job).then(job.resolve, job.reject).finally(pumpFilmWorker);
+      if (job.imageData?.data?.byteLength) runFilmJobFallback(job).then(job.resolve, job.reject).finally(pumpFilmWorker);
+      else { job.resolve(null); pumpFilmWorker(); }
     }
   }
 
@@ -3959,14 +3986,14 @@
 
     state.previewSourceCanvas = prevC;
     state.previewSourceData = null;
-    state.analysis = analyzeImageCharacteristics(srcCanvas);
+    state.analysis = null;
 
     state.phoneId = 'auto-detect';
     labRenderDirty = true;
     cameraLastStaticKey = '';
 
     syncAllUI();
-    renderPreview(true);
+    renderPreview(!!opts.forcePreviewRender);
   }
 
   let renderRaf = null;
@@ -4355,12 +4382,19 @@
       const item = document.createElement('button');
       item.className = `sample-thumb ${state.activeSampleId === s.id ? 'active' : ''}`;
       const img = document.createElement('img');
-      img.src = s.canvas.toDataURL('image/jpeg', 0.72);
+      img.src = s.src;
       img.alt = s.title;
+      img.decoding = 'async';
       const lbl = document.createElement('span');
       lbl.textContent = s.title;
       item.appendChild(img); item.appendChild(lbl);
-      item.addEventListener('click', () => {
+      item.addEventListener('click', async () => {
+        try {
+          await ensureSampleLoaded(s);
+        } catch (err) {
+          showToast(`Could not load sample: ${s.title}`);
+          return;
+        }
         state.activeSampleId = s.id;
         renderSampleStrip();
         loadSourceCanvas(s.canvas, null);
@@ -5927,12 +5961,13 @@
     });
     navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then(reg => reg.update().catch(() => {})).catch(() => {});
   }
-  await loadSampleScenePhotos();
   renderSampleStrip();
   if (window.innerHeight >= 700) document.getElementById('tweakDrawer')?.classList.add('open');
   syncAllUI();
   renderContactSheet();
   cameraRollReady = restoreCameraRoll();
+  switchMainTab('camera');
+  await loadSampleScenePhotos();
   loadSourceCanvas(SAMPLES[0].canvas, null);
 })();
 </script>
