@@ -670,7 +670,7 @@
       position: relative;
     }
 
-    /* Viewfinder Box with EV Scale & DATE Stamp Badge */
+    /* Viewfinder Box & Mode-Specific Stages */
     .cam-vf-box {
       flex: 1;
       min-height: 0;
@@ -685,41 +685,234 @@
       justify-content: center;
       box-shadow: inset 0 0 18px rgba(0,0,0,0.85);
     }
+    .vf-stage {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #050608;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: width 0.16s ease, height 0.16s ease;
+    }
     #cameraViewfinderCanvas {
       width: 100%;
       height: 100%;
-      object-fit: contain;
+      object-fit: cover;
       display: block;
     }
-    /* Rule of thirds grid + Corner Brackets */
-    .vf-grid {
+    .vf-overlay-layer {
       position: absolute;
       inset: 0;
-      background-image:
-        linear-gradient(to right, rgba(255,255,255,0.08) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(255,255,255,0.08) 1px, transparent 1px);
-      background-size: 33.333% 33.333%;
       pointer-events: none;
+      z-index: 3;
     }
+
+    /* Native 4:3 — minimal clean edges */
     .vf-corner {
       position: absolute;
-      width: 16px;
-      height: 16px;
-      border-color: rgba(255,255,255,0.65);
+      width: 14px;
+      height: 14px;
+      border-color: rgba(255,255,255,0.68);
       border-style: solid;
       pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s ease;
     }
-    .vf-corner.tl { top: 10px; left: 10px; border-width: 1.5px 0 0 1.5px; }
-    .vf-corner.tr { top: 10px; right: 10px; border-width: 1.5px 1.5px 0 0; }
-    .vf-corner.bl { bottom: 10px; left: 10px; border-width: 0 0 1.5px 1.5px; }
-    .vf-corner.br { bottom: 10px; right: 10px; border-width: 0 1.5px 1.5px 0; }
+    .vf-stage[data-vf-mode="native"] .vf-corner { opacity: 0.72; }
+    .vf-corner.tl { top: 8px; left: 8px; border-width: 1.5px 0 0 1.5px; }
+    .vf-corner.tr { top: 8px; right: 8px; border-width: 1.5px 1.5px 0 0; }
+    .vf-corner.bl { bottom: 8px; left: 8px; border-width: 0 0 1.5px 1.5px; }
+    .vf-corner.br { bottom: 8px; right: 8px; border-width: 0 1.5px 1.5px 0; }
+
+    /* SLR 3:2 — Split-Prism Focusing Circle + Classic LED Exposure Meter */
+    .vf-slr-overlay {
+      position: absolute;
+      inset: 0;
+      display: none;
+      pointer-events: none;
+    }
+    .vf-stage[data-vf-mode="slr"] .vf-slr-overlay { display: block; }
+    .vf-slr-matte {
+      position: absolute;
+      inset: 6px;
+      border: 1px solid rgba(255,255,255,0.22);
+      border-radius: 2px;
+    }
+    .vf-slr-focus-ring {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 66px;
+      height: 66px;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.45);
+      box-shadow: 0 0 0 10px rgba(0,0,0,0.06) inset;
+    }
+    .vf-slr-microprism {
+      position: absolute;
+      inset: 7px;
+      border-radius: 50%;
+      border: 1px dashed rgba(255,255,255,0.42);
+      background: radial-gradient(circle, transparent 58%, rgba(255,255,255,0.06) 59%, transparent 62%);
+    }
+    .vf-slr-split {
+      position: absolute;
+      inset: 14px;
+      border-radius: 50%;
+      border: 1.2px solid rgba(255,255,255,0.72);
+      overflow: hidden;
+    }
+    .vf-slr-split::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      height: 1px;
+      background: rgba(255,255,255,0.85);
+      box-shadow: 0 0 3px rgba(0,0,0,0.75);
+    }
+    .vf-slr-led-bar {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 5px;
+      border-radius: 10px;
+      background: rgba(8, 10, 14, 0.72);
+      border: 1px solid rgba(255,255,255,0.14);
+      backdrop-filter: blur(3px);
+    }
+    .vf-led-row {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      font-family: var(--mono);
+      font-size: 8px;
+      font-weight: 800;
+      color: rgba(255,255,255,0.42);
+    }
+    .vf-led-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.16);
+      border: 1px solid rgba(255,255,255,0.22);
+      transition: all 0.12s ease;
+    }
+    .vf-led-row.lit.over .vf-led-dot { background: #ef4444; border-color: #fca5a5; box-shadow: 0 0 6px #ef4444; }
+    .vf-led-row.lit.ok .vf-led-dot { background: #22c55e; border-color: #86efac; box-shadow: 0 0 7px #22c55e; }
+    .vf-led-row.lit.under .vf-led-dot { background: #f59e0b; border-color: #fde68a; box-shadow: 0 0 6px #f59e0b; }
+    .vf-led-row.lit { color: #fff; }
+
+    /* Rangefinder 3:2 — Wide Field + Outside-the-frame + Resizing Brightlines */
+    .vf-rf-overlay {
+      position: absolute;
+      inset: 0;
+      display: none;
+      pointer-events: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .vf-stage[data-vf-mode="rangefinder"] .vf-rf-overlay { display: flex; }
+    .vf-rf-brightline {
+      position: relative;
+      width: 70.4%;
+      height: 70.4%;
+      box-shadow: 0 0 0 2000px rgba(0, 0, 0, 0.34);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      transition: width 0.18s ease, height 0.18s ease;
+    }
+    .vf-rf-bracket {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-color: rgba(255, 250, 235, 0.96);
+      border-style: solid;
+      filter: drop-shadow(0 0 2px rgba(245, 166, 35, 0.45));
+    }
+    .vf-rf-bracket.tl { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+    .vf-rf-bracket.tr { top: -1px; right: -1px; border-width: 2px 2px 0 0; }
+    .vf-rf-bracket.bl { bottom: -1px; left: -1px; border-width: 0 0 2px 2px; }
+    .vf-rf-bracket.br { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+    .vf-rf-patch {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 18px;
+      height: 12px;
+      transform: translate(-50%, -50%);
+      border: 1px solid rgba(245, 196, 81, 0.72);
+      background: rgba(245, 196, 81, 0.12);
+    }
+    .vf-rf-focal-tag {
+      position: absolute;
+      top: 4px;
+      left: 6px;
+      font-family: var(--mono);
+      font-size: 8.5px;
+      font-weight: 800;
+      color: rgba(255, 250, 235, 0.92);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.85);
+    }
+
+    /* Half-Frame (3:4 x 2) — Side-by-side Split Diptych Overlay */
+    .vf-hf-overlay {
+      position: absolute;
+      inset: 0;
+      display: none;
+      pointer-events: none;
+      grid-template-columns: 1fr 6px 1fr;
+    }
+    .vf-stage[data-vf-mode="half-frame"] .vf-hf-overlay { display: grid; }
+    .vf-hf-slot {
+      position: relative;
+      border: 1px solid rgba(255,255,255,0.28);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .vf-hf-slot.waiting {
+      background: rgba(6, 7, 10, 0.78);
+    }
+    .vf-hf-slot-badge {
+      font-family: var(--mono);
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(0,0,0,0.68);
+      color: rgba(255,255,255,0.72);
+      border: 1px solid rgba(255,255,255,0.18);
+    }
+    .vf-hf-slot.locked .vf-hf-slot-badge {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      color: #22c55e;
+      border-color: rgba(34, 197, 94, 0.55);
+    }
+    .vf-hf-slot.active-live {
+      border-color: rgba(245, 166, 35, 0.7);
+    }
+    .vf-hf-divider {
+      background: #030406;
+    }
 
     /* EV Ruler Overlay on Viewfinder Top */
     .vf-top-hud {
       position: absolute;
-      top: 10px;
-      left: 14px;
-      right: 14px;
+      top: 8px;
+      left: 10px;
+      right: 10px;
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
@@ -749,10 +942,10 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      width: 156px;
+      width: 148px;
       padding: 2px 6px 4px;
       border-radius: 6px;
-      background: rgba(8, 10, 14, 0.45);
+      background: rgba(8, 10, 14, 0.5);
       backdrop-filter: blur(3px);
     }
     .vf-ev-ticks {
@@ -783,14 +976,39 @@
 
     .vf-bottom-hud {
       position: absolute;
-      bottom: 10px;
-      left: 14px;
-      right: 14px;
+      bottom: 8px;
+      left: 10px;
+      right: 10px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 6px;
       z-index: 6;
       pointer-events: none;
+    }
+    .vf-focal-pills {
+      pointer-events: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 2px 4px;
+      border-radius: 14px;
+      background: rgba(8, 10, 14, 0.72);
+      border: 1px solid rgba(255,255,255,0.16);
+      backdrop-filter: blur(4px);
+    }
+    .vf-focal-btn {
+      font-family: var(--mono);
+      font-size: 9.5px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 10px;
+      color: #cbd5e1;
+      transition: all 0.14s ease;
+    }
+    .vf-focal-btn.active {
+      background: #f5a623;
+      color: #111;
     }
 
     .shutter-flash {
@@ -1282,14 +1500,14 @@
         </div>
 
         <div class="stage-overlay-bottom">
-          <button class="rollie-combo-caption" id="liveGearBadge" title="Tap to change combo">Rollie 35 S — Sonnar 40 f2.8 — <strong>Pro 400H</strong></button>
+          <button class="rollie-combo-caption" id="liveGearBadge" title="Tap to change combo">SLR (3:2) — 50mm — <strong>Pro 400H</strong></button>
           <div style="display:flex;gap:5px;flex-shrink:0;">
             <button class="float-pill" id="btnToggleSplit">◧ Split</button>
           </div>
         </div>
       </div>
 
-      <!-- ROLLIE-STYLE COMPACT BOTTOM DOCK -->
+      <!-- COMPACT LAB CONTROL DOCK -->
       <div class="tool-dock">
         <!-- Collapsible Slider Drawer (Opens only when an adjustment pill is tapped) -->
         <div class="tweak-drawer" id="tweakDrawer">
@@ -1304,17 +1522,17 @@
           <input type="range" id="activeTweakSlider" min="0" max="100" value="100" />
         </div>
 
-        <!-- 3-Card Combo Selector (CAMERA • LENS • FILM) -->
+        <!-- 3-Card Combo Selector (VIEWFINDER • FOCAL • FILM) -->
         <div class="combo-trio-grid" id="labComboTrio">
           <button class="combo-card" data-open-combo="camera" type="button">
-            <span class="combo-card-tag">CAMERA</span>
-            <span class="combo-card-val" id="labCardBodyName">Rollie 35 S</span>
+            <span class="combo-card-tag">VIEWFINDER</span>
+            <span class="combo-card-val" id="labCardBodyName">SLR</span>
             <span class="combo-card-caret">▾</span>
             <div class="combo-card-art" id="labCardBodyArt"></div>
           </button>
           <button class="combo-card" data-open-combo="lens" type="button">
-            <span class="combo-card-tag">LENS</span>
-            <span class="combo-card-val" id="labCardLensName">40mm f/2.8</span>
+            <span class="combo-card-tag">FOCAL</span>
+            <span class="combo-card-val" id="labCardLensName">50mm</span>
             <span class="combo-card-caret">▾</span>
             <div class="combo-card-art" id="labCardLensArt"></div>
           </button>
@@ -1333,7 +1551,7 @@
       </div>
     </main>
 
-    <!-- 2B. VIEW: ROLLIE 35MM CAMERA -->
+    <!-- 2B. VIEW: VIEWFINDER CAMERA -->
     <section id="view-camera" class="view-section">
       <div class="cam-wrap">
         <!-- Mechanical Top Plate (Counter + Viewfinder Eye + Lever/Audio) -->
@@ -1346,15 +1564,58 @@
           </div>
         </div>
 
-        <!-- Clean Viewfinder with EV Ruler & DATE Stamp Toggle -->
-        <div class="cam-vf-box">
+        <!-- Dynamic Viewfinder Stage (Native 4:3, SLR 3:2, Rangefinder 3:2, Half-Frame 3:4x2) -->
+        <div class="cam-vf-box" id="camVfBox">
           <video id="camVideo" autoplay playsinline muted style="display:none;"></video>
-          <canvas id="cameraViewfinderCanvas"></canvas>
-          <div class="vf-grid"></div>
-          <div class="vf-corner tl"></div>
-          <div class="vf-corner tr"></div>
-          <div class="vf-corner bl"></div>
-          <div class="vf-corner br"></div>
+          <div class="vf-stage" id="vfStage" data-vf-mode="slr">
+            <canvas id="cameraViewfinderCanvas"></canvas>
+
+            <div class="vf-overlay-layer">
+              <div class="vf-corner tl"></div>
+              <div class="vf-corner tr"></div>
+              <div class="vf-corner bl"></div>
+              <div class="vf-corner br"></div>
+
+              <!-- SLR: Center Split-Prism Circle + Classic LED Meter -->
+              <div class="vf-slr-overlay">
+                <div class="vf-slr-matte"></div>
+                <div class="vf-slr-focus-ring">
+                  <div class="vf-slr-microprism"></div>
+                  <div class="vf-slr-split"></div>
+                </div>
+                <div class="vf-slr-led-bar" id="vfSlrLedBar" aria-hidden="true">
+                  <div class="vf-led-row over" data-led="over2"><span class="vf-led-dot"></span><span>+2</span></div>
+                  <div class="vf-led-row over" data-led="over1"><span class="vf-led-dot"></span><span>+1</span></div>
+                  <div class="vf-led-row ok lit" data-led="ok"><span class="vf-led-dot"></span><span>●</span></div>
+                  <div class="vf-led-row under" data-led="under1"><span class="vf-led-dot"></span><span>-1</span></div>
+                  <div class="vf-led-row under" data-led="under2"><span class="vf-led-dot"></span><span>-2</span></div>
+                </div>
+              </div>
+
+              <!-- Rangefinder: Outside-the-frame matte + Dynamic Brightlines -->
+              <div class="vf-rf-overlay">
+                <div class="vf-rf-brightline" id="vfRfBrightline">
+                  <div class="vf-rf-bracket tl"></div>
+                  <div class="vf-rf-bracket tr"></div>
+                  <div class="vf-rf-bracket bl"></div>
+                  <div class="vf-rf-bracket br"></div>
+                  <div class="vf-rf-patch"></div>
+                  <span class="vf-rf-focal-tag" id="vfRfFocalTag">35mm</span>
+                </div>
+              </div>
+
+              <!-- Half-Frame: 3:4 x 2 Diptych Split Gate -->
+              <div class="vf-hf-overlay" id="vfHfOverlay">
+                <div class="vf-hf-slot active-live" id="vfHfLeft">
+                  <span class="vf-hf-slot-badge" id="vfHfLeftBadge">FRAME 1/2</span>
+                </div>
+                <div class="vf-hf-divider"></div>
+                <div class="vf-hf-slot waiting" id="vfHfRight">
+                  <span class="vf-hf-slot-badge" id="vfHfRightBadge">2/2 NEXT</span>
+                </div>
+              </div>
+            </div>
+          </div>
 
           <div class="vf-top-hud">
             <button class="vf-badge-btn" id="btnVfDateToggle" type="button" title="Toggle retro date stamp">DATE</button>
@@ -1366,24 +1627,28 @@
           </div>
 
           <div class="vf-bottom-hud">
-            <button class="vf-badge-btn" id="btnVfFrameToggle" type="button" title="Cycle film border">FRAME: OFF</button>
+            <div style="display:flex;align-items:center;gap:4px;">
+              <button class="vf-badge-btn" id="btnVfFrameToggle" type="button" title="Cycle film border">FRAME: OFF</button>
+              <button class="vf-badge-btn active" id="btnVfHalfRetake" type="button" title="Retake Frame 1" style="display:none;">↺ 1/2</button>
+            </div>
+            <div class="vf-focal-pills" id="vfFocalPills" aria-label="Focal length"></div>
             <span id="camSourceStatus" style="font-family:var(--mono);font-size:9.5px;color:rgba(255,255,255,0.65);text-shadow:0 1px 3px #000;">Rear</span>
           </div>
 
           <div class="shutter-flash" id="shutterFlash"></div>
         </div>
 
-        <!-- 3-Card Combo Selector in Camera (Identical to Rollie IMG_0492) -->
+        <!-- 3-Card Combo Selector in Camera -->
         <div class="combo-trio-grid" id="camComboTrio">
           <button class="combo-card" data-open-combo="camera" type="button">
-            <span class="combo-card-tag">CAMERA</span>
-            <span class="combo-card-val" id="camCardBodyName">Rollie 35 S</span>
+            <span class="combo-card-tag">VIEWFINDER</span>
+            <span class="combo-card-val" id="camCardBodyName">SLR</span>
             <span class="combo-card-caret">▾</span>
             <div class="combo-card-art" id="camCardBodyArt"></div>
           </button>
           <button class="combo-card" data-open-combo="lens" type="button">
-            <span class="combo-card-tag">LENS</span>
-            <span class="combo-card-val" id="camCardLensName">40mm f/2.8</span>
+            <span class="combo-card-tag">FOCAL</span>
+            <span class="combo-card-val" id="camCardLensName">50mm</span>
             <span class="combo-card-caret">▾</span>
             <div class="combo-card-art" id="camCardLensArt"></div>
           </button>
@@ -1413,7 +1678,7 @@
       <button class="bnav-btn" data-tab="camera"><span class="ico">📷</span><span>Camera</span></button>
     </nav>
 
-    <!-- ROLLIE-STYLE DOCKED COMBO PICKER (PHOTO STAYS CLEAR ABOVE) -->
+    <!-- DOCKED COMBO PICKER (PHOTO / VIEWFINDER STAYS CLEAR ABOVE) -->
     <div class="combo-dock-panel" id="comboSheetBackdrop">
       <div class="picker-topbar">
         <div class="picker-topbar-left">
@@ -1431,17 +1696,17 @@
         <div class="clapper-cols">
           <button class="clapper-col active" data-picker-tab="camera" type="button">
             <div class="clapper-col-head">
-              <span class="clapper-col-lbl">CAMERA</span>
-              <span class="clapper-col-num" id="pickerBodyCount"><strong>01</strong>/11</span>
+              <span class="clapper-col-lbl">VIEWFINDER</span>
+              <span class="clapper-col-num" id="pickerBodyCount"><strong>02</strong>/4</span>
             </div>
-            <div class="clapper-col-val" id="clapperBodyVal">Rollie 35 S</div>
+            <div class="clapper-col-val" id="clapperBodyVal">SLR</div>
           </button>
           <button class="clapper-col" data-picker-tab="lens" type="button">
             <div class="clapper-col-head">
-              <span class="clapper-col-lbl">LENS</span>
-              <span class="clapper-col-num" id="pickerLensCount"><strong>01</strong>/12</span>
+              <span class="clapper-col-lbl">FOCAL</span>
+              <span class="clapper-col-num" id="pickerLensCount"><strong>03</strong>/4</span>
             </div>
-            <div class="clapper-col-val" id="clapperLensVal">Sonnar 40 f2.8</div>
+            <div class="clapper-col-val" id="clapperLensVal">50mm</div>
           </button>
           <button class="clapper-col film-col" data-picker-tab="film" type="button">
             <div class="clapper-col-head">
@@ -1455,16 +1720,16 @@
 
       <div class="picker-section active" id="pickerSecCamera">
         <div class="picker-spec-bar">
-          <span class="picker-spec-note" id="pickerBodyEffect">Warm nostalgia</span>
-          <span class="picker-spec-stat" id="pickerBodyStat">Contrast 1.04</span>
+          <span class="picker-spec-note" id="pickerBodyEffect">Split-prism focus + LED meter</span>
+          <span class="picker-spec-stat" id="pickerBodyStat">Full Frame 3:2</span>
         </div>
         <div class="h-scroll" id="pickerBodyTrack"></div>
       </div>
 
       <div class="picker-section" id="pickerSecLens">
         <div class="picker-spec-bar">
-          <span class="picker-spec-note" id="pickerLensEffect">Rollei 35 S • built-in lens</span>
-          <span class="picker-spec-stat" id="pickerLensStat">Bloom 24 · Vig 22</span>
+          <span class="picker-spec-note" id="pickerLensEffect">Full viewfinder zoom</span>
+          <span class="picker-spec-stat" id="pickerLensStat">50mm · 1.79x</span>
         </div>
         <div class="h-scroll" id="pickerLensTrack"></div>
       </div>
@@ -1543,34 +1808,86 @@
   };
   const normalizePhoneProfileId = id => LEGACY_PHONE_PROFILE_IDS[id] || id;
 
-  const CAMERA_BODIES = [
-    { id: 'rollie-35', name: 'Rollie 35 S', meta: 'Warm nostalgia', defaultLensId: 'rollei-sonnar-40', blackLift: 0.035, contrast: 1.04, highlightRolloff: 0.18, bodyWarmth: 4, bodyTint: 0 },
-    { id: 'fuji-tx1', name: 'Fuji TX-1', meta: 'Rich color depth', defaultLensId: 'fuji-xpan-45', blackLift: 0.025, contrast: 1.08, highlightRolloff: 0.15, bodyWarmth: -2, bodyTint: -2 },
-    { id: 'leica-m6', name: 'Leica M6', meta: 'Deep 3D rendering', defaultLensId: 'leica-summilux-35', blackLift: 0.015, contrast: 1.13, highlightRolloff: 0.14, bodyWarmth: 1, bodyTint: 0 },
-    { id: 'contax-t2', name: 'Contax T2', meta: 'Smooth skin & bright', defaultLensId: 'contax-t2-sonnar', blackLift: 0.045, contrast: 0.98, highlightRolloff: 0.25, bodyWarmth: 3, bodyTint: 2 },
-    { id: 'hasselblad-500', name: 'Hasselblad', meta: 'Gentle tonal roll-off', defaultLensId: 'hasselblad-planar-80', blackLift: 0.02, contrast: 0.95, highlightRolloff: 0.28, bodyWarmth: 0, bodyTint: 0 },
-    { id: 'nikon-f2', name: 'Nikon F2', meta: 'Classic documentary', defaultLensId: 'nikon-50-18', blackLift: 0.025, contrast: 1.10, highlightRolloff: 0.16, bodyWarmth: 0, bodyTint: 0 },
-    { id: 'nikon-fm2', name: 'Nikon FM2', meta: 'Crisp everyday 35mm', defaultLensId: 'nikon-50-18', blackLift: 0.03, contrast: 1.08, highlightRolloff: 0.18, bodyWarmth: 0, bodyTint: 0 },
-    { id: 'canon-ae1', name: 'Canon AE-1', meta: 'Warm 70s color', defaultLensId: 'canon-fd-50', blackLift: 0.04, contrast: 1.02, highlightRolloff: 0.21, bodyWarmth: 2, bodyTint: 1 },
-    { id: 'pentax-k1000', name: 'Pentax K1000', meta: 'Natural classic tones', defaultLensId: 'pentax-k-50-12', blackLift: 0.035, contrast: 1.04, highlightRolloff: 0.20, bodyWarmth: 1, bodyTint: 0 },
-    { id: 'olympus-om1', name: 'Olympus OM-1', meta: 'Compact gentle contrast', defaultLensId: 'olympus-zuiko-50', blackLift: 0.04, contrast: 0.99, highlightRolloff: 0.23, bodyWarmth: 0, bodyTint: -1 },
-    { id: 'minolta-srt101', name: 'Minolta SRT-101', meta: 'Soft vintage warmth', defaultLensId: 'minolta-rokkor-58-12', blackLift: 0.045, contrast: 1.01, highlightRolloff: 0.22, bodyWarmth: 2, bodyTint: 0 }
+  const VIEWFINDER_MODES = [
+    {
+      id: 'native',
+      name: 'Native',
+      formatLabel: 'Phone (4:3)',
+      aspect: 4 / 3,
+      meta: 'Clean edge-to-edge sensor, fast zoom',
+      defaultFocalId: '1x',
+      blackLift: 0.018,
+      contrast: 1.02,
+      highlightRolloff: 0.16,
+      bodyWarmth: 0,
+      bodyTint: 0
+    },
+    {
+      id: 'slr',
+      name: 'SLR',
+      formatLabel: 'Full Frame (3:2)',
+      aspect: 3 / 2,
+      meta: 'Split-prism focus + classic LED meter',
+      defaultFocalId: '50mm',
+      blackLift: 0.025,
+      contrast: 1.08,
+      highlightRolloff: 0.18,
+      bodyWarmth: 1,
+      bodyTint: 0
+    },
+    {
+      id: 'rangefinder',
+      name: 'Rangefinder',
+      formatLabel: 'Full Frame (3:2)',
+      aspect: 3 / 2,
+      meta: 'Brightline frames + outside-the-frame',
+      defaultFocalId: '35mm',
+      blackLift: 0.018,
+      contrast: 1.11,
+      highlightRolloff: 0.15,
+      bodyWarmth: 1,
+      bodyTint: 0
+    },
+    {
+      id: 'half-frame',
+      name: 'Half-Frame',
+      formatLabel: 'Half Frame (3:4 × 2)',
+      aspect: 3 / 4,
+      meta: '2-step diptych, keeps Shot 1 beside live',
+      defaultFocalId: '35mm',
+      blackLift: 0.035,
+      contrast: 1.03,
+      highlightRolloff: 0.20,
+      bodyWarmth: 2,
+      bodyTint: 0
+    }
   ];
 
-  const CAMERA_LENSES = [
-    { id: 'helios-44', name: 'Helios 44-2', meta: '58mm • Dreamy', coatingWarmth: 4, coatingTint: -4, bloomBase: 48, vignetteBase: 38, chromaticAb: 1.4, edgeSoft: 0.18 },
-    { id: 'nikon-50-18', name: 'Nikkor 50mm f/1.8', meta: 'Natural standard lens', coatingWarmth: 0, coatingTint: 0, bloomBase: 14, vignetteBase: 20, chromaticAb: 0.3, edgeSoft: 0.03 },
-    { id: 'canon-fd-50', name: 'Canon FD 50mm f/1.4', meta: 'Warm classic rendering', coatingWarmth: 2, coatingTint: 1, bloomBase: 22, vignetteBase: 23, chromaticAb: 0.4, edgeSoft: 0.05 },
-    { id: 'olympus-zuiko-50', name: 'Zuiko 50mm f/1.8', meta: 'Compact clear standard', coatingWarmth: 0, coatingTint: -1, bloomBase: 16, vignetteBase: 19, chromaticAb: 0.3, edgeSoft: 0.03 },
-    { id: 'pentax-k-50-12', name: 'SMC Pentax 50mm f/1.2', meta: 'Pentax K • bright standard prime', coatingWarmth: 2, coatingTint: 1, bloomBase: 30, vignetteBase: 22, chromaticAb: 0.35, edgeSoft: 0.04 },
-    { id: 'minolta-rokkor-58-12', name: 'MC Rokkor 58mm f/1.2', meta: 'Minolta SR • famous portrait glow', coatingWarmth: 4, coatingTint: 1, bloomBase: 42, vignetteBase: 26, chromaticAb: 0.45, edgeSoft: 0.06 },
-    { id: 'leica-summilux-35', name: 'Leica Summilux-M 35mm f/1.4', meta: 'Leica M • iconic fast wide angle', coatingWarmth: 2, coatingTint: 0, bloomBase: 30, vignetteBase: 20, chromaticAb: 0.25, edgeSoft: 0.03 },
-    { id: 'leica-noctilux-50', name: 'Leica Noctilux-M 50mm f/1.0', meta: 'Leica M • ultra-fast classic portrait', coatingWarmth: 3, coatingTint: 0, bloomBase: 44, vignetteBase: 26, chromaticAb: 0.35, edgeSoft: 0.05 },
-    { id: 'hasselblad-planar-80', name: 'Zeiss Planar 80mm f/2.8 CFE', meta: 'Hasselblad V • standard prime', coatingWarmth: 0, coatingTint: 0, bloomBase: 18, vignetteBase: 16, chromaticAb: 0.15, edgeSoft: 0.02 },
-    { id: 'fuji-xpan-45', name: 'Fujinon 45mm f/4', meta: 'Fuji TX-1 / XPan • panoramic standard', coatingWarmth: 0, coatingTint: -1, bloomBase: 16, vignetteBase: 18, chromaticAb: 0.2, edgeSoft: 0.02 },
-    { id: 'contax-t2-sonnar', name: 'Carl Zeiss Sonnar 38mm f/2.8', meta: 'Contax T2 • built-in autofocus lens', coatingWarmth: 1, coatingTint: 0, bloomBase: 24, vignetteBase: 19, chromaticAb: 0.2, edgeSoft: 0.025 },
-    { id: 'rollei-sonnar-40', name: 'Carl Zeiss Sonnar 40mm f/2.8 HFT', meta: 'Rollei 35 S • built-in lens', coatingWarmth: 2, coatingTint: 0, bloomBase: 24, vignetteBase: 22, chromaticAb: 0.25, edgeSoft: 0.03 }
-  ];
+  const FOCAL_OPTIONS_BY_MODE = {
+    native: [
+      { id: '0.5x', label: '0.5x', meta: 'Ultra-wide sensor', cropZoom: 1.0, hwZoom: 0.5, coatingWarmth: 0, coatingTint: 0, bloomBase: 10, vignetteBase: 18, chromaticAb: 0.35, edgeSoft: 0.03 },
+      { id: '1x', label: '1x', meta: 'Standard sensor', cropZoom: 1.28, hwZoom: 1.0, coatingWarmth: 0, coatingTint: 0, bloomBase: 12, vignetteBase: 14, chromaticAb: 0.15, edgeSoft: 0.01 },
+      { id: '2x', label: '2x', meta: 'Medium tele crop', cropZoom: 2.05, hwZoom: 2.0, coatingWarmth: 1, coatingTint: 0, bloomBase: 14, vignetteBase: 12, chromaticAb: 0.15, edgeSoft: 0.015 },
+      { id: '3x', label: '3x', meta: 'Telephoto crop', cropZoom: 2.95, hwZoom: 3.0, coatingWarmth: 1, coatingTint: 0, bloomBase: 16, vignetteBase: 12, chromaticAb: 0.15, edgeSoft: 0.02 }
+    ],
+    slr: [
+      { id: '28mm', label: '28mm', meta: 'Wide SLR angle', cropZoom: 1.0, brightlinePct: 100, coatingWarmth: 0, coatingTint: 0, bloomBase: 18, vignetteBase: 26, chromaticAb: 0.40, edgeSoft: 0.04 },
+      { id: '35mm', label: '35mm', meta: 'Street SLR focal', cropZoom: 1.25, brightlinePct: 100, coatingWarmth: 1, coatingTint: 0, bloomBase: 20, vignetteBase: 23, chromaticAb: 0.32, edgeSoft: 0.03 },
+      { id: '50mm', label: '50mm', meta: 'Classic standard prime', cropZoom: 1.79, brightlinePct: 100, coatingWarmth: 1, coatingTint: 0, bloomBase: 22, vignetteBase: 20, chromaticAb: 0.28, edgeSoft: 0.025 },
+      { id: '85mm', label: '85mm', meta: 'Portrait telephoto', cropZoom: 2.75, brightlinePct: 100, coatingWarmth: 2, coatingTint: 0, bloomBase: 28, vignetteBase: 22, chromaticAb: 0.25, edgeSoft: 0.03 }
+    ],
+    rangefinder: [
+      { id: '28mm', label: '28mm', meta: 'Outer brightlines', cropZoom: 1.136, brightlinePct: 88, coatingWarmth: 1, coatingTint: 0, bloomBase: 20, vignetteBase: 22, chromaticAb: 0.30, edgeSoft: 0.03 },
+      { id: '35mm', label: '35mm', meta: '35mm brightlines', cropZoom: 1.42, brightlinePct: 70.4, coatingWarmth: 1, coatingTint: 0, bloomBase: 24, vignetteBase: 19, chromaticAb: 0.22, edgeSoft: 0.02 },
+      { id: '50mm', label: '50mm', meta: '50mm brightlines', cropZoom: 2.03, brightlinePct: 49.3, coatingWarmth: 2, coatingTint: 0, bloomBase: 26, vignetteBase: 18, chromaticAb: 0.20, edgeSoft: 0.02 },
+      { id: '85mm', label: '85mm', meta: 'Tele brightlines', cropZoom: 3.125, brightlinePct: 32, coatingWarmth: 2, coatingTint: 0, bloomBase: 30, vignetteBase: 20, chromaticAb: 0.20, edgeSoft: 0.025 }
+    ],
+    'half-frame': [
+      { id: '28mm', label: '28mm', meta: 'Wide diptych frame', cropZoom: 1.0, coatingWarmth: 2, coatingTint: 0, bloomBase: 24, vignetteBase: 30, chromaticAb: 0.45, edgeSoft: 0.05 },
+      { id: '35mm', label: '35mm', meta: 'Standard diptych frame', cropZoom: 1.25, coatingWarmth: 2, coatingTint: 0, bloomBase: 26, vignetteBase: 26, chromaticAb: 0.38, edgeSoft: 0.04 }
+    ]
+  };
+
 
   const FILM_STOCKS = [
     { id: 'fuji-pro-400h', brand: 'fuji', brandLabel: 'FUJI', name: 'Pro 400H', subtitle: 'Pastel, xanh ngọc', iso: 400, canisterColor: 'linear-gradient(180deg,#10b981,#e5e7eb,#059669)', edgeCode: 'FUJI PRO 400H   24A', matrix: [0.96,0.03,0.01,-0.02,1.03,0.02,-0.01,0.04,1.01], shadowTint: [-10,14,12], midTint: [-3,6,3], highlightTint: [6,5,0], foliageShift: {gBoost:10,bShift:12,rShift:-12,satScale:0.94}, skyShift: {cyanBoost:14,bDepth:-4}, skinProtect: 0.72, saturation: 0.92, contrast: 0.96, blackLift: 0.04, grainBase: 28, grainSize: 1.15, halationBase: 12, isBW: false },
@@ -2443,13 +2760,14 @@
     fullSourceCanvas: SAMPLES[0].canvas,
     previewSourceCanvas: null,
     previewSourceData: null,
+    sourceIsDiptych: false,
     activeSampleId: SAMPLES[0].id,
     exif: null,
     analysis: null,
 
     phoneId: 'auto-detect',
-    bodyId: 'rollie-35',
-    lensId: 'rollei-sonnar-40',
+    bodyId: 'slr',
+    lensId: '50mm',
     filmId: 'fuji-pro-400h',
     filmBrandFilter: 'all',
     pickerTab: 'camera',
@@ -2460,8 +2778,8 @@
     warmth: 0,
     grain: 28,
     halation: 12,
-    bloom: 14,
-    vignette: 26,
+    bloom: 22,
+    vignette: 20,
     leakType: 'none',
     leakAmt: 0,
     frameType: 'none',
@@ -2488,6 +2806,9 @@
     camLockedEV: null,
     camMultipleExposure: false,
     camPendingExposures: [],
+    hfStep: 1,
+    hfFirstRawCanvas: null,
+    hfFirstPreviewCanvas: null,
     camShotCount: 0,
     camMaxShots: 36,
     camRollId: '',
@@ -2514,9 +2835,29 @@
     catch (error) {}
   }
 
+  function migrateModeId(oldId) {
+    if (VIEWFINDER_MODES.some(m => m.id === oldId)) return oldId;
+    if (oldId === 'leica-m6' || oldId === 'fuji-tx1') return 'rangefinder';
+    if (oldId === 'rollie-35' || oldId === 'contax-t2') return 'half-frame';
+    return 'slr';
+  }
+  function migrateFocalId(modeId, oldFocal) {
+    const list = FOCAL_OPTIONS_BY_MODE[modeId] || FOCAL_OPTIONS_BY_MODE.slr;
+    if (list.some(f => f.id === oldFocal)) return oldFocal;
+    return VIEWFINDER_MODES.find(m => m.id === modeId)?.defaultFocalId || list[0].id;
+  }
+
   try {
     const saved = localStorage.getItem('tees_lab_recipes_v1') || localStorage.getItem('rollies_lab_recipes_v1');
-    if (saved) state.recipes = JSON.parse(saved);
+    if (saved) {
+      state.recipes = JSON.parse(saved).map(r => {
+        const mId = migrateModeId(r.bodyId);
+        const fId = migrateFocalId(mId, r.lensId);
+        const mode = VIEWFINDER_MODES.find(m => m.id === mId) || VIEWFINDER_MODES[1];
+        const film = FILM_STOCKS.find(f => f.id === r.filmId) || FILM_STOCKS[0];
+        return { ...r, bodyId: mId, lensId: fId, name: `${mode.name} • ${fId} • ${film.name}` };
+      });
+    }
   } catch (e) {}
 
   const APP_STATE_KEY = 'tees-lab-state-v1';
@@ -2548,8 +2889,8 @@
     const database = await openRollDatabase();
     return new Promise((resolve, reject) => {
       const transaction = database.transaction(['camera-roll', 'camera-roll-files'], 'readwrite');
-      const { id, rollId, rollNumber, num, createdAt, filmName, thumbnailBlob, rawBlob, photoBlob } = shot;
-      transaction.objectStore('camera-roll').put({ id, rollId, rollNumber, num, createdAt, filmName, thumbnailBlob });
+      const { id, rollId, rollNumber, num, createdAt, filmName, isDiptych, thumbnailBlob, rawBlob, photoBlob } = shot;
+      transaction.objectStore('camera-roll').put({ id, rollId, rollNumber, num, createdAt, filmName, isDiptych: !!isDiptych, thumbnailBlob });
       transaction.objectStore('camera-roll-files').put({ id, rawBlob, photoBlob });
       transaction.oncomplete = () => resolve();
       transaction.onerror = () => reject(transaction.error || new Error('Could not save camera roll photo'));
@@ -2596,14 +2937,17 @@
     });
     state.phoneId = 'auto-detect';
     state.dateStamp = state.dateStamp && state.dateStamp !== 'off' ? 'exif-or-today' : 'off';
-    if (state.bodyId === 'olympus-mju') {
-      state.bodyId = 'contax-t2'; state.lensId = 'contax-t2-sonnar';
+    state.bodyId = migrateModeId(state.bodyId);
+    state.lensId = migrateFocalId(state.bodyId, state.lensId);
+    if (Array.isArray(snapshot.recipes)) {
+      state.recipes = snapshot.recipes.map(r => {
+        const mId = migrateModeId(r.bodyId);
+        const fId = migrateFocalId(mId, r.lensId);
+        const mode = VIEWFINDER_MODES.find(m => m.id === mId) || VIEWFINDER_MODES[1];
+        const film = FILM_STOCKS.find(f => f.id === r.filmId) || FILM_STOCKS[0];
+        return { ...r, bodyId: mId, lensId: fId, name: `${mode.name} • ${fId} • ${film.name}` };
+      });
     }
-    if (!CAMERA_BODIES.some(item => item.id === state.bodyId)) state.bodyId = 'contax-t2';
-    if (!CAMERA_LENSES.some(item => item.id === state.lensId)) {
-      state.lensId = CAMERA_BODIES.find(item => item.id === state.bodyId)?.defaultLensId || CAMERA_LENSES[0].id;
-    }
-    if (Array.isArray(snapshot.recipes)) state.recipes = snapshot.recipes;
     try {
       localStorage.setItem(APP_STATE_KEY, JSON.stringify(snapshot));
       localStorage.setItem('tees_lab_recipes_v1', JSON.stringify(state.recipes));
@@ -2640,73 +2984,73 @@
     el._t = setTimeout(() => el.classList.remove('show'), 2200);
   }
 
+  function getModeFocals(modeId) {
+    return FOCAL_OPTIONS_BY_MODE[modeId] || FOCAL_OPTIONS_BY_MODE.slr;
+  }
+
   function getSelectedGear() {
+    const mode = VIEWFINDER_MODES.find(m => m.id === state.bodyId) || VIEWFINDER_MODES[1];
+    const focals = getModeFocals(mode.id);
+    const focal = focals.find(f => f.id === state.lensId) || focals[0];
     return {
       phone: PHONE_PROFILES.find(p => p.id === state.phoneId) || PHONE_PROFILES[0],
-      body: CAMERA_BODIES.find(b => b.id === state.bodyId) || CAMERA_BODIES[0],
-      lens: CAMERA_LENSES.find(l => l.id === state.lensId) || CAMERA_LENSES[0],
+      body: mode,
+      lens: focal,
       film: FILM_STOCKS.find(f => f.id === state.filmId) || FILM_STOCKS[0]
     };
   }
 
   function shortLensLabel(lens) {
-    const shortMap = {
-      'helios-44': 'Helios 44-2',
-      'nikon-50-18': 'Nikkor 50 f1.8',
-      'canon-fd-50': 'FD 50 f1.4',
-      'olympus-zuiko-50': 'Zuiko 50 f1.8',
-      'pentax-k-50-12': 'Pentax 50 f1.2',
-      'minolta-rokkor-58-12': 'Rokkor 58 f1.2',
-      'leica-summilux-35': 'Lux 35 f1.4',
-      'leica-noctilux-50': 'Noctilux 50',
-      'hasselblad-planar-80': 'Planar 80 f2.8',
-      'fuji-xpan-45': 'XPan 45 f4',
-      'contax-t2-sonnar': 'Sonnar 38 f2.8',
-      'rollei-sonnar-40': 'Sonnar 40 f2.8'
-    };
-    if (shortMap[lens.id]) return shortMap[lens.id];
-    const m = lens.name.match(/(\d+mm\s*f\/[\d.]+)/i) || lens.meta.match(/(f\/[\d.]+)/i);
-    if (m && /\d+mm/i.test(m[1])) return m[1].replace(/\s+/g, ' ').replace('f/', 'f');
-    return lens.name.replace(/^(Carl Zeiss|Leica|Fujinon|Voigtländer|Nikkor|Canon FD|SMC Pentax-FA|SMC Pentax|G\.Zuiko|Zuiko|MC Rokkor|Zeiss)\s*/i, '').trim();
+    return lens.label || lens.id;
   }
 
   /* ==========================================================================
-     6. ROLLIE-STYLE TACTILE SVG ILLUSTRATIONS (CAMERA • LENS • FILM)
+     6. CLEAN VIEWFINDER & FOCAL SVG GRAPHICS + FILM CANISTERS
      ========================================================================== */
 
-  function svgCameraBody(bodyId) {
-    const styles = {
-      'rollie-35': { top: '#d1d5db', body: '#1f232a', accent: '#f5a623', badge: '#ef4444' },
-      'fuji-tx1': { top: '#c7b299', body: '#262930', accent: '#10b981', badge: '#f59e0b' },
-      'leica-m6': { top: '#181a20', body: '#121418', accent: '#ef4444', badge: '#ef4444' },
-      'contax-t2': { top: '#d6cfc2', body: '#b8b0a2', accent: '#d97706', badge: '#10b981' },
-      'hasselblad-500': { top: '#cfd4dc', body: '#17191e', accent: '#60a5fa', badge: '#f5a623' }
-    };
-    const st = styles[bodyId] || { top: '#d1d5db', body: '#1b1e24', accent: '#f5a623', badge: '#9ca3af' };
-    return `<svg viewBox="0 0 64 42" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="8" y="6" width="12" height="5" rx="1.5" fill="#9ca3af"/>
-      <rect x="44" y="5" width="10" height="6" rx="1.5" fill="#d1d5db"/>
-      <rect x="4" y="9" width="56" height="30" rx="5" fill="${st.body}" stroke="#4b5563" stroke-width="1.2"/>
-      <path d="M4 14C4 11.2386 6.23858 9 9 9H55C57.7614 9 60 11.2386 60 14V18H4V14Z" fill="${st.top}"/>
-      <rect x="10" y="12" width="9" height="4" rx="1" fill="#111827" stroke="#4b5563" stroke-width="0.8"/>
-      <circle cx="49" cy="14" r="2.2" fill="${st.badge}"/>
-      <circle cx="34" cy="25" r="11.5" fill="#111318" stroke="#9ca3af" stroke-width="1.8"/>
-      <circle cx="34" cy="25" r="8" fill="#090d16" stroke="${st.accent}" stroke-width="1"/>
-      <circle cx="31.5" cy="22.5" r="2.2" fill="rgba(255,255,255,0.45)"/>
+  function svgViewfinderMode(modeId) {
+    if (modeId === 'native') {
+      return `<svg viewBox="0 0 60 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="7" y="4" width="46" height="32" rx="4" fill="#141820" stroke="#9ca3af" stroke-width="1.4"/>
+        <path d="M12 12V9H16M48 12V9H44M12 28V31H16M48 28V31H44" stroke="#f5a623" stroke-width="1.4" stroke-linecap="round"/>
+        <circle cx="30" cy="20" r="3" stroke="#e5e7eb" stroke-width="1.2"/>
+        <text x="30" y="29.5" text-anchor="middle" fill="#cbd5e1" font-family="monospace" font-size="6.5" font-weight="700">4:3</text>
+      </svg>`;
+    }
+    if (modeId === 'slr') {
+      return `<svg viewBox="0 0 60 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="6" y="4" width="48" height="32" rx="3" fill="#141820" stroke="#9ca3af" stroke-width="1.4"/>
+        <circle cx="30" cy="20" r="8.5" stroke="#e5e7eb" stroke-width="1.3"/>
+        <circle cx="30" cy="20" r="4.5" stroke="#f5a623" stroke-width="1.1"/>
+        <line x1="25.5" y1="20" x2="34.5" y2="20" stroke="#f5a623" stroke-width="1.1"/>
+        <circle cx="48" cy="13" r="1.4" fill="#ef4444"/>
+        <circle cx="48" cy="20" r="1.6" fill="#22c55e"/>
+        <circle cx="48" cy="27" r="1.4" fill="#f59e0b"/>
+      </svg>`;
+    }
+    if (modeId === 'rangefinder') {
+      return `<svg viewBox="0 0 60 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="6" y="4" width="48" height="32" rx="3" fill="#0f131a" stroke="#6b7280" stroke-width="1.3"/>
+        <rect x="13" y="9" width="34" height="22" stroke="rgba(255,255,255,0.22)" stroke-width="0.9"/>
+        <path d="M13 14V9H19M41 9H47V14M13 26V31H19M41 31H47V26" stroke="#f5a623" stroke-width="1.6" stroke-linecap="round"/>
+        <rect x="26" y="17.5" width="8" height="5" fill="rgba(245,166,35,0.22)" stroke="#f5a623" stroke-width="1"/>
+      </svg>`;
+    }
+    return `<svg viewBox="0 0 60 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="6" y="4" width="22" height="32" rx="2.5" fill="#181c24" stroke="#f5a623" stroke-width="1.4"/>
+      <rect x="32" y="4" width="22" height="32" rx="2.5" fill="#12151c" stroke="#9ca3af" stroke-width="1.3" stroke-dasharray="3 2"/>
+      <text x="17" y="22.5" text-anchor="middle" fill="#f5a623" font-family="monospace" font-size="8" font-weight="800">1</text>
+      <text x="43" y="22.5" text-anchor="middle" fill="#9ca3af" font-family="monospace" font-size="8" font-weight="800">2</text>
     </svg>`;
   }
 
-  function svgLensBarrel(lensId) {
-    const isWarm = /voigt|helios|rokkor|noct|fd-85/i.test(lensId);
-    const ringColor = isWarm ? '#f5a623' : '#10b981';
-    return `<svg viewBox="0 0 54 42" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="31" cy="21" rx="14" ry="15" fill="#181b20" stroke="#4b5563" stroke-width="1.2"/>
-      <rect x="17" y="6" width="14" height="30" rx="3" fill="#232730" stroke="#4b5563" stroke-width="1"/>
-      <line x1="21" y1="7" x2="21" y2="35" stroke="${ringColor}" stroke-width="1.4"/>
-      <line x1="25" y1="8" x2="25" y2="34" stroke="#6b7280" stroke-width="1" stroke-dasharray="2 2"/>
-      <ellipse cx="17" cy="21" rx="11" ry="14" fill="#111317" stroke="#9ca3af" stroke-width="1.5"/>
-      <ellipse cx="17" cy="21" rx="7.5" ry="10" fill="#0b1320" stroke="${ringColor}" stroke-width="0.9"/>
-      <ellipse cx="15" cy="17.5" rx="2.5" ry="3.5" fill="rgba(147,197,253,0.45)"/>
+  function svgFocalBadge(focalObj) {
+    const label = escapeHtml(focalObj?.label || '50mm');
+    const isShort = label.length <= 3;
+    return `<svg viewBox="0 0 54 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="27" cy="20" r="17" fill="#141820" stroke="#4b5563" stroke-width="1.4"/>
+      <circle cx="27" cy="20" r="13.5" stroke="#f5a623" stroke-opacity="0.65" stroke-width="1" stroke-dasharray="3 2"/>
+      <text x="27" y="23" text-anchor="middle" fill="#f3f4f6" font-family="monospace" font-size="${isShort ? 10.5 : 9}" font-weight="800">${label}</text>
     </svg>`;
   }
 
@@ -2731,33 +3075,33 @@
 
   window.__gearImgErr = function(img) {
     if (!img || !img.parentElement) return;
-    const folder = img.dataset.folder;
     const id = img.dataset.id;
-    let fallback = '';
-    if (folder === 'bodies') fallback = svgCameraBody(id);
-    else if (folder === 'lenses') fallback = svgLensBarrel(id);
-    else {
-      const film = FILM_STOCKS.find(f => f.id === id) || { brand: 'fuji' };
-      fallback = svgFilmCanister(film);
-    }
+    const film = FILM_STOCKS.find(f => f.id === id) || { brand: 'fuji' };
     delete img.parentElement.dataset.gearKey;
-    img.parentElement.innerHTML = fallback;
+    img.parentElement.innerHTML = svgFilmCanister(film);
   };
 
-  function renderGearArt(folder, id, alt) {
-    const safeFolder = escapeHtml(folder);
+  function renderFilmArt(id, alt) {
     const safeId = escapeHtml(id);
     const safeAlt = escapeHtml(alt || id);
-    return `<img src="./assets/gear/${safeFolder}/${safeId}.webp" alt="${safeAlt}" data-folder="${safeFolder}" data-id="${safeId}" loading="eager" decoding="async" onerror="window.__gearImgErr(this)" />`;
+    return `<img src="./assets/gear/films/${safeId}.webp" alt="${safeAlt}" data-folder="films" data-id="${safeId}" loading="eager" decoding="async" onerror="window.__gearImgErr(this)" />`;
   }
 
-  function setGearArt(elId, folder, gearId, alt) {
+  function setArtSvg(elId, key, svgHtml) {
     const el = document.getElementById(elId);
     if (!el) return;
-    const key = `${folder}/${gearId}`;
     if (el.dataset.gearKey === key) return;
     el.dataset.gearKey = key;
-    el.innerHTML = renderGearArt(folder, gearId, alt);
+    el.innerHTML = svgHtml;
+  }
+
+  function setFilmArt(elId, filmId, alt) {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    const key = `films/${filmId}`;
+    if (el.dataset.gearKey === key) return;
+    el.dataset.gearKey = key;
+    el.innerHTML = renderFilmArt(filmId, alt);
   }
 
   function formatDateStamp() {
@@ -2770,8 +3114,60 @@
     return `'${String(d.getFullYear()).slice(2)} ${String(d.getMonth() + 1).padStart(2, '0')} ${String(d.getDate()).padStart(2, '0')}`;
   }
 
-  function loadSourceCanvas(srcCanvas, exifData = null) {
+  function drawCroppedSource(targetCtx, source, outW, outH, targetRatio, zoomFactor = 1.0) {
+    const srcW = source.videoWidth || source.width || outW;
+    const srcH = source.videoHeight || source.height || outH;
+    const srcRatio = srcW / srcH;
+    let sw = srcW, sh = srcH;
+    if (srcRatio > targetRatio) sw = srcH * targetRatio;
+    else sh = srcW / targetRatio;
+    const z = Math.max(1.0, zoomFactor || 1.0);
+    sw /= z;
+    sh /= z;
+    const sx = (srcW - sw) / 2;
+    const sy = (srcH - sh) / 2;
+    targetCtx.drawImage(source, sx, sy, sw, sh, 0, 0, outW, outH);
+  }
+
+  function getLabTargetDimensions(srcCanvas, maxDim) {
+    const { body, lens } = getSelectedGear();
+    if (state.sourceIsDiptych) {
+      const s = Math.min(1, maxDim / Math.max(srcCanvas.width, srcCanvas.height));
+      return {
+        w: Math.max(100, Math.round(srcCanvas.width * s)),
+        h: Math.max(100, Math.round(srcCanvas.height * s)),
+        ratio: srcCanvas.width / srcCanvas.height,
+        zoom: 1.0
+      };
+    }
+    let ratio = body.aspect;
+    if (body.id !== 'half-frame' && srcCanvas.height > srcCanvas.width) {
+      ratio = 1 / body.aspect;
+    }
+    const zoom = lens.cropZoom || 1.0;
+    let w, h;
+    if (ratio >= 1) {
+      w = Math.min(maxDim, Math.max(180, Math.round(maxDim)));
+      h = Math.max(120, Math.round(w / ratio));
+    } else {
+      h = Math.min(maxDim, Math.max(180, Math.round(maxDim)));
+      w = Math.max(120, Math.round(h * ratio));
+    }
+    return { w, h, ratio, zoom };
+  }
+
+  function buildLabCroppedCanvas(srcCanvas, maxDim) {
+    const { w, h, ratio, zoom } = getLabTargetDimensions(srcCanvas, maxDim);
+    const c = document.createElement('canvas');
+    c.width = w;
+    c.height = h;
+    drawCroppedSource(c.getContext('2d'), srcCanvas, w, h, ratio, zoom);
+    return c;
+  }
+
+  function loadSourceCanvas(srcCanvas, exifData = null, opts = {}) {
     state.fullSourceCanvas = srcCanvas;
+    state.sourceIsDiptych = !!opts.isDiptych;
     state.exif = exifData;
     const openSamplesBtn = document.getElementById('btnOpenSamples');
     if (openSamplesBtn) openSamplesBtn.style.display = SAMPLES.some(x => x.canvas === srcCanvas) ? '' : 'none';
@@ -2802,10 +3198,11 @@
   }
 
   async function renderPreview() {
-    if (!state.previewSourceData) return;
+    if (!state.previewSourceCanvas) return;
     const requestVersion = ++previewRequestVersion;
-    const sourceCanvas = state.previewSourceCanvas;
-    const sourceData = state.previewSourceData;
+    const maxDim = window.matchMedia('(max-width: 700px)').matches ? 680 : 860;
+    const sourceCanvas = buildLabCroppedCanvas(state.previewSourceCanvas, maxDim);
+    const sourceData = sourceCanvas.getContext('2d').getImageData(0, 0, sourceCanvas.width, sourceCanvas.height);
     const frameType = state.frameType;
     const { phone, body, lens, film } = getSelectedGear();
 
@@ -2846,13 +3243,13 @@
       }
 
       const lensShort = shortLensLabel(lens);
-      document.getElementById('liveGearBadge').innerHTML = `${escapeHtml(body.name)} — ${escapeHtml(lensShort)} — <strong>${escapeHtml(film.name)}</strong>`;
+      document.getElementById('liveGearBadge').innerHTML = `${escapeHtml(body.name)} (${escapeHtml(body.formatLabel)}) — ${escapeHtml(lensShort)} — <strong>${escapeHtml(film.name)}</strong>`;
       output.bitmap?.close();
     } catch (error) { console.error('Preview rendering failed', error); }
   }
 
   /* ==========================================================================
-     7. ROLLIE COMBO CARDS, CLAPPER SHEET & COMPACT LAB RENDERERS
+     7. VIEWFINDER MODE CARDS, CLAPPER SHEET & COMPACT LAB RENDERERS
      ========================================================================== */
 
   function renderComboCards() {
@@ -2863,24 +3260,24 @@
     document.getElementById('labCardBodyName').textContent = body.name;
     document.getElementById('labCardLensName').textContent = lensShort;
     document.getElementById('labCardFilmName').textContent = film.name;
-    setGearArt('labCardBodyArt', 'bodies', body.id, body.name);
-    setGearArt('labCardLensArt', 'lenses', lens.id, lensShort);
-    setGearArt('labCardFilmArt', 'films', film.id, film.name);
+    setArtSvg('labCardBodyArt', `vf/${body.id}`, svgViewfinderMode(body.id));
+    setArtSvg('labCardLensArt', `focal/${body.id}/${lens.id}`, svgFocalBadge(lens));
+    setFilmArt('labCardFilmArt', film.id, film.name);
 
     // Camera 3-card deck
     document.getElementById('camCardBodyName').textContent = body.name;
     document.getElementById('camCardLensName').textContent = lensShort;
     document.getElementById('camCardFilmName').textContent = film.name;
-    setGearArt('camCardBodyArt', 'bodies', body.id, body.name);
-    setGearArt('camCardLensArt', 'lenses', lens.id, lensShort);
-    setGearArt('camCardFilmArt', 'films', film.id, film.name);
+    setArtSvg('camCardBodyArt', `vf/${body.id}`, svgViewfinderMode(body.id));
+    setArtSvg('camCardLensArt', `focal/${body.id}/${lens.id}`, svgFocalBadge(lens));
+    setFilmArt('camCardFilmArt', film.id, film.name);
 
     // Clapperboard summary inside Combo Picker Sheet & Stage caption
     document.getElementById('clapperBodyVal').textContent = body.name;
     document.getElementById('clapperLensVal').textContent = lensShort;
     document.getElementById('clapperFilmVal').textContent = film.name;
     const liveBadge = document.getElementById('liveGearBadge');
-    if (liveBadge) liveBadge.innerHTML = `${escapeHtml(body.name)} — ${escapeHtml(lensShort)} — <strong>${escapeHtml(film.name)}</strong>`;
+    if (liveBadge) liveBadge.innerHTML = `${escapeHtml(body.name)} (${escapeHtml(body.formatLabel)}) — ${escapeHtml(lensShort)} — <strong>${escapeHtml(film.name)}</strong>`;
     const shotNum = String(Math.max(1, state.camShotCount || 1)).padStart(2, '0');
     const rollNum = String(Math.max(1, state.camRollNumber || 1)).padStart(2, '0');
     document.getElementById('clapperSceneLabel').textContent = `SCENE ${shotNum} · ROLL ${rollNum}`;
@@ -2905,67 +3302,63 @@
 
   function renderComboPickerSheet() {
     const { body, lens } = getSelectedGear();
-    const bodyIdx = Math.max(0, CAMERA_BODIES.findIndex(b => b.id === state.bodyId)) + 1;
-    const lensIdx = Math.max(0, CAMERA_LENSES.findIndex(l => l.id === state.lensId)) + 1;
-    document.getElementById('pickerBodyCount').innerHTML = `<strong>${String(bodyIdx).padStart(2, '0')}</strong>/${CAMERA_BODIES.length}`;
-    document.getElementById('pickerLensCount').innerHTML = `<strong>${String(lensIdx).padStart(2, '0')}</strong>/${CAMERA_LENSES.length}`;
+    const focals = getModeFocals(body.id);
+    const modeIdx = Math.max(0, VIEWFINDER_MODES.findIndex(m => m.id === body.id)) + 1;
+    const focalIdx = Math.max(0, focals.findIndex(l => l.id === lens.id)) + 1;
+    document.getElementById('pickerBodyCount').innerHTML = `<strong>${String(modeIdx).padStart(2, '0')}</strong>/${VIEWFINDER_MODES.length}`;
+    document.getElementById('pickerLensCount').innerHTML = `<strong>${String(focalIdx).padStart(2, '0')}</strong>/${focals.length}`;
 
-    const warmthTag = body.bodyWarmth > 0 ? `+${body.bodyWarmth} Warm` : (body.bodyWarmth < 0 ? `${body.bodyWarmth} Cool` : 'Neutral');
     document.getElementById('pickerBodyEffect').textContent = body.meta;
-    document.getElementById('pickerBodyStat').textContent = `Contrast ${body.contrast.toFixed(2)} · ${warmthTag}`;
+    document.getElementById('pickerBodyStat').textContent = body.formatLabel;
 
-    const lensGlowTag = lens.edgeSoft >= 0.1 ? 'Dreamy edge' : (lens.bloomBase >= 30 ? 'Strong glow' : 'Clean edge');
-    document.getElementById('pickerLensEffect').textContent = `${lens.name} · ${lensGlowTag}`;
-    document.getElementById('pickerLensStat').textContent = `Bloom ${lens.bloomBase} · Vig ${lens.vignetteBase}`;
+    document.getElementById('pickerLensEffect').textContent = `${lens.label} · ${lens.meta}`;
+    document.getElementById('pickerLensStat').textContent = body.id === 'rangefinder'
+      ? `Brightline ${Math.round(lens.brightlinePct)}%`
+      : (body.id === 'native' ? `Zoom ${lens.label}` : `Crop ${lens.cropZoom.toFixed(2)}x`);
 
-    // 1. Camera Bodies Track (build once, toggle active class in place so scroll stays smooth)
+    // 1. Viewfinder Modes Track
     const bodyTrack = document.getElementById('pickerBodyTrack');
-    if (bodyTrack.childElementCount !== CAMERA_BODIES.length) {
+    if (bodyTrack.childElementCount !== VIEWFINDER_MODES.length) {
       bodyTrack.innerHTML = '';
-      CAMERA_BODIES.forEach(b => {
+      VIEWFINDER_MODES.forEach(m => {
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.dataset.id = b.id;
+        btn.dataset.id = m.id;
         btn.className = 'picker-tile';
         btn.innerHTML = `
-          <div class="combo-card-art">${renderGearArt('bodies', b.id, b.name)}</div>
-          <span class="picker-tile-name">${escapeHtml(b.name)}</span>
-          <span class="picker-tile-sub">${escapeHtml(b.meta)}</span>
+          <div class="combo-card-art">${svgViewfinderMode(m.id)}</div>
+          <span class="picker-tile-name">${escapeHtml(m.name)}</span>
+          <span class="picker-tile-sub">${escapeHtml(m.formatLabel)}</span>
         `;
-        btn.addEventListener('click', () => selectCameraBody(b.id));
+        btn.addEventListener('click', () => selectViewfinderMode(m.id));
         bodyTrack.appendChild(btn);
       });
     }
     Array.from(bodyTrack.children).forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.id === state.bodyId);
+      btn.classList.toggle('active', btn.dataset.id === body.id);
     });
 
-    // 2. Lenses Track (build once, toggle active class in place)
+    // 2. Mode-Specific Focal Options Track (rebuilds when viewfinder mode changes)
     const lensTrack = document.getElementById('pickerLensTrack');
-    if (lensTrack.childElementCount !== CAMERA_LENSES.length) {
+    if (lensTrack.dataset.mode !== body.id) {
+      lensTrack.dataset.mode = body.id;
       lensTrack.innerHTML = '';
-      CAMERA_LENSES.forEach(l => {
+      focals.forEach(f => {
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.dataset.id = l.id;
+        btn.dataset.id = f.id;
         btn.className = 'picker-tile';
         btn.innerHTML = `
-          <div class="combo-card-art">${renderGearArt('lenses', l.id, shortLensLabel(l))}</div>
-          <span class="picker-tile-name">${escapeHtml(shortLensLabel(l))}</span>
-          <span class="picker-tile-sub">${escapeHtml(l.meta)}</span>
+          <div class="combo-card-art">${svgFocalBadge(f)}</div>
+          <span class="picker-tile-name">${escapeHtml(f.label)}</span>
+          <span class="picker-tile-sub">${escapeHtml(f.meta)}</span>
         `;
-        btn.addEventListener('click', () => {
-          state.lensId = l.id;
-          state.bloom = l.bloomBase;
-          state.vignette = l.vignetteBase;
-          syncAllUI();
-          renderPreview();
-        });
+        btn.addEventListener('click', () => selectFocalOption(f.id));
         lensTrack.appendChild(btn);
       });
     }
     Array.from(lensTrack.children).forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.id === state.lensId);
+      btn.classList.toggle('active', btn.dataset.id === lens.id);
     });
 
     // 3. Film Stocks Track (preserve scrollLeft across selection; rebuild only when brand filter changes)
@@ -2989,7 +3382,7 @@
         btn.dataset.id = f.id;
         btn.className = 'picker-tile';
         btn.innerHTML = `
-          <div class="combo-card-art">${renderGearArt('films', f.id, f.name)}</div>
+          <div class="combo-card-art">${renderFilmArt(f.id, f.name)}</div>
           <span class="picker-tile-name">${escapeHtml(f.name)}</span>
           <span class="picker-tile-sub">${escapeHtml(f.subtitle)}</span>
         `;
@@ -3095,12 +3488,15 @@
       chip.className = 'recipe-chip';
       chip.innerHTML = `<button class="btn-use" type="button" style="font-weight:700;color:#f5a623;">${escapeHtml(r.name)}</button><button class="btn-del" type="button" style="color:var(--danger);font-weight:700;">×</button>`;
       chip.querySelector('.btn-use').addEventListener('click', () => {
+        const mId = migrateModeId(r.bodyId);
+        const fId = migrateFocalId(mId, r.lensId);
         Object.assign(state, {
-          phoneId: 'auto-detect', bodyId: r.bodyId, lensId: r.lensId, filmId: r.filmId,
+          phoneId: 'auto-detect', bodyId: mId, lensId: fId, filmId: r.filmId,
           strength: r.strength, exposure: r.exposure, warmth: r.warmth, grain: r.grain,
           halation: r.halation, bloom: r.bloom, vignette: r.vignette,
           leakType: r.leakType, leakAmt: r.leakAmt, frameType: r.frameType, dateStamp: r.dateStamp && r.dateStamp !== 'off' ? 'exif-or-today' : 'off'
         });
+        resetHalfFramePending();
         syncAllUI();
         renderPreview();
         showToast(`Applied: ${r.name}`);
@@ -3138,6 +3534,12 @@
     });
   }
 
+  function resetHalfFramePending() {
+    state.hfStep = 1;
+    state.hfFirstRawCanvas = null;
+    state.hfFirstPreviewCanvas = null;
+  }
+
   function selectFilmStock(filmId) {
     state.filmId = filmId;
     const f = FILM_STOCKS.find(x => x.id === filmId);
@@ -3147,16 +3549,30 @@
     renderPreview();
   }
 
-  function selectCameraBody(bodyId) {
-    state.bodyId = bodyId;
-    const body = CAMERA_BODIES.find(item => item.id === bodyId);
-    const matchedLens = body && CAMERA_LENSES.find(item => item.id === body.defaultLensId);
-    if (matchedLens) {
-      state.lensId = matchedLens.id;
-      state.bloom = matchedLens.bloomBase;
-      state.vignette = matchedLens.vignetteBase;
-    }
+  function selectFocalOption(focalId) {
+    const modeId = state.bodyId;
+    const focals = getModeFocals(modeId);
+    const matched = focals.find(f => f.id === focalId) || focals[0];
+    state.lensId = matched.id;
+    state.bloom = matched.bloomBase;
+    state.vignette = matched.vignetteBase;
     syncAllUI();
+    scheduleCameraSettingsApply();
+    renderPreview();
+  }
+
+  function selectViewfinderMode(modeId) {
+    const mode = VIEWFINDER_MODES.find(m => m.id === modeId) || VIEWFINDER_MODES[1];
+    state.bodyId = mode.id;
+    const focals = getModeFocals(mode.id);
+    const keepCurrent = focals.find(f => f.id === state.lensId);
+    const nextFocal = keepCurrent || focals.find(f => f.id === mode.defaultFocalId) || focals[0];
+    state.lensId = nextFocal.id;
+    state.bloom = nextFocal.bloomBase;
+    state.vignette = nextFocal.vignetteBase;
+    if (mode.id !== 'half-frame') resetHalfFramePending();
+    syncAllUI();
+    scheduleCameraSettingsApply();
     renderPreview();
   }
 
@@ -3168,24 +3584,17 @@
   }
 
   /* ==========================================================================
-     8. ROLLIE 35MM CAMERA VIEWFINDER & AUTO FILM ADVANCE
+     8. VIEWFINDER CAMERA ENGINE (NATIVE • SLR • RANGEFINDER • HALF-FRAME)
      ========================================================================== */
 
   const vfCanvas = document.getElementById('cameraViewfinderCanvas');
   const camVideo = document.getElementById('camVideo');
 
   const SHUTTER_SOUND_PROFILES = {
-    'rollie-35': { level: 1.0, clickFreq: 3300, clickLevel: 0.18, impactDelay: 0.004, impactDuration: 0.038, impactFreq: 1450, impactLevel: 0.30, curtainDelay: 0.014, curtainFreq: 2550, curtainLevel: 0.16, returnDelay: 0.070, returnFreq: 3100, returnLevel: 0.12, bodyFreq: 168, bodyLevel: 0.07, bodyTail: 0.075 },
-    'fuji-tx1': { level: 0.98, clickFreq: 3700, clickLevel: 0.20, impactDelay: 0.003, impactDuration: 0.032, impactFreq: 1750, impactLevel: 0.26, curtainDelay: 0.012, curtainFreq: 2850, curtainLevel: 0.17, returnDelay: 0.062, returnFreq: 3400, returnLevel: 0.10, bodyFreq: 185, bodyLevel: 0.055, bodyTail: 0.065 },
-    'leica-m6': { level: 1.02, clickFreq: 3100, clickLevel: 0.15, impactDelay: 0.008, impactDuration: 0.052, impactFreq: 680, impactLevel: 0.31, curtainDelay: 0.030, curtainFreq: 2050, curtainLevel: 0.20, returnDelay: 0.098, returnFreq: 2750, returnLevel: 0.11, bodyFreq: 118, bodyLevel: 0.075, bodyTail: 0.11 },
-    'contax-t2': { level: 0.98, clickFreq: 3900, clickLevel: 0.18, impactDelay: 0.003, impactDuration: 0.034, impactFreq: 1950, impactLevel: 0.25, curtainDelay: 0.017, curtainFreq: 3200, curtainLevel: 0.18, returnDelay: 0.075, returnFreq: 3600, returnLevel: 0.09, bodyFreq: 205, bodyLevel: 0.05, bodyTail: 0.062 },
-    'hasselblad-500': { level: 1.42, clickFreq: 2800, clickLevel: 0.19, impactDelay: 0.004, impactDuration: 0.075, impactFreq: 560, impactLevel: 0.48, curtainDelay: 0.022, curtainFreq: 2250, curtainLevel: 0.23, returnDelay: 0.115, returnFreq: 2450, returnLevel: 0.22, bodyFreq: 104, bodyLevel: 0.15, bodyTail: 0.17 },
-    'nikon-f2': { level: 1.34, clickFreq: 3050, clickLevel: 0.18, impactDelay: 0.004, impactDuration: 0.067, impactFreq: 720, impactLevel: 0.48, curtainDelay: 0.020, curtainFreq: 2380, curtainLevel: 0.25, returnDelay: 0.096, returnFreq: 2950, returnLevel: 0.19, bodyFreq: 126, bodyLevel: 0.13, bodyTail: 0.14 },
-    'nikon-fm2': { level: 1.30, clickFreq: 3900, clickLevel: 0.22, impactDelay: 0.003, impactDuration: 0.048, impactFreq: 1120, impactLevel: 0.40, curtainDelay: 0.014, curtainFreq: 3500, curtainLevel: 0.31, returnDelay: 0.073, returnFreq: 3800, returnLevel: 0.16, bodyFreq: 154, bodyLevel: 0.10, bodyTail: 0.10 },
-    'canon-ae1': { level: 1.22, clickFreq: 3250, clickLevel: 0.18, impactDelay: 0.006, impactDuration: 0.060, impactFreq: 760, impactLevel: 0.42, curtainDelay: 0.024, curtainFreq: 2350, curtainLevel: 0.22, returnDelay: 0.102, returnFreq: 2950, returnLevel: 0.14, bodyFreq: 112, bodyLevel: 0.12, bodyTail: 0.14 },
-    'pentax-k1000': { level: 1.20, clickFreq: 3000, clickLevel: 0.19, impactDelay: 0.004, impactDuration: 0.065, impactFreq: 640, impactLevel: 0.45, curtainDelay: 0.018, curtainFreq: 2250, curtainLevel: 0.24, returnDelay: 0.094, returnFreq: 2700, returnLevel: 0.18, bodyFreq: 108, bodyLevel: 0.13, bodyTail: 0.14 },
-    'olympus-om1': { level: 1.08, clickFreq: 3500, clickLevel: 0.18, impactDelay: 0.004, impactDuration: 0.052, impactFreq: 880, impactLevel: 0.34, curtainDelay: 0.016, curtainFreq: 2750, curtainLevel: 0.20, returnDelay: 0.082, returnFreq: 3250, returnLevel: 0.14, bodyFreq: 145, bodyLevel: 0.09, bodyTail: 0.105 },
-    'minolta-srt101': { level: 1.24, clickFreq: 2950, clickLevel: 0.17, impactDelay: 0.006, impactDuration: 0.069, impactFreq: 620, impactLevel: 0.46, curtainDelay: 0.026, curtainFreq: 2200, curtainLevel: 0.24, returnDelay: 0.108, returnFreq: 2800, returnLevel: 0.17, bodyFreq: 110, bodyLevel: 0.14, bodyTail: 0.15 }
+    native: { level: 0.90, clickFreq: 4200, clickLevel: 0.16, impactDelay: 0.002, impactDuration: 0.024, impactFreq: 2100, impactLevel: 0.18, curtainDelay: 0.010, curtainFreq: 3400, curtainLevel: 0.12, returnDelay: 0.048, returnFreq: 3900, returnLevel: 0.06, bodyFreq: 240, bodyLevel: 0.035, bodyTail: 0.045 },
+    slr: { level: 1.32, clickFreq: 3600, clickLevel: 0.21, impactDelay: 0.003, impactDuration: 0.056, impactFreq: 980, impactLevel: 0.44, curtainDelay: 0.016, curtainFreq: 3100, curtainLevel: 0.28, returnDelay: 0.082, returnFreq: 3450, returnLevel: 0.17, bodyFreq: 138, bodyLevel: 0.11, bodyTail: 0.12 },
+    rangefinder: { level: 1.02, clickFreq: 3150, clickLevel: 0.16, impactDelay: 0.007, impactDuration: 0.046, impactFreq: 720, impactLevel: 0.28, curtainDelay: 0.026, curtainFreq: 2150, curtainLevel: 0.19, returnDelay: 0.088, returnFreq: 2800, returnLevel: 0.11, bodyFreq: 122, bodyLevel: 0.07, bodyTail: 0.095 },
+    'half-frame': { level: 1.04, clickFreq: 3800, clickLevel: 0.19, impactDelay: 0.003, impactDuration: 0.036, impactFreq: 1650, impactLevel: 0.27, curtainDelay: 0.014, curtainFreq: 2950, curtainLevel: 0.18, returnDelay: 0.065, returnFreq: 3500, returnLevel: 0.10, bodyFreq: 195, bodyLevel: 0.06, bodyTail: 0.068 }
   };
 
   function playShutterSound() {
@@ -3195,7 +3604,7 @@
       const ctx = state.audioCtx;
       const play = () => {
         const now = ctx.currentTime + 0.004;
-        const sound = SHUTTER_SOUND_PROFILES[state.bodyId] || SHUTTER_SOUND_PROFILES['nikon-fm2'];
+        const sound = SHUTTER_SOUND_PROFILES[state.bodyId] || SHUTTER_SOUND_PROFILES.slr;
         const noiseClick = (offset, duration, frequency, q, peak) => {
           const length = Math.max(1, Math.floor(ctx.sampleRate * duration));
           const buffer = ctx.createBuffer(1, length, ctx.sampleRate);
@@ -3237,6 +3646,85 @@
     return state.exposure / 100 + (state.camAppliedHardware?.exposureCompensation ? 0 : state.camExposureEV);
   }
 
+  function layoutViewfinderStage() {
+    const box = document.getElementById('camVfBox');
+    const stage = document.getElementById('vfStage');
+    if (!box || !stage) return;
+    const { body, lens } = getSelectedGear();
+    stage.dataset.vfMode = body.id;
+
+    const targetRatio = body.id === 'native' ? (4 / 3) : (3 / 2);
+    const bw = box.clientWidth;
+    const bh = box.clientHeight;
+    if (bw > 20 && bh > 20) {
+      let w = bw;
+      let h = w / targetRatio;
+      if (h > bh) {
+        h = bh;
+        w = h * targetRatio;
+      }
+      stage.style.width = `${Math.round(w)}px`;
+      stage.style.height = `${Math.round(h)}px`;
+    }
+
+    if (body.id === 'rangefinder') {
+      const bl = document.getElementById('vfRfBrightline');
+      const ft = document.getElementById('vfRfFocalTag');
+      const pct = lens.brightlinePct || 70.4;
+      if (bl) {
+        bl.style.width = `${pct}%`;
+        bl.style.height = `${pct}%`;
+      }
+      if (ft) ft.textContent = lens.label;
+    }
+
+    if (body.id === 'slr') {
+      const ev = Number(state.camExposureEV) || 0;
+      const activeLed = ev >= 1.15 ? 'over2' : (ev >= 0.4 ? 'over1' : (ev <= -1.15 ? 'under2' : (ev <= -0.4 ? 'under1' : 'ok')));
+      document.querySelectorAll('#vfSlrLedBar .vf-led-row').forEach(row => {
+        row.classList.toggle('lit', row.dataset.led === activeLed);
+      });
+    }
+
+    if (body.id === 'half-frame') {
+      const leftSlot = document.getElementById('vfHfLeft');
+      const rightSlot = document.getElementById('vfHfRight');
+      const leftBadge = document.getElementById('vfHfLeftBadge');
+      const rightBadge = document.getElementById('vfHfRightBadge');
+      if (state.hfStep === 2) {
+        leftSlot?.classList.remove('active-live', 'waiting');
+        leftSlot?.classList.add('locked');
+        rightSlot?.classList.remove('waiting', 'locked');
+        rightSlot?.classList.add('active-live');
+        if (leftBadge) leftBadge.textContent = '1/2 HELD';
+        if (rightBadge) rightBadge.textContent = 'FRAME 2/2';
+      } else {
+        leftSlot?.classList.remove('locked', 'waiting');
+        leftSlot?.classList.add('active-live');
+        rightSlot?.classList.remove('active-live', 'locked');
+        rightSlot?.classList.add('waiting');
+        if (leftBadge) leftBadge.textContent = 'FRAME 1/2';
+        if (rightBadge) rightBadge.textContent = '2/2 NEXT';
+      }
+    }
+  }
+
+  function renderViewfinderFocalPills() {
+    const wrap = document.getElementById('vfFocalPills');
+    if (!wrap) return;
+    const { body, lens } = getSelectedGear();
+    const focals = getModeFocals(body.id);
+    wrap.innerHTML = '';
+    focals.forEach(f => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = `vf-focal-btn ${f.id === lens.id ? 'active' : ''}`;
+      btn.textContent = f.label;
+      btn.addEventListener('click', () => selectFocalOption(f.id));
+      wrap.appendChild(btn);
+    });
+  }
+
   function syncCameraHudUI() {
     const frame = Math.min((state.camShotCount || 0) + 1, state.camMaxShots);
     const counterEl = document.getElementById('camRollCounter');
@@ -3256,6 +3744,11 @@
       frameBtn.classList.toggle('active', state.frameType !== 'none');
     }
 
+    const retakeBtn = document.getElementById('btnVfHalfRetake');
+    if (retakeBtn) {
+      retakeBtn.style.display = state.bodyId === 'half-frame' && state.hfStep === 2 ? '' : 'none';
+    }
+
     const evSlider = document.getElementById('camExposureControl');
     const evBadge = document.getElementById('camExposureValue');
     if (evSlider) evSlider.value = state.camExposureEV;
@@ -3264,6 +3757,9 @@
       evBadge.textContent = `${val > 0 ? '+' : ''}${val.toFixed(1)}`;
       evBadge.classList.toggle('active', Math.abs(val) > 0.04);
     }
+
+    renderViewfinderFocalPills();
+    layoutViewfinderStage();
   }
 
   let cameraSettingsTimer = 0;
@@ -3286,9 +3782,16 @@
       const max = capabilities.exposureCompensation.max ?? 2;
       advanced.exposureCompensation = Math.max(min, Math.min(max, Number(state.camExposureEV) || 0));
     }
-    const selectedFilm = FILM_STOCKS.find(item => item.id === state.filmId) || FILM_STOCKS[0];
+    const { body, lens, film } = getSelectedGear();
     if (capabilities.iso && Number.isFinite(capabilities.iso.min) && Number.isFinite(capabilities.iso.max)) {
-      advanced.iso = Math.max(capabilities.iso.min, Math.min(capabilities.iso.max, selectedFilm.iso));
+      advanced.iso = Math.max(capabilities.iso.min, Math.min(capabilities.iso.max, film.iso));
+    }
+    if (body.id === 'native' && capabilities.zoom && Number.isFinite(lens.hwZoom)) {
+      const zMin = capabilities.zoom.min ?? 1;
+      const zMax = capabilities.zoom.max ?? 3;
+      if (lens.hwZoom >= zMin && lens.hwZoom <= zMax) {
+        advanced.zoom = lens.hwZoom;
+      }
     }
     state.camAppliedHardware = {};
     if (Object.keys(advanced).length) {
@@ -3330,28 +3833,60 @@
 
   function startCameraLoop() {
     if (state.camAnimId) return;
-    vfCanvas.width = 420; vfCanvas.height = 280;
-    const tmp = document.createElement('canvas'); tmp.width = 420; tmp.height = 280;
+    const tmp = document.createElement('canvas');
     const tCtx = tmp.getContext('2d'), vfCtx = vfCanvas.getContext('2d');
     let last = 0;
     const loop = (ts) => {
       state.camAnimId = requestAnimationFrame(loop);
       if (ts - last < 55) return;
       last = ts;
-      if (state.camStream && camVideo.readyState >= 2) {
-        const vw = camVideo.videoWidth || 420, vh = camVideo.videoHeight || 280, tr = 3/2, sr = vw/vh;
-        let sx = 0, sy = 0, sw = vw, sh = vh;
-        if (sr > tr) { sw = vh * tr; sx = (vw - sw) / 2; } else { sh = vw / tr; sy = (vh - sh) / 2; }
-        tCtx.drawImage(camVideo, sx, sy, sw, sh, 0, 0, 420, 280);
-      } else if (state.previewSourceCanvas) {
-        // Fallback live simulation using current loaded photo so viewfinder is always vivid
-        tCtx.drawImage(state.previewSourceCanvas, 0, 0, 420, 280);
-      } else {
+
+      const hasLiveVideo = !!(state.camStream && camVideo.readyState >= 2);
+      const src = hasLiveVideo ? camVideo : state.previewSourceCanvas;
+      if (!src) return;
+
+      const { phone, body, lens, film } = getSelectedGear();
+      const targetW = body.id === 'native' ? 400 : 420;
+      const targetH = body.id === 'native' ? 300 : 280;
+      if (vfCanvas.width !== targetW || vfCanvas.height !== targetH) {
+        vfCanvas.width = targetW;
+        vfCanvas.height = targetH;
+      }
+
+      if (body.id === 'half-frame') {
+        const slotW = 206, slotH = 280;
+        if (tmp.width !== slotW || tmp.height !== slotH) { tmp.width = slotW; tmp.height = slotH; }
+        tCtx.clearRect(0, 0, slotW, slotH);
+        drawCroppedSource(tCtx, src, slotW, slotH, 3 / 4, lens.cropZoom || 1.0);
+        const version = ++cameraPreviewFrameVersion;
+        processFilmImage(tCtx.getImageData(0, 0, slotW, slotH), slotW, slotH, {
+          phone, body, lens, film, strength: 100, exposureEV: cameraExposureEV(), warmth: state.warmth,
+          grainAmt: Math.round(film.grainBase * 0.65), halationAmt: Math.round(film.halationBase * 0.6),
+          bloomAmt: lens.bloomBase, vignetteAmt: lens.vignetteBase, leakType: 'none', leakAmt: 0, frameType: 'none', dateStampText: formatDateStamp(), frameNumberStr: ''
+        }, { output: 'bitmap', coalesceKey: 'camera-preview' }).then(output => {
+          if (!output || version !== cameraPreviewFrameVersion) { output?.bitmap?.close(); return; }
+          const liveImg = output.bitmap || output.canvas;
+          vfCtx.fillStyle = '#050608';
+          vfCtx.fillRect(0, 0, targetW, targetH);
+          if (state.hfStep === 2 && state.hfFirstPreviewCanvas) {
+            vfCtx.drawImage(state.hfFirstPreviewCanvas, 0, 0, slotW, slotH);
+            vfCtx.drawImage(liveImg, targetW - slotW, 0, slotW, slotH);
+          } else {
+            vfCtx.drawImage(liveImg, 0, 0, slotW, slotH);
+          }
+          output.bitmap?.close();
+        }).catch(() => {});
         return;
       }
-      const { phone, body, lens, film } = getSelectedGear();
+
+      if (tmp.width !== targetW || tmp.height !== targetH) { tmp.width = targetW; tmp.height = targetH; }
+      const vfRatio = targetW / targetH;
+      const hwAppliedZoom = hasLiveVideo && body.id === 'native' && state.camAppliedHardware?.zoom;
+      const vfZoom = body.id === 'rangefinder' ? 1.0 : (hwAppliedZoom ? 1.0 : (lens.cropZoom || 1.0));
+      drawCroppedSource(tCtx, src, targetW, targetH, vfRatio, vfZoom);
+
       const version = ++cameraPreviewFrameVersion;
-      processFilmImage(tCtx.getImageData(0, 0, 420, 280), 420, 280, {
+      processFilmImage(tCtx.getImageData(0, 0, targetW, targetH), targetW, targetH, {
         phone, body, lens, film, strength: 100, exposureEV: cameraExposureEV(), warmth: state.warmth,
         grainAmt: Math.round(film.grainBase * 0.65), halationAmt: Math.round(film.halationBase * 0.6),
         bloomAmt: lens.bloomBase, vignetteAmt: lens.vignetteBase, leakType: 'none', leakAmt: 0, frameType: 'none', dateStampText: formatDateStamp(), frameNumberStr: ''
@@ -3383,10 +3918,11 @@
 
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) pauseCameraWhenHidden();
-    else if (document.getElementById('view-camera').classList.contains('active')) { startCameraLoop(); startRealCamera(); }
+    else if (document.getElementById('view-camera').classList.contains('active')) { startCameraLoop(); startRealCamera(); layoutViewfinderStage(); }
   });
   window.addEventListener('pagehide', pauseCameraWhenHidden);
   window.addEventListener('beforeunload', pauseCameraWhenHidden);
+  window.addEventListener('resize', layoutViewfinderStage);
 
   async function createShotThumbnail(blob) {
     const bitmap = await createImageBitmap(blob);
@@ -3399,9 +3935,9 @@
     return canvasToJpegBlob(canvas, 0.72);
   }
 
-  async function saveCameraExposure(rawBlob, shotNumber) {
+  async function saveCameraExposure(rawBlob, shotNumber, opts = {}) {
     const rawBitmap = await createImageBitmap(rawBlob);
-    const scale = Math.min(1, 1280 / Math.max(rawBitmap.width, rawBitmap.height));
+    const scale = Math.min(1, 1440 / Math.max(rawBitmap.width, rawBitmap.height));
     const capW = Math.max(1, Math.round(rawBitmap.width * scale));
     const capH = Math.max(1, Math.round(rawBitmap.height * scale));
     const capC = document.createElement('canvas'); capC.width = capW; capC.height = capH;
@@ -3416,7 +3952,7 @@
     }, { output: 'blob', quality: 0.92 });
     const photoBlob = processed.blob;
     const thumbnailBlob = await createShotThumbnail(photoBlob);
-    const shot = { id: createRollId(), rollId: state.camRollId, rollNumber: state.camRollNumber, num: shotNumber, createdAt: Date.now(), filmName: film.name, rawBlob, photoBlob, thumbnailBlob };
+    const shot = { id: createRollId(), rollId: state.camRollId, rollNumber: state.camRollNumber, num: shotNumber, createdAt: Date.now(), filmName: film.name, isDiptych: !!opts.isDiptych, rawBlob, photoBlob, thumbnailBlob };
     let persisted = true;
     try { await storeCameraRollShot(shot); } catch (error) { persisted = false; }
 
@@ -3433,11 +3969,13 @@
     saveCameraRollMeta();
 
     state.camRollShots.unshift(persisted
-      ? { id: shot.id, rollId: shot.rollId, rollNumber: shot.rollNumber, num: shot.num, createdAt: shot.createdAt, filmName: shot.filmName, thumbnailBlob: shot.thumbnailBlob }
+      ? { id: shot.id, rollId: shot.rollId, rollNumber: shot.rollNumber, num: shot.num, createdAt: shot.createdAt, filmName: shot.filmName, isDiptych: shot.isDiptych, thumbnailBlob: shot.thumbnailBlob }
       : shot);
     syncAllUI();
     renderContactSheet();
-    showToast(`🎞️ Shot #${String(shotNumber).padStart(2, '0')} saved to Roll`);
+    showToast(opts.isDiptych
+      ? `🎞️ Diptych #${String(shotNumber).padStart(2, '0')} saved to Roll`
+      : `🎞️ Shot #${String(shotNumber).padStart(2, '0')} saved to Roll`);
   }
 
   let cameraRollReady = Promise.resolve();
@@ -3458,24 +3996,65 @@
     playShutterSound();
 
     try {
-      const shotNumber = (state.camShotCount % state.camMaxShots) + 1;
-      const capC = document.createElement('canvas');
-      if (state.camStream && camVideo.readyState >= 2) {
-        const capW = Math.min(1280, camVideo.videoWidth || 900);
-        const capH = Math.round(capW * (2 / 3));
-        capC.width = capW; capC.height = capH;
-        const cCtx = capC.getContext('2d');
-        const vw = camVideo.videoWidth, vh = camVideo.videoHeight, tr = 3/2, sr = vw/vh;
-        let sx = 0, sy = 0, sw = vw, sh = vh;
-        if (sr > tr) { sw = vh * tr; sx = (vw - sw) / 2; } else { sh = vw / tr; sy = (vh - sh) / 2; }
-        cCtx.drawImage(camVideo, sx, sy, sw, sh, 0, 0, capW, capH);
-      } else {
-        const src = state.fullSourceCanvas || SAMPLES[0].canvas;
-        capC.width = src.width; capC.height = src.height;
-        capC.getContext('2d').drawImage(src, 0, 0);
+      const { phone, body, lens, film } = getSelectedGear();
+      const hasLiveVideo = !!(state.camStream && camVideo.readyState >= 2);
+      const src = hasLiveVideo ? camVideo : (state.fullSourceCanvas || SAMPLES[0].canvas);
+      const hwAppliedZoom = hasLiveVideo && body.id === 'native' && state.camAppliedHardware?.zoom;
+      const capZoom = hwAppliedZoom ? 1.0 : (lens.cropZoom || 1.0);
+
+      if (body.id === 'half-frame') {
+        const halfW = 712, halfH = 960;
+        const singleC = document.createElement('canvas');
+        singleC.width = halfW; singleC.height = halfH;
+        drawCroppedSource(singleC.getContext('2d'), src, halfW, halfH, 3 / 4, capZoom);
+
+        if (state.hfStep === 1) {
+          state.hfFirstRawCanvas = singleC;
+          const prevW = 206, prevH = 280;
+          const prevC = document.createElement('canvas');
+          prevC.width = prevW; prevC.height = prevH;
+          const pCtx = prevC.getContext('2d');
+          pCtx.drawImage(singleC, 0, 0, prevW, prevH);
+          const processedPrev = await processFilmImage(pCtx.getImageData(0, 0, prevW, prevH), prevW, prevH, {
+            phone, body, lens, film, strength: 100, exposureEV: cameraExposureEV(), warmth: state.warmth,
+            grainAmt: Math.round(film.grainBase * 0.65), halationAmt: Math.round(film.halationBase * 0.6),
+            bloomAmt: lens.bloomBase, vignetteAmt: lens.vignetteBase, leakType: 'none', leakAmt: 0, frameType: 'none', dateStampText: formatDateStamp(), frameNumberStr: ''
+          }, { output: 'bitmap' });
+          if (processedPrev) {
+            const img = processedPrev.bitmap || processedPrev.canvas;
+            pCtx.drawImage(img, 0, 0, prevW, prevH);
+            processedPrev.bitmap?.close();
+          }
+          state.hfFirstPreviewCanvas = prevC;
+          state.hfStep = 2;
+          syncAllUI();
+          showToast('🎞️ Frame 1/2 saved — shoot Frame 2');
+        } else {
+          const gap = 16;
+          const dipC = document.createElement('canvas');
+          dipC.width = halfW * 2 + gap;
+          dipC.height = halfH;
+          const dCtx = dipC.getContext('2d');
+          dCtx.fillStyle = '#07080a';
+          dCtx.fillRect(0, 0, dipC.width, dipC.height);
+          if (state.hfFirstRawCanvas) dCtx.drawImage(state.hfFirstRawCanvas, 0, 0, halfW, halfH);
+          dCtx.drawImage(singleC, halfW + gap, 0, halfW, halfH);
+          const rawBlob = await canvasToJpegBlob(dipC, 0.92);
+          resetHalfFramePending();
+          const shotNumber = (state.camShotCount % state.camMaxShots) + 1;
+          await saveCameraExposure(rawBlob, shotNumber, { isDiptych: true });
+        }
+        return;
       }
-      const rawBlob = await canvasToJpegBlob(capC, 0.9);
-      await saveCameraExposure(rawBlob, shotNumber);
+
+      const shotNumber = (state.camShotCount % state.camMaxShots) + 1;
+      const capW = body.id === 'native' ? 1280 : 1280;
+      const capH = body.id === 'native' ? 960 : 853;
+      const capC = document.createElement('canvas');
+      capC.width = capW; capC.height = capH;
+      drawCroppedSource(capC.getContext('2d'), src, capW, capH, body.aspect, capZoom);
+      const rawBlob = await canvasToJpegBlob(capC, 0.92);
+      await saveCameraExposure(rawBlob, shotNumber, { isDiptych: false });
     } catch (error) {
       showToast('Could not process this shot');
     } finally {
@@ -3520,7 +4099,7 @@
           source.width = bitmap.width; source.height = bitmap.height;
           source.getContext('2d').drawImage(bitmap, 0, 0);
           bitmap.close();
-          loadSourceCanvas(source, null);
+          loadSourceCanvas(source, null, { isDiptych: !!s.isDiptych });
           switchMainTab('darkroom');
           showToast(`Shot #${s.num} opened in Lab`);
         } catch (error) { showToast('Could not open the original photo'); }
@@ -3570,7 +4149,7 @@
     if (!tabId) return;
     document.querySelectorAll('.bnav-btn[data-tab]').forEach(b => b.classList.toggle('active', b.dataset.tab === tabId));
     document.querySelectorAll('.view-section').forEach(s => s.classList.toggle('active', s.id === `view-${tabId}`));
-    if (tabId === 'camera') { syncAllUI(); startCameraLoop(); startRealCamera(); }
+    if (tabId === 'camera') { syncAllUI(); requestAnimationFrame(layoutViewfinderStage); startCameraLoop(); startRealCamera(); }
     else { stopCameraLoop(); if (state.camStream) stopRealCamera(); }
   }
 
@@ -3604,7 +4183,7 @@
   async function exportFullResolution() {
     if (!state.fullSourceCanvas) return;
     showToast('⏳ Saving high-quality image...');
-    const src = state.fullSourceCanvas;
+    const src = buildLabCroppedCanvas(state.fullSourceCanvas, 2400);
     const { phone, body, lens, film } = getSelectedGear();
     let blob;
     try {
@@ -3687,7 +4266,7 @@
   window.addEventListener('pointercancel', () => setHold(false));
   window.addEventListener('blur', () => setHold(false));
 
-  // Open Rollie Docked Clapperboard Combo Picker (Photo stays unobstructed above)
+  // Docked Clapperboard Combo Picker (Preview / Viewfinder stays unobstructed above)
   const appShell = document.querySelector('.app-shell');
   const comboSheet = document.getElementById('comboSheetBackdrop');
   function scrollActiveTileIntoView(tabName) {
@@ -3702,12 +4281,14 @@
   function closeComboPicker() {
     appShell.classList.remove('picker-open');
     comboSheet.classList.remove('open');
+    requestAnimationFrame(layoutViewfinderStage);
   }
   function openComboPicker(focusSection) {
     state.pickerTab = focusSection || state.pickerTab || 'camera';
     appShell.classList.add('picker-open');
     comboSheet.classList.add('open');
     renderComboPickerSheet();
+    requestAnimationFrame(layoutViewfinderStage);
     scrollActiveTileIntoView(state.pickerTab);
   }
   function setPickerTab(tab) {
@@ -3726,8 +4307,10 @@
   });
   document.getElementById('btnRandomCombo').addEventListener('click', () => {
     const pick = arr => arr[Math.floor(Math.random() * arr.length)];
-    const body = pick(CAMERA_BODIES), lens = pick(CAMERA_LENSES), film = pick(FILM_STOCKS);
-    state.bodyId = body.id;
+    const mode = pick(VIEWFINDER_MODES);
+    const lens = pick(getModeFocals(mode.id));
+    const film = pick(FILM_STOCKS);
+    state.bodyId = mode.id;
     state.lensId = lens.id;
     state.filmId = film.id;
     state.filmBrandFilter = 'all';
@@ -3735,10 +4318,11 @@
     state.vignette = lens.vignetteBase;
     state.grain = film.grainBase;
     state.halation = film.halationBase;
+    resetHalfFramePending();
     syncAllUI();
     renderPreview();
     scrollActiveTileIntoView(state.pickerTab);
-    showToast(`🎲 ${body.name} · ${shortLensLabel(lens)} · ${film.name}`);
+    showToast(`🎲 ${mode.name} · ${lens.label} · ${film.name}`);
   });
   document.getElementById('liveGearBadge').addEventListener('click', () => {
     if (comboSheet.classList.contains('open')) closeComboPicker();
@@ -3785,7 +4369,7 @@
   // Save current combo as a Recipe
   document.getElementById('btnSaveRecipe').addEventListener('click', () => {
     const { body, lens, film } = getSelectedGear();
-    const name = `${body.name} • ${shortLensLabel(lens)} • ${film.name}`;
+    const name = `${body.name} • ${lens.label} • ${film.name}`;
     state.recipes.unshift({
       name, phoneId: state.phoneId, bodyId: state.bodyId, lensId: state.lensId, filmId: state.filmId,
       strength: state.strength, exposure: state.exposure, warmth: state.warmth, grain: state.grain,
@@ -3809,7 +4393,7 @@
   document.getElementById('btnCloseContactSheet').addEventListener('click', () => contactSheet.classList.remove('open'));
   contactSheet.addEventListener('click', e => { if (e.target === contactSheet) contactSheet.classList.remove('open'); });
 
-  // Camera Viewfinder HUD Events (EV Ruler, DATE toggle, FRAME toggle)
+  // Camera Viewfinder HUD Events (EV Ruler, DATE toggle, FRAME toggle, Half-Frame Retake)
   const camExposureControl = document.getElementById('camExposureControl');
   camExposureControl.addEventListener('input', e => {
     state.camExposureEV = Number(e.target.value);
@@ -3832,6 +4416,11 @@
     state.frameType = order[(order.indexOf(state.frameType) + 1) % order.length];
     syncAllUI();
     renderPreview();
+  });
+  document.getElementById('btnVfHalfRetake').addEventListener('click', () => {
+    resetHalfFramePending();
+    syncCameraHudUI();
+    showToast('↺ Frame 1 cleared');
   });
 
   document.getElementById('btnFlipCam').addEventListener('click', () => {
