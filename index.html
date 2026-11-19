@@ -436,8 +436,7 @@
     }
     .float-pill {
       pointer-events: auto;
-      background: rgba(18, 21, 27, 0.85);
-      backdrop-filter: blur(8px);
+      background: rgba(18, 21, 27, 0.9);
       border: 1px solid rgba(255, 255, 255, 0.12);
       color: var(--text-secondary);
       border-radius: 12px;
@@ -460,8 +459,7 @@
       top: 10px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.78);
-      backdrop-filter: blur(6px);
+      background: rgba(0, 0, 0, 0.84);
       color: #f5a623;
       border: 1px solid rgba(245, 166, 35, 0.85);
       padding: 3px 10px;
@@ -694,7 +692,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: width 0.16s ease, height 0.16s ease;
     }
     #cameraViewfinderCanvas {
       width: 100%;
@@ -928,9 +925,8 @@
       gap: 6px;
       padding: 6px 5px;
       border-radius: 10px;
-      background: rgba(8, 10, 14, 0.72);
+      background: rgba(8, 10, 14, 0.82);
       border: 1px solid rgba(255,255,255,0.14);
-      backdrop-filter: blur(3px);
     }
     .vf-led-row {
       display: flex;
@@ -968,9 +964,8 @@
       position: relative;
       width: 70.4%;
       height: 70.4%;
-      box-shadow: 0 0 0 2000px rgba(0, 0, 0, 0.34);
+      outline: 600px solid rgba(0, 0, 0, 0.34);
       border: 1px solid rgba(255, 255, 255, 0.35);
-      transition: width 0.18s ease, height 0.18s ease;
     }
     .vf-rf-bracket {
       position: absolute;
@@ -978,7 +973,6 @@
       height: 14px;
       border-color: rgba(255, 250, 235, 0.96);
       border-style: solid;
-      filter: drop-shadow(0 0 2px rgba(245, 166, 35, 0.45));
     }
     .vf-rf-bracket.tl { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
     .vf-rf-bracket.tr { top: -1px; right: -1px; border-width: 2px 2px 0 0; }
@@ -1024,11 +1018,10 @@
       font-weight: 800;
       padding: 2px 6px;
       border-radius: 4px;
-      background: rgba(10, 12, 16, 0.72);
+      background: rgba(10, 12, 16, 0.84);
       border: 1px solid rgba(255,255,255,0.2);
       color: #a1aab8;
       letter-spacing: 0.4px;
-      backdrop-filter: blur(4px);
     }
     .vf-badge-btn.active {
       color: #f5a623;
@@ -1043,8 +1036,7 @@
       width: 148px;
       padding: 2px 6px 4px;
       border-radius: 6px;
-      background: rgba(8, 10, 14, 0.5);
-      backdrop-filter: blur(3px);
+      background: rgba(8, 10, 14, 0.72);
     }
     .vf-ev-ticks {
       width: 100%;
@@ -1082,9 +1074,8 @@
       gap: 4px;
       padding: 2px 6px;
       border-radius: 12px;
-      background: rgba(8, 10, 14, 0.78);
+      background: rgba(8, 10, 14, 0.86);
       border: 1px solid rgba(245, 166, 35, 0.35);
-      backdrop-filter: blur(4px);
       z-index: 6;
       pointer-events: auto;
     }
@@ -1137,9 +1128,8 @@
       gap: 3px;
       padding: 2px 4px;
       border-radius: 14px;
-      background: rgba(8, 10, 14, 0.72);
+      background: rgba(8, 10, 14, 0.84);
       border: 1px solid rgba(255,255,255,0.16);
-      backdrop-filter: blur(4px);
     }
     .vf-focal-pills::-webkit-scrollbar { display: none; }
     .vf-focal-btn {
@@ -1286,8 +1276,7 @@
     .sheet-backdrop {
       position: absolute;
       inset: 0;
-      background: rgba(0,0,0,0.72);
-      backdrop-filter: blur(5px);
+      background: rgba(0,0,0,0.8);
       display: none;
       align-items: flex-end;
       z-index: 80;
@@ -1465,6 +1454,7 @@
     .picker-tile .combo-card-art img {
       height: 33px;
       max-width: 78px;
+      filter: none;
     }
     .picker-tile.active {
       opacity: 1;
@@ -2671,7 +2661,9 @@
     const dofStr = lens.dofStrength || 0;
     if (dofStr > 0.04) {
       const dofRad = lens.dofRadius ?? 0.42;
-      const bw = Math.max(48, Math.floor(width / 3)), bh = Math.max(48, Math.floor(height / 3));
+      const dofRad2 = dofRad * dofRad;
+      const div = width <= 720 ? 4 : 3;
+      const bw = Math.max(48, Math.floor(width / div)), bh = Math.max(48, Math.floor(height / div));
       const dofBuf = new Float32Array(bw * bh * 3);
       for (let by = 0; by < bh; by++) {
         const sy = Math.min(height - 1, Math.round((by / (bh - 1 || 1)) * (height - 1)));
@@ -2684,18 +2676,29 @@
       const blurRad = Math.max(2, Math.round(bw * (0.011 + dofStr * 0.022)));
       fastBoxBlurRGB(dofBuf, bw, bh, blurRad);
       fastBoxBlurRGB(dofBuf, bw, bh, Math.max(2, Math.round(blurRad * 0.7)));
+      const dofMixLut = new Float32Array(257);
+      for (let i = 0; i <= 256; i++) {
+        const d = Math.sqrt(i / 128);
+        if (d > dofRad) {
+          const t = Math.min(1, (d - dofRad) / 0.58);
+          dofMixLut[i] = t * t * (3 - 2 * t) * dofStr;
+        }
+      }
       for (let y = 0; y < height; y++) {
         const ny = (y * invH - 0.5) * 2;
+        const dy2 = (ny + 0.08) * (ny + 0.08) * 0.72;
         const gyf = (y / height) * (bh - 1), gy0 = gyf | 0, gy1 = Math.min(bh - 1, gy0 + 1), fy = gyf - gy0;
+        const omy = 1 - fy;
         for (let x = 0; x < width; x++) {
           const nx = (x * invW - 0.5) * 2;
-          const d = Math.sqrt(nx * nx + (ny + 0.08) * (ny + 0.08) * 0.72);
-          if (d <= dofRad) continue;
-          const t = Math.min(1, (d - dofRad) / 0.58);
-          const mix = t * t * (3 - 2 * t) * dofStr;
+          const d2 = nx * nx + dy2;
+          if (d2 <= dofRad2) continue;
+          const mix = dofMixLut[Math.min(256, (d2 * 128) | 0)];
+          if (mix <= 0.002) continue;
           const gxf = (x / width) * (bw - 1), gx0 = gxf | 0, gx1 = Math.min(bw - 1, gx0 + 1), fx = gxf - gx0;
           const p00 = (gy0 * bw + gx0) * 3, p10 = (gy0 * bw + gx1) * 3, p01 = (gy1 * bw + gx0) * 3, p11 = (gy1 * bw + gx1) * 3;
-          const w00 = (1 - fx) * (1 - fy), w10 = fx * (1 - fy), w01 = (1 - fx) * fy, w11 = fx * fy;
+          const omx = 1 - fx;
+          const w00 = omx * omy, w10 = fx * omy, w01 = omx * fy, w11 = fx * fy;
           const br = dofBuf[p00]*w00 + dofBuf[p10]*w10 + dofBuf[p01]*w01 + dofBuf[p11]*w11;
           const bg = dofBuf[p00+1]*w00 + dofBuf[p10+1]*w10 + dofBuf[p01+1]*w01 + dofBuf[p11+1]*w11;
           const bb = dofBuf[p00+2]*w00 + dofBuf[p10+2]*w10 + dofBuf[p01+2]*w01 + dofBuf[p11+2]*w11;
@@ -2752,13 +2755,19 @@
     const vigStr = (effVig / 100) * 0.72, grainGain = (grainAmt / 100) * 26 * bodyGrain;
     const grainScale = 1 / Math.max(0.55, film.grainSize * (0.72 + 0.28 * bodyGrain) * (width / 950));
     if (vigStr > 0.01 || grainGain > 0.2 || flashBurst) {
+      let vigPowLut = globalThis.__vigPowLut;
+      if (!vigPowLut && vigStr > 0.01) {
+        vigPowLut = new Float32Array(257);
+        for (let i = 0; i <= 256; i++) vigPowLut[i] = Math.pow((i / 128) * 0.55, 1.35);
+        globalThis.__vigPowLut = vigPowLut;
+      }
       for (let y = 0; y < height; y++) {
-        const ny = (y * invH - 0.5) * 2, gy = ((y * grainScale) | 0) & (GRAIN_SIZE - 1);
+        const ny = (y * invH - 0.5) * 2, ny2 = ny * ny, gy = ((y * grainScale) | 0) & (GRAIN_SIZE - 1);
         for (let x = 0; x < width; x++) {
           const sp = (y * width + x) * 4;
           let r = outData[sp], g = outData[sp+1], b = outData[sp+2];
           const nx = (x * invW - 0.5) * 2;
-          const r2 = nx * nx + ny * ny;
+          const r2 = nx * nx + ny2;
           if (flashBurst) {
             const fMask = Math.max(0, 1 - r2 * 0.52);
             const fGain = 1 + fMask * 0.42 - (1 - fMask) * 0.16;
@@ -2767,7 +2776,7 @@
             b = b * fGain + fMask * 12;
           }
           if (vigStr > 0.01) {
-            const vig = Math.max(0.18, 1 - vigStr * Math.pow(r2 * 0.55, 1.35));
+            const vig = Math.max(0.18, 1 - vigStr * vigPowLut[Math.min(256, (r2 * 128) | 0)]);
             r *= vig; g *= vig; b *= vig;
           }
           if (grainGain > 0.2) {
@@ -3324,9 +3333,14 @@
       saveLocalAppState();
     }
   } catch (e) { state.phoneId = 'auto-detect'; }
-  document.addEventListener('input', saveLocalAppState);
-  document.addEventListener('change', saveLocalAppState);
-  document.addEventListener('click', () => setTimeout(saveLocalAppState, 0));
+  let saveStateTimer = 0;
+  function scheduleSaveLocalAppState() {
+    window.clearTimeout(saveStateTimer);
+    saveStateTimer = window.setTimeout(saveLocalAppState, 250);
+  }
+  document.addEventListener('input', scheduleSaveLocalAppState);
+  document.addEventListener('change', scheduleSaveLocalAppState);
+  document.addEventListener('click', scheduleSaveLocalAppState);
 
   const previewCanvas = document.getElementById('previewCanvas');
   const originalOverlayCanvas = document.getElementById('originalOverlayCanvas');
@@ -3506,7 +3520,7 @@
     targetCtx.drawImage(source, sx, sy, sw, sh, 0, 0, outW, outH);
   }
 
-  function getLabTargetDimensions(srcCanvas, maxDim) {
+  function getLabTargetDimensions(srcCanvas, maxDim, maxPixels = 0) {
     const { body, lens } = getSelectedGear();
     if (state.sourceIsDiptych) {
       const s = Math.min(1, maxDim / Math.max(srcCanvas.width, srcCanvas.height));
@@ -3530,16 +3544,50 @@
       h = Math.min(maxDim, Math.max(180, Math.round(maxDim)));
       w = Math.max(120, Math.round(h * ratio));
     }
+    if (maxPixels > 0 && w * h > maxPixels) {
+      const s = Math.sqrt(maxPixels / (w * h));
+      w = Math.max(120, Math.round(w * s));
+      h = Math.max(120, Math.round(h * s));
+    }
     return { w, h, ratio, zoom };
   }
 
-  function buildLabCroppedCanvas(srcCanvas, maxDim) {
-    const { w, h, ratio, zoom } = getLabTargetDimensions(srcCanvas, maxDim);
-    const c = document.createElement('canvas');
-    c.width = w;
-    c.height = h;
+  let labCropCanvas = null;
+  function buildLabCroppedCanvas(srcCanvas, maxDim, reuseScratch = false, maxPixels = 0) {
+    const { w, h, ratio, zoom } = getLabTargetDimensions(srcCanvas, maxDim, maxPixels);
+    const c = reuseScratch ? (labCropCanvas || (labCropCanvas = document.createElement('canvas'))) : document.createElement('canvas');
+    if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
     drawCroppedSource(c.getContext('2d'), srcCanvas, w, h, ratio, zoom);
     return c;
+  }
+
+  let labRenderDirty = false;
+  let camHudDirty = false;
+  let tweaksDirty = false;
+  let pickerDirty = false;
+  let lastLabSourceMeta = null;
+  let cameraJobInFlight = false;
+  let cameraLastStaticKey = '';
+
+  function ensureOriginalOverlay() {
+    if (!lastLabSourceMeta || !previewCanvas.width || !previewCanvas.height) return;
+    const { sourceCanvas, frameType, version } = lastLabSourceMeta;
+    if (originalOverlayCanvas.dataset.renderedVer === String(version)) return;
+    originalOverlayCanvas.dataset.renderedVer = String(version);
+    const w = previewCanvas.width, h = previewCanvas.height;
+    if (originalOverlayCanvas.width !== w || originalOverlayCanvas.height !== h) {
+      originalOverlayCanvas.width = w;
+      originalOverlayCanvas.height = h;
+    }
+    const oCtx = originalOverlayCanvas.getContext('2d');
+    oCtx.fillStyle = '#07080b';
+    oCtx.fillRect(0, 0, w, h);
+    if (frameType === 'none') {
+      oCtx.drawImage(sourceCanvas, 0, 0, w, h);
+    } else {
+      const fp = getFramePlacement(sourceCanvas.width, sourceCanvas.height, frameType);
+      oCtx.drawImage(sourceCanvas, fp.left, fp.top);
+    }
   }
 
   function loadSourceCanvas(srcCanvas, exifData = null, opts = {}) {
@@ -3558,13 +3606,15 @@
     prevC.getContext('2d').drawImage(srcCanvas, 0, 0, pw, ph);
 
     state.previewSourceCanvas = prevC;
-    state.previewSourceData = prevC.getContext('2d').getImageData(0, 0, pw, ph);
+    state.previewSourceData = null;
     state.analysis = analyzeImageCharacteristics(srcCanvas);
 
     state.phoneId = 'auto-detect';
+    labRenderDirty = true;
+    cameraLastStaticKey = '';
 
     syncAllUI();
-    renderPreview();
+    renderPreview(true);
   }
 
   let renderRaf = null;
@@ -3574,12 +3624,20 @@
     renderRaf = requestAnimationFrame(() => { renderRaf = null; renderPreview(); });
   }
 
-  async function renderPreview() {
+  async function renderPreview(force = false) {
     if (!state.previewSourceCanvas) return;
+    const isDarkroomActive = document.getElementById('view-darkroom')?.classList.contains('active');
+    if (!force && !isDarkroomActive) {
+      labRenderDirty = true;
+      return;
+    }
+    labRenderDirty = false;
     const requestVersion = ++previewRequestVersion;
-    const maxDim = window.matchMedia('(max-width: 700px)').matches ? 680 : 860;
-    const sourceCanvas = buildLabCroppedCanvas(state.previewSourceCanvas, maxDim);
-    const sourceData = sourceCanvas.getContext('2d').getImageData(0, 0, sourceCanvas.width, sourceCanvas.height);
+    const isMobile = window.matchMedia('(max-width: 700px)').matches;
+    const maxDim = isMobile ? 640 : 820;
+    const maxPixels = isMobile ? 250000 : 360000;
+    const sourceCanvas = buildLabCroppedCanvas(state.previewSourceCanvas, maxDim, true, maxPixels);
+    const sourceData = sourceCanvas.getContext('2d', { willReadFrequently: true }).getImageData(0, 0, sourceCanvas.width, sourceCanvas.height);
     const frameType = state.frameType;
     const { phone, body, lens, film } = getSelectedGear();
 
@@ -3604,21 +3662,14 @@
       const image = output.bitmap || output.canvas;
 
       canvasStack.style.aspectRatio = `${image.width} / ${image.height}`;
-      previewCanvas.width = image.width;
-      previewCanvas.height = image.height;
+      if (previewCanvas.width !== image.width || previewCanvas.height !== image.height) {
+        previewCanvas.width = image.width;
+        previewCanvas.height = image.height;
+      }
       previewCanvas.getContext('2d').drawImage(image, 0, 0);
 
-      originalOverlayCanvas.width = image.width;
-      originalOverlayCanvas.height = image.height;
-      const oCtx = originalOverlayCanvas.getContext('2d');
-      oCtx.fillStyle = '#07080b';
-      oCtx.fillRect(0, 0, image.width, image.height);
-      if (frameType === 'none') {
-        oCtx.drawImage(sourceCanvas, 0, 0, image.width, image.height);
-      } else {
-        const fp = getFramePlacement(sourceCanvas.width, sourceCanvas.height, frameType);
-        oCtx.drawImage(sourceCanvas, fp.left, fp.top);
-      }
+      lastLabSourceMeta = { sourceCanvas, frameType, version: requestVersion };
+      if (state.splitMode || holdOriginalActive) ensureOriginalOverlay();
 
       const lensShort = shortLensLabel(lens);
       const formatLbl = getBodyFormatLabel(body, lens);
@@ -3785,10 +3836,11 @@
       btn.classList.toggle('active', btn.dataset.id === state.filmId);
     });
 
-    renderSavedRecipesList();
+    if (state.pickerTab === 'saved') renderSavedRecipesList();
     syncPickerActiveUI();
   }
 
+  const TWEAK_FRAME_LABELS = { 'none': 'Off', '35mm-sprocket': '35mm', 'darkroom-white': 'Border', 'polaroid': 'Polaroid' };
   function renderTweaksDock() {
     const drawer = document.getElementById('tweakDrawer');
     const isDrawerOpen = drawer.classList.contains('open');
@@ -3803,65 +3855,85 @@
     const lsel = document.getElementById('leakTypeSelect');
     if (def.key === 'leakAmt') {
       lsel.style.display = 'inline-block';
-      lsel.innerHTML = LEAK_TYPES.map(lt => `<option value="${lt.id}">Leak: ${lt.name}</option>`).join('');
+      if (lsel.childElementCount === 0) {
+        lsel.innerHTML = LEAK_TYPES.map(lt => `<option value="${lt.id}">Leak: ${lt.name}</option>`).join('');
+      }
       lsel.value = state.leakType;
     } else {
       lsel.style.display = 'none';
     }
 
-    // Render single-row horizontal pills for tweaks + Frame + Date
+    // Reuse single-row horizontal pills in place to avoid GC/reflow churn during mode switches
     const strip = document.getElementById('tweakPillsStrip');
-    strip.innerHTML = '';
+    if (!strip.dataset.built) {
+      strip.dataset.built = '1';
+      strip.innerHTML = '';
 
-    // Frame quick-cycle pill
-    const frameLabels = { 'none': 'Off', '35mm-sprocket': '35mm', 'darkroom-white': 'Border', 'polaroid': 'Polaroid' };
-    const framePill = document.createElement('button');
-    framePill.type = 'button';
-    framePill.className = `tweak-pill ${state.frameType !== 'none' ? 'active' : ''}`;
-    framePill.innerHTML = `<span>Frame</span><span class="tweak-pill-val">${frameLabels[state.frameType] || 'Off'}</span>`;
-    framePill.addEventListener('click', () => {
-      const order = ['none', '35mm-sprocket', 'darkroom-white', 'polaroid'];
-      state.frameType = order[(order.indexOf(state.frameType) + 1) % order.length];
-      syncAllUI();
-      renderPreview();
-    });
-    strip.appendChild(framePill);
-
-    // Date toggle pill (Off / Today)
-    const isDateOn = state.dateStamp !== 'off';
-    const datePill = document.createElement('button');
-    datePill.type = 'button';
-    datePill.className = `tweak-pill ${isDateOn ? 'active' : ''}`;
-    datePill.innerHTML = `<span>Date</span><span class="tweak-pill-val">${isDateOn ? 'Today' : 'Off'}</span>`;
-    datePill.addEventListener('click', () => {
-      state.dateStamp = isDateOn ? 'off' : 'exif-or-today';
-      syncAllUI();
-      renderPreview();
-    });
-    strip.appendChild(datePill);
-
-    // Parameter tweak pills
-    TWEAK_DEFS.forEach(t => {
-      const pill = document.createElement('button');
-      pill.type = 'button';
-      const active = isDrawerOpen && state.activeTweakKey === t.key;
-      pill.className = `tweak-pill ${active ? 'active' : ''}`;
-      pill.innerHTML = `<span>${t.short || t.label}</span><span class="tweak-pill-val">${t.fmt(state[t.key])}</span>`;
-      pill.addEventListener('click', () => {
-        if (drawer.classList.contains('open') && state.activeTweakKey === t.key) {
-          drawer.classList.remove('open');
-        } else {
-          state.activeTweakKey = t.key;
-          if (t.key === 'leakAmt' && state.leakType === 'none') {
-            state.leakType = 'amber-edge';
-            if (state.leakAmt === 0) state.leakAmt = 40;
-            renderPreview();
-          }
-          drawer.classList.add('open');
-        }
-        renderTweaksDock();
+      const framePill = document.createElement('button');
+      framePill.type = 'button';
+      framePill.dataset.pillId = 'frame';
+      framePill.className = 'tweak-pill';
+      framePill.innerHTML = `<span>Frame</span><span class="tweak-pill-val"></span>`;
+      framePill.addEventListener('click', () => {
+        const order = ['none', '35mm-sprocket', 'darkroom-white', 'polaroid'];
+        state.frameType = order[(order.indexOf(state.frameType) + 1) % order.length];
+        syncAllUI();
+        renderPreview();
       });
-      strip.appendChild(pill);
+      strip.appendChild(framePill);
+
+      const datePill = document.createElement('button');
+      datePill.type = 'button';
+      datePill.dataset.pillId = 'date';
+      datePill.className = 'tweak-pill';
+      datePill.innerHTML = `<span>Date</span><span class="tweak-pill-val"></span>`;
+      datePill.addEventListener('click', () => {
+        state.dateStamp = state.dateStamp !== 'off' ? 'off' : 'exif-or-today';
+        syncAllUI();
+        renderPreview();
+      });
+      strip.appendChild(datePill);
+
+      TWEAK_DEFS.forEach(t => {
+        const pill = document.createElement('button');
+        pill.type = 'button';
+        pill.dataset.pillId = t.key;
+        pill.className = 'tweak-pill';
+        pill.innerHTML = `<span>${t.short || t.label}</span><span class="tweak-pill-val"></span>`;
+        pill.addEventListener('click', () => {
+          if (drawer.classList.contains('open') && state.activeTweakKey === t.key) {
+            drawer.classList.remove('open');
+          } else {
+            state.activeTweakKey = t.key;
+            if (t.key === 'leakAmt' && state.leakType === 'none') {
+              state.leakType = 'amber-edge';
+              if (state.leakAmt === 0) state.leakAmt = 40;
+              renderPreview();
+            }
+            drawer.classList.add('open');
+          }
+          renderTweaksDock();
+        });
+        strip.appendChild(pill);
+      });
+    }
+
+    const isDateOn = state.dateStamp !== 'off';
+    const frameBtn = strip.querySelector('[data-pill-id="frame"]');
+    if (frameBtn) {
+      frameBtn.classList.toggle('active', state.frameType !== 'none');
+      frameBtn.lastElementChild.textContent = TWEAK_FRAME_LABELS[state.frameType] || 'Off';
+    }
+    const dateBtn = strip.querySelector('[data-pill-id="date"]');
+    if (dateBtn) {
+      dateBtn.classList.toggle('active', isDateOn);
+      dateBtn.lastElementChild.textContent = isDateOn ? 'Today' : 'Off';
+    }
+    TWEAK_DEFS.forEach(t => {
+      const pill = strip.querySelector(`[data-pill-id="${t.key}"]`);
+      if (!pill) return;
+      pill.classList.toggle('active', isDrawerOpen && state.activeTweakKey === t.key);
+      pill.lastElementChild.textContent = t.fmt(state[t.key]);
     });
   }
 
@@ -3973,9 +4045,24 @@
 
   function syncAllUI() {
     renderComboCards();
-    renderComboPickerSheet();
-    renderTweaksDock();
-    syncCameraHudUI();
+    if (document.getElementById('comboSheetBackdrop')?.classList.contains('open')) {
+      pickerDirty = false;
+      renderComboPickerSheet();
+    } else {
+      pickerDirty = true;
+    }
+    if (document.getElementById('view-darkroom')?.classList.contains('active')) {
+      tweaksDirty = false;
+      renderTweaksDock();
+    } else {
+      tweaksDirty = true;
+    }
+    if (document.getElementById('view-camera')?.classList.contains('active')) {
+      camHudDirty = false;
+      syncCameraHudUI();
+    } else {
+      camHudDirty = true;
+    }
   }
 
   /* ==========================================================================
@@ -4115,16 +4202,25 @@
     if (!wrap) return;
     const { body, lens } = getSelectedGear();
     const focals = getModeFocals(body.id);
-    wrap.innerHTML = '';
-    focals.forEach(f => {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = `vf-focal-btn ${f.id === lens.id ? 'active' : ''}`;
-      btn.textContent = f.short || f.focalTag || f.label;
-      btn.addEventListener('click', () => selectFocalOption(f.id));
-      wrap.appendChild(btn);
+    if (wrap.dataset.mode !== body.id) {
+      wrap.dataset.mode = body.id;
+      wrap.innerHTML = '';
+      focals.forEach(f => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.dataset.id = f.id;
+        btn.className = 'vf-focal-btn';
+        btn.textContent = f.short || f.focalTag || f.label;
+        btn.addEventListener('click', () => selectFocalOption(f.id));
+        wrap.appendChild(btn);
+      });
+    }
+    let activeBtn = null;
+    Array.from(wrap.children).forEach(btn => {
+      const isAct = btn.dataset.id === lens.id;
+      btn.classList.toggle('active', isAct);
+      if (isAct) activeBtn = btn;
     });
-    const activeBtn = wrap.querySelector('.vf-focal-btn.active');
     if (activeBtn) {
       requestAnimationFrame(() => {
         wrap.scrollLeft = Math.max(0, activeBtn.offsetLeft - (wrap.clientWidth - activeBtn.offsetWidth) / 2);
@@ -4246,12 +4342,11 @@
   function startCameraLoop() {
     if (state.camAnimId) return;
     const tmp = document.createElement('canvas');
-    const tCtx = tmp.getContext('2d'), vfCtx = vfCanvas.getContext('2d');
+    const tCtx = tmp.getContext('2d', { willReadFrequently: true }), vfCtx = vfCanvas.getContext('2d');
     let last = 0;
     const loop = (ts) => {
       state.camAnimId = requestAnimationFrame(loop);
-      if (ts - last < 55) return;
-      last = ts;
+      if (cameraJobInFlight) return;
 
       const hasLiveVideo = !!(state.camStream && camVideo.readyState >= 2);
       const src = hasLiveVideo ? camVideo : state.previewSourceCanvas;
@@ -4261,6 +4356,16 @@
       const stageDim = getCameraStageDimensions(body, lens);
       const targetW = stageDim.w;
       const targetH = stageDim.h;
+      const staticKey = hasLiveVideo
+        ? ''
+        : `${state.activeSampleId || 'custom'}|${body.id}|${lens.id}|${state.zoomFocalMm}|${film.id}|${cameraExposureEV().toFixed(2)}|${state.warmth}|${state.camFlashOn ? 1 : 0}|${formatDateStamp()}|${targetW}x${targetH}`;
+
+      if (!hasLiveVideo && staticKey === cameraLastStaticKey && vfCanvas.width === targetW && vfCanvas.height === targetH) {
+        return;
+      }
+      if (hasLiveVideo && ts - last < 55) return;
+      last = ts;
+
       if (vfCanvas.width !== targetW || vfCanvas.height !== targetH) {
         vfCanvas.width = targetW;
         vfCanvas.height = targetH;
@@ -4271,6 +4376,8 @@
       const vfZoom = body.id === 'rangefinder' ? 1.0 : (lens.cropZoom || 1.0);
       drawCroppedSource(tCtx, src, targetW, targetH, vfRatio, vfZoom);
 
+      cameraJobInFlight = true;
+      if (!hasLiveVideo) cameraLastStaticKey = staticKey;
       const version = ++cameraPreviewFrameVersion;
       processFilmImage(tCtx.getImageData(0, 0, targetW, targetH), targetW, targetH, {
         phone, body, lens, film, strength: 100, exposureEV: cameraExposureEV(), warmth: state.warmth,
@@ -4281,13 +4388,18 @@
         if (!output || version !== cameraPreviewFrameVersion) { output?.bitmap?.close(); return; }
         vfCtx.drawImage(output.bitmap || output.canvas, 0, 0);
         output.bitmap?.close();
-      }).catch(() => {});
+      }).catch(() => {
+        if (!hasLiveVideo) cameraLastStaticKey = '';
+      }).finally(() => {
+        cameraJobInFlight = false;
+      });
     };
     state.camAnimId = requestAnimationFrame(loop);
   }
 
   function stopCameraLoop() {
     if (state.camAnimId) { cancelAnimationFrame(state.camAnimId); state.camAnimId = null; }
+    cameraJobInFlight = false;
   }
 
   function stopRealCamera() {
@@ -4490,8 +4602,20 @@
     if (!tabId) return;
     document.querySelectorAll('.bnav-btn[data-tab]').forEach(b => b.classList.toggle('active', b.dataset.tab === tabId));
     document.querySelectorAll('.view-section').forEach(s => s.classList.toggle('active', s.id === `view-${tabId}`));
-    if (tabId === 'camera') { syncAllUI(); requestAnimationFrame(layoutViewfinderStage); startCameraLoop(); startRealCamera(); }
-    else { stopCameraLoop(); if (state.camStream) stopRealCamera(); }
+    if (tabId === 'camera') {
+      cameraLastStaticKey = '';
+      if (camHudDirty) { camHudDirty = false; syncCameraHudUI(); }
+      requestAnimationFrame(layoutViewfinderStage);
+      startCameraLoop();
+      startRealCamera();
+    } else {
+      stopCameraLoop();
+      if (state.camStream) stopRealCamera();
+      if (tabId === 'darkroom') {
+        if (tweaksDirty) { tweaksDirty = false; renderTweaksDock(); }
+        if (labRenderDirty) renderPreview(true);
+      }
+    }
   }
 
   async function handleImageFile(file) {
@@ -4573,6 +4697,7 @@
   // Split & Hold Original
   document.getElementById('btnToggleSplit').addEventListener('click', (e) => {
     state.splitMode = !state.splitMode;
+    if (state.splitMode) ensureOriginalOverlay();
     e.currentTarget.classList.toggle('active', state.splitMode);
     canvasStack.classList.toggle('split-active', state.splitMode);
   });
@@ -4593,6 +4718,7 @@
   const setHold = (on) => {
     if (holdOriginalActive === on) return;
     holdOriginalActive = on;
+    if (on) ensureOriginalOverlay();
     canvasStack.classList.toggle('hold-active', on);
     holdBadge.style.display = on ? 'block' : 'none';
     originalOverlayCanvas.style.opacity = on ? '1' : '';
@@ -4617,7 +4743,11 @@
     if (!secEl) return;
     requestAnimationFrame(() => {
       const activeTile = secEl.querySelector('.picker-tile.active');
-      if (activeTile) activeTile.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      const track = activeTile?.parentElement;
+      if (activeTile && track && track.scrollWidth > track.clientWidth) {
+        const targetLeft = activeTile.offsetLeft - (track.clientWidth - activeTile.offsetWidth) / 2;
+        track.scrollLeft = Math.max(0, Math.min(track.scrollWidth - track.clientWidth, targetLeft));
+      }
     });
   }
   function closeComboPicker() {
@@ -4629,12 +4759,14 @@
     state.pickerTab = focusSection || state.pickerTab || 'camera';
     appShell.classList.add('picker-open');
     comboSheet.classList.add('open');
+    pickerDirty = false;
     renderComboPickerSheet();
     requestAnimationFrame(layoutViewfinderStage);
     scrollActiveTileIntoView(state.pickerTab);
   }
   function setPickerTab(tab) {
     state.pickerTab = tab;
+    if (tab === 'saved') renderSavedRecipesList();
     syncPickerActiveUI();
     scrollActiveTileIntoView(tab);
   }
