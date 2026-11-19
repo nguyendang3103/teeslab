@@ -1292,7 +1292,7 @@
       text-shadow: 0 1px 3px #000;
     }
 
-    /* Mechanical Knurled Tri-Ring Lens Barrel Controller (FOCAL / FOCUS+AF / IRIS) */
+    /* Mechanical Knurled Lens Barrel Controller (ZOOM [zoom lenses only] / FOCUS+AF / APERTURE) */
     .lens-barrel-dock {
       width: 100%;
       pointer-events: auto;
@@ -1340,16 +1340,16 @@
       .lens-barrel-picker .lens-barrel-ring[data-ring="focal"] { height: 20px; }
     }
     .lens-ring-tag {
-      width: 38px;
+      width: 52px;
       height: 100%;
       flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: center;
       font-family: var(--mono);
-      font-size: 8px;
+      font-size: 7.5px;
       font-weight: 800;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.3px;
       color: #8f98a8;
       background: linear-gradient(180deg, #1e232d, #13161e);
       border-right: 1px solid rgba(255,255,255,0.1);
@@ -3655,15 +3655,7 @@
 
     const activeFocals = getModeFocals(state.bodyId);
     const activeLens = activeFocals.find(f => f.id === state.lensId) || activeFocals[0];
-    const hasSavedFocal = Object.prototype.hasOwnProperty.call(settings, 'lensFocalMm') && Number.isFinite(Number(settings.lensFocalMm));
-    const primeAnchors = activeFocals.filter(f => !f.isZoom && !f.isFormatLens && !f.isFixedAperture);
-    if (hasSavedFocal && primeAnchors.length > 0 && !activeLens.isZoom && !activeLens.isFormatLens && !activeLens.isFixedAperture) {
-      const minMm = primeAnchors[0].mm;
-      const maxMm = primeAnchors[primeAnchors.length - 1].mm;
-      state.lensFocalMm = Math.max(minMm, Math.min(maxMm, Number(settings.lensFocalMm)));
-    } else {
-      state.lensFocalMm = activeLens.mm || 50;
-    }
+    state.lensFocalMm = activeLens.mm || 50;
 
     const baseMinF = activeLens.isZoom
       ? Number((3.5 + ((state.zoomFocalMm - 35) / 35) * 1.0).toFixed(2))
@@ -3922,15 +3914,16 @@
       };
     }
 
-    if (lens.isFormatLens || lens.isFixedAperture) {
+    if (!lens.isZoom) {
       const minF = lens.minF || 2.8;
       const curF = lens.isFixedAperture ? minF : Math.max(minF, Math.min(lens.maxF || 16, Number(state.lensAperture) || minF));
       const optics = applyApertureOptics(lens, curF, minF, lens.apertureEV || 0);
       const focusOptics = computeFocusOptics(lens.mm || 50, curF, !!lens.isFixedAperture);
       const apStr = formatApertureLabel(curF);
+      const label = lens.isFormatLens ? lens.label : `${lens.focalTag} ${apStr}`;
       const displayLabel = lens.isFormatLens
         ? (Math.abs(curF - minF) < 0.05 ? lens.label : `${lens.label} ${apStr}`)
-        : `${lens.focalTag} ${apStr}`;
+        : label;
       return {
         ...lens,
         ...optics,
@@ -3938,64 +3931,11 @@
         minF,
         activeF: curF,
         aperture: apStr,
+        label,
         displayLabel,
-        ringAngleDeg: 2 * Math.log2(curF) * 28
+        ringAngleDeg: ((lens.mm || 50) - 24) * 2.2 + 2 * Math.log2(curF) * 28
       };
     }
-
-    const anchors = getPrimeAnchors(modeId);
-    if (!anchors.length) return lens;
-    const minMm = anchors[0].mm;
-    const maxMm = anchors[anchors.length - 1].mm;
-    const mm = Math.max(minMm, Math.min(maxMm, Number(state.lensFocalMm) || lens.mm || 50));
-    let idx = 0;
-    for (let i = 0; i < anchors.length - 1; i++) {
-      if (mm >= anchors[i].mm) idx = i;
-    }
-    const a = anchors[idx];
-    const b = anchors[Math.min(anchors.length - 1, idx + 1)];
-    const t = a === b ? 0 : Math.max(0, Math.min(1, (mm - a.mm) / Math.max(1e-5, b.mm - a.mm)));
-    const lerp = k => (a[k] || 0) + ((b[k] || 0) - (a[k] || 0)) * t;
-    const nearest = t <= 0.5 ? a : b;
-    const curMinF = Number(lerp('minF').toFixed(2));
-    const curF = Math.max(curMinF, Math.min(nearest.maxF || 16, Number(state.lensAperture) || curMinF));
-    const interp = {
-      cropZoom: lerp('cropZoom'),
-      brightlinePct: lerp('brightlinePct'),
-      barrelDistort: lerp('barrelDistort'),
-      dofStrength: lerp('dofStrength'),
-      dofRadius: lerp('dofRadius'),
-      shakeSens: lerp('shakeSens'),
-      skinFlatter: lerp('skinFlatter'),
-      coatingWarmth: lerp('coatingWarmth'),
-      coatingTint: lerp('coatingTint'),
-      bloomBase: lerp('bloomBase'),
-      vignetteBase: lerp('vignetteBase'),
-      chromaticAb: lerp('chromaticAb'),
-      edgeSoft: lerp('edgeSoft')
-    };
-    const optics = applyApertureOptics(interp, curF, curMinF, lerp('apertureEV'));
-    const focusOptics = computeFocusOptics(mm, curF, false);
-    const mmRound = Math.round(mm);
-    const apStr = formatApertureLabel(curF);
-    const ringAngleDeg = (mm - minMm) * 2.2 + 2 * Math.log2(curF) * 28;
-    return {
-      ...nearest,
-      ...interp,
-      ...optics,
-      ...focusOptics,
-      id: nearest.id,
-      mm,
-      minF: curMinF,
-      activeF: curF,
-      focalTag: `${mmRound}mm`,
-      aperture: apStr,
-      short: `${mmRound}mm`,
-      label: `${mmRound}mm ${apStr}`,
-      displayLabel: `${mmRound}mm ${apStr}`,
-      meta: nearest.meta,
-      ringAngleDeg
-    };
   }
 
   function getSelectedGear() {
@@ -4715,15 +4655,12 @@
     const focals = getModeFocals(modeId);
     const matched = focals.find(f => f.id === focalId) || focals[0];
     state.lensId = matched.id;
-    mfFormatDragX = null;
     if (matched.isZoom) {
       const z = Math.max(35, Math.min(70, Number(state.zoomFocalMm) || 50));
       state.zoomFocalMm = Number(z.toFixed(2));
       state.lensAperture = Number((3.5 + ((z - 35) / 35) * 1.0).toFixed(2));
     } else {
-      if (!matched.isFormatLens && !matched.isFixedAperture && matched.mm) {
-        state.lensFocalMm = matched.mm;
-      }
+      state.lensFocalMm = matched.mm || 50;
       state.lensAperture = matched.minF || 2.8;
     }
     apPinnedWideOpen = true;
@@ -4753,14 +4690,11 @@
     const mode = VIEWFINDER_MODES.find(m => m.id === modeId) || VIEWFINDER_MODES[0];
     state.bodyId = mode.id;
     if (mode.id !== 'half-frame') clearPendingHalfFrame();
-    mfFormatDragX = null;
     const focals = getModeFocals(mode.id);
     const keepCurrent = focals.find(f => f.id === state.lensId);
     const nextFocal = keepCurrent || focals.find(f => f.id === mode.defaultFocalId) || focals[0];
     state.lensId = nextFocal.id;
-    if (!nextFocal.isZoom && !nextFocal.isFormatLens && !nextFocal.isFixedAperture && nextFocal.mm) {
-      state.lensFocalMm = nextFocal.mm;
-    }
+    state.lensFocalMm = nextFocal.mm || 50;
     state.lensAperture = nextFocal.minF || 2.8;
     apPinnedWideOpen = true;
     const { lens } = getSelectedGear();
@@ -4771,7 +4705,6 @@
     renderPreview();
   }
 
-  let mfFormatDragX = null;
   let lastLensClickAt = 0;
   function playLensClickSound(heavy = false) {
     if (!state.camSound) return;
@@ -4799,194 +4732,67 @@
   }
 
   function buildTopScaleSpec(body, resolvedLens) {
-    if (resolvedLens.isFixedAperture) {
+    if (!resolvedLens.isZoom) {
       return {
-        modeKey: `fixed:${body.id}`,
-        tag: 'LENS',
+        modeKey: 'zoom-hidden',
+        tag: 'ZOOM',
         locked: true,
         minX: 0,
         maxX: 0,
-        marks: [{ x: 0, label: resolvedLens.focalTag || '32mm', isMajor: true, detVal: 32 }],
-        ticks: [-24, -12, 0, 12, 24].map(x => ({ x, cls: x === 0 ? 'major' : '' })),
+        marks: [],
+        ticks: [],
         getCurX: () => 0,
         getMinDragX: () => 0,
-        getValText: () => `${resolvedLens.focalTag || '32mm'} LOCK`,
+        getValText: () => resolvedLens.focalTag || '',
         applyX: () => ({ changed: false, needsLayout: false })
       };
     }
 
-    if (resolvedLens.isFormatLens) {
-      const formats = getModeFocals(body.id);
-      const step = 68;
-      const anchors = formats.map((f, i) => ({ x: i * step, id: f.id, label: f.focalTag || f.label }));
-      const maxX = Math.max(0, (anchors.length - 1) * step);
-      const ticks = [];
-      const marks = anchors.map(a => ({ x: a.x, label: a.label, isMajor: true, detVal: a.id }));
-      for (let i = 0; i < anchors.length - 1; i++) {
-        const x0 = anchors[i].x, x1 = anchors[i + 1].x;
-        ticks.push({ x: x0, cls: 'major' }, { x: x0 + (x1 - x0) * 0.25, cls: '' }, { x: x0 + (x1 - x0) * 0.5, cls: 'half' }, { x: x0 + (x1 - x0) * 0.75, cls: '' });
-      }
-      if (anchors.length) ticks.push({ x: maxX, cls: 'major' });
-
-      return {
-        modeKey: `format:${body.id}`,
-        tag: 'FMT',
-        locked: false,
-        minX: 0,
-        maxX,
-        marks,
-        ticks,
-        getCurX: () => mfFormatDragX !== null ? mfFormatDragX : (anchors.find(a => a.id === state.lensId)?.x ?? 0),
-        getMinDragX: () => 0,
-        getValText: () => resolvedLens.focalTag || resolvedLens.label,
-        applyX: (rawX, isRelease, prevDetent) => {
-          const cx = Math.max(0, Math.min(maxX, rawX));
-          let nearest = anchors[0];
-          let bestDist = Infinity;
-          for (const a of anchors) {
-            const d = Math.abs(cx - a.x);
-            if (d < bestDist) { bestDist = d; nearest = a; }
-          }
-          const prevLensId = state.lensId;
-          mfFormatDragX = isRelease ? null : cx;
-          state.lensId = nearest.id;
-          const aspectChanged = prevLensId !== nearest.id;
-          if (aspectChanged && prevDetent !== nearest.id) playLensClickSound(true);
-          return { changed: true, needsLayout: aspectChanged, detent: nearest.id };
-        }
-      };
-    }
-
-    if (resolvedLens.isZoom) {
-      const maxX = 152;
-      const valToX = mm => ((Math.max(35, Math.min(70, mm)) - 35) / 35) * maxX;
-      const xToVal = x => 35 + (Math.max(0, Math.min(maxX, x)) / maxX) * 35;
-      const marks = [
-        { x: valToX(35), label: '35', isMajor: true, adrClass: 'adr-warm' },
-        { x: valToX(40), label: '40', isMinor: true },
-        { x: valToX(50), label: '50', isMajor: true },
-        { x: valToX(60), label: '60', isMinor: true },
-        { x: valToX(70), label: '70', isMajor: true, adrClass: 'adr-cyan' }
-      ];
-      const ticks = [];
-      for (let mm = 35; mm <= 70.01; mm += 2.5) {
-        const isMaj = mm === 35 || mm === 50 || mm === 70;
-        const isHalf = mm === 40 || mm === 45 || mm === 55 || mm === 60 || mm === 65;
-        ticks.push({ x: valToX(mm), cls: isMaj ? 'major' : (isHalf ? 'half' : '') });
-      }
-      const detXs = [35, 50, 70].map(valToX);
-
-      return {
-        modeKey: `zoom:${body.id}`,
-        tag: 'ZOOM',
-        locked: false,
-        minX: 0,
-        maxX,
-        marks,
-        ticks,
-        getCurX: () => valToX(state.zoomFocalMm),
-        getMinDragX: () => 0,
-        getValText: () => `${Math.round(state.zoomFocalMm)}mm`,
-        applyX: (rawX, isRelease, prevDetent) => {
-          let cx = Math.max(0, Math.min(maxX, rawX));
-          if (isRelease) {
-            for (const dx of detXs) {
-              if (Math.abs(cx - dx) <= 2.5) { cx = dx; break; }
-            }
-          }
-          const nextMm = Number(xToVal(cx).toFixed(2));
-          state.zoomFocalMm = nextMm;
-          const nextMinF = Number((3.5 + ((nextMm - 35) / 35) * 1.0).toFixed(2));
-          state.lensAperture = apPinnedWideOpen ? nextMinF : Math.max(nextMinF, state.lensAperture);
-          const detentBucket = Math.round(nextMm / 5);
-          if (prevDetent !== undefined && prevDetent !== detentBucket) {
-            playLensClickSound([35, 50, 70].includes(detentBucket * 5));
-          }
-          return { changed: true, needsLayout: false, detent: detentBucket };
-        }
-      };
-    }
-
-    const anchors = getPrimeAnchors(body.id);
-    const segStep = anchors.length <= 2 ? 96 : (anchors.length === 3 ? 64 : 48);
-    const pts = anchors.map((a, i) => ({ x: i * segStep, anchor: a, mm: a.mm, minF: a.minF }));
-    const maxX = Math.max(0, (pts.length - 1) * segStep);
-    const marks = [];
+    const maxX = 152;
+    const valToX = mm => ((Math.max(35, Math.min(70, mm)) - 35) / 35) * maxX;
+    const xToVal = x => 35 + (Math.max(0, Math.min(maxX, x)) / maxX) * 35;
+    const marks = [
+      { x: valToX(35), label: '35', isMajor: true, adrClass: 'adr-warm' },
+      { x: valToX(40), label: '40', isMinor: true },
+      { x: valToX(50), label: '50', isMajor: true },
+      { x: valToX(60), label: '60', isMinor: true },
+      { x: valToX(70), label: '70', isMajor: true, adrClass: 'adr-cyan' }
+    ];
     const ticks = [];
-
-    for (let i = 0; i < pts.length; i++) {
-      const p = pts[i];
-      const adr = i === 0 ? 'adr-warm' : (i === pts.length - 1 ? 'adr-cyan' : '');
-      marks.push({ x: p.x, label: String(p.mm), isMajor: true, adrClass: adr });
-      ticks.push({ x: p.x, cls: 'major' });
-      if (i < pts.length - 1) {
-        const q = pts[i + 1];
-        const midX = (p.x + q.x) / 2;
-        ticks.push({ x: p.x + (q.x - p.x) * 0.25, cls: '' });
-        ticks.push({ x: midX, cls: 'half' });
-        ticks.push({ x: p.x + (q.x - p.x) * 0.75, cls: '' });
-        if (q.mm - p.mm >= 14) {
-          marks.push({ x: midX, label: String(Math.round((p.mm + q.mm) / 2)), isMinor: true });
-        }
-      }
+    for (let mm = 35; mm <= 70.01; mm += 2.5) {
+      const isMaj = mm === 35 || mm === 50 || mm === 70;
+      const isHalf = mm === 40 || mm === 45 || mm === 55 || mm === 60 || mm === 65;
+      ticks.push({ x: valToX(mm), cls: isMaj ? 'major' : (isHalf ? 'half' : '') });
     }
-
-    const valToX = mm => {
-      if (!pts.length) return 0;
-      if (mm <= pts[0].mm) return pts[0].x;
-      if (mm >= pts[pts.length - 1].mm) return pts[pts.length - 1].x;
-      for (let i = 0; i < pts.length - 1; i++) {
-        if (mm <= pts[i + 1].mm) {
-          const t = (mm - pts[i].mm) / Math.max(1e-5, pts[i + 1].mm - pts[i].mm);
-          return pts[i].x + t * (pts[i + 1].x - pts[i].x);
-        }
-      }
-      return 0;
-    };
-
-    const xToState = x => {
-      const cx = Math.max(0, Math.min(maxX, x));
-      for (let i = 0; i < pts.length - 1; i++) {
-        if (cx <= pts[i + 1].x || i === pts.length - 2) {
-          const t = Math.max(0, Math.min(1, (cx - pts[i].x) / Math.max(1e-5, pts[i + 1].x - pts[i].x)));
-          const a = pts[i].anchor, b = pts[i + 1].anchor;
-          return {
-            mm: a.mm + (b.mm - a.mm) * t,
-            minF: (a.minF || 2.8) + ((b.minF || 2.8) - (a.minF || 2.8)) * t,
-            nearestId: (t <= 0.5 ? a : b).id
-          };
-        }
-      }
-      return { mm: pts[0].mm, minF: pts[0].minF, nearestId: pts[0].anchor.id };
-    };
+    const detXs = [35, 50, 70].map(valToX);
 
     return {
-      modeKey: `prime:${body.id}`,
-      tag: 'FOCAL',
+      modeKey: `zoom:${body.id}`,
+      tag: 'ZOOM',
       locked: false,
       minX: 0,
       maxX,
       marks,
       ticks,
-      getCurX: () => valToX(state.lensFocalMm),
+      getCurX: () => valToX(state.zoomFocalMm),
       getMinDragX: () => 0,
-      getValText: () => `${Math.round(state.lensFocalMm)}mm`,
+      getValText: () => `${Math.round(state.zoomFocalMm)}mm`,
       applyX: (rawX, isRelease, prevDetent) => {
         let cx = Math.max(0, Math.min(maxX, rawX));
         if (isRelease) {
-          for (const p of pts) {
-            if (Math.abs(cx - p.x) <= 2.5) { cx = p.x; break; }
+          for (const dx of detXs) {
+            if (Math.abs(cx - dx) <= 2.5) { cx = dx; break; }
           }
         }
-        const res = xToState(cx);
-        state.lensFocalMm = Number(res.mm.toFixed(2));
-        state.lensId = res.nearestId;
-        const nextMinF = Number(res.minF.toFixed(2));
+        const nextMm = Number(xToVal(cx).toFixed(2));
+        state.zoomFocalMm = nextMm;
+        const nextMinF = Number((3.5 + ((nextMm - 35) / 35) * 1.0).toFixed(2));
         state.lensAperture = apPinnedWideOpen ? nextMinF : Math.max(nextMinF, state.lensAperture);
-        if (prevDetent !== undefined && prevDetent !== res.nearestId) {
-          playLensClickSound(true);
+        const detentBucket = Math.round(nextMm / 5);
+        if (prevDetent !== undefined && prevDetent !== detentBucket) {
+          playLensClickSound([35, 50, 70].includes(detentBucket * 5));
         }
-        return { changed: true, needsLayout: body.id === 'rangefinder', detent: res.nearestId };
+        return { changed: true, needsLayout: false, detent: detentBucket };
       }
     };
   }
@@ -4995,7 +4801,7 @@
     if (rawLens.isFixedAperture) {
       return {
         modeKey: 'ap-fixed',
-        tag: 'IRIS',
+        tag: 'APERTURE',
         locked: true,
         minX: 0,
         maxX: 0,
@@ -5033,7 +4839,7 @@
 
     return {
       modeKey: 'ap-stops',
-      tag: 'IRIS',
+      tag: 'APERTURE',
       locked: false,
       minX: 0,
       maxX,
@@ -5261,16 +5067,16 @@
     if (!container || container.dataset.barrelInit) return;
     container.dataset.barrelInit = '1';
     container.innerHTML = `
-      <div class="lens-barrel-ring" data-ring="focal">
-        <span class="lens-ring-tag">FOCAL</span>
-        <div class="lens-ring-viewport" tabindex="0" role="slider" aria-label="Lens focal length ring">
+      <div class="lens-barrel-ring" data-ring="focal" style="display:none;">
+        <span class="lens-ring-tag">ZOOM</span>
+        <div class="lens-ring-viewport" tabindex="0" role="slider" aria-label="Zoom lens focal length ring">
           <div class="lens-ring-track"></div>
           <div class="lens-ring-shade"></div>
           <div class="lens-ring-index"></div>
         </div>
         <span class="lens-ring-val">50mm</span>
       </div>
-      <div class="lens-barrel-divider"></div>
+      <div class="lens-barrel-divider focal-divider" style="display:none;"></div>
       <div class="lens-barrel-ring is-af in-focus" data-ring="focus">
         <button type="button" class="lens-ring-tag lens-af-btn is-af" title="Auto Focus — tap to return to AF">AF</button>
         <div class="lens-ring-viewport" tabindex="0" role="slider" aria-label="Manual focus distance ring">
@@ -5283,7 +5089,7 @@
       </div>
       <div class="lens-barrel-divider"></div>
       <div class="lens-barrel-ring" data-ring="aperture">
-        <span class="lens-ring-tag">IRIS</span>
+        <span class="lens-ring-tag">APERTURE</span>
         <div class="lens-ring-viewport" tabindex="0" role="slider" aria-label="Lens aperture ring">
           <div class="lens-ring-track"></div>
           <div class="lens-ring-shade"></div>
@@ -5295,6 +5101,7 @@
 
     const makeRingController = (ringKind) => {
       const row = container.querySelector(`.lens-barrel-ring[data-ring="${ringKind}"]`);
+      const dividerEl = ringKind === 'focal' ? row.nextElementSibling : null;
       const tagEl = row.querySelector('.lens-ring-tag');
       const viewport = row.querySelector('.lens-ring-viewport');
       const track = row.querySelector('.lens-ring-track');
@@ -5372,6 +5179,15 @@
       };
 
       const renderFrame = (body, rawLens, resolvedLens) => {
+        if (ringKind === 'focal') {
+          const showFocal = !!resolvedLens.isZoom;
+          row.style.display = showFocal ? '' : 'none';
+          if (dividerEl) dividerEl.style.display = showFocal ? '' : 'none';
+          if (!showFocal) {
+            spec = null;
+            return;
+          }
+        }
         spec = ringKind === 'focal'
           ? buildTopScaleSpec(body, resolvedLens)
           : (ringKind === 'focus'
@@ -7037,7 +6853,6 @@
     state.bodyId = mode.id;
     if (mode.id !== 'half-frame') clearPendingHalfFrame();
     state.lensId = rawLens.id;
-    mfFormatDragX = null;
     if (rawLens.isZoom) {
       state.zoomFocalMm = pick([35, 50, 70]);
       state.lensAperture = Number((3.5 + ((state.zoomFocalMm - 35) / 35) * 1.0).toFixed(2));
@@ -7111,12 +6926,7 @@
       state.lensId = fId;
       state.filmId = matchedFilm.id;
       state.zoomFocalMm = clamp(p.zm, 35, 70, state.zoomFocalMm);
-      const anchors = getPrimeAnchors(mId);
-      if (anchors.length > 0 && !rawLens.isZoom && !rawLens.isFormatLens && !rawLens.isFixedAperture) {
-        state.lensFocalMm = clamp(p.mm, anchors[0].mm, anchors[anchors.length - 1].mm, rawLens.mm || 50);
-      } else {
-        state.lensFocalMm = rawLens.mm || 50;
-      }
+      state.lensFocalMm = rawLens.mm || 50;
       const minF = rawLens.isZoom ? (3.5 + ((state.zoomFocalMm - 35) / 35) * 1.0) : (rawLens.minF || 2.8);
       state.lensAperture = rawLens.isFixedAperture ? minF : clamp(p.ap, minF, rawLens.maxF || 16, minF);
       apPinnedWideOpen = Math.abs(state.lensAperture - minF) < 0.04;
@@ -7361,10 +7171,10 @@
       const primes = getPrimeAnchors('slr');
       const nearest = primes.reduce((a, b) => Math.abs(b.mm - z) < Math.abs(a.mm - z) ? b : a, primes[0]);
       state.lensId = nearest.id;
-      state.lensFocalMm = Number(z.toFixed(2));
+      state.lensFocalMm = nearest.mm;
       const nextLens = getSelectedGear().lens;
       state.lensAperture = apPinnedWideOpen ? nextLens.minF : Math.max(nextLens.minF, state.lensAperture);
-      showToast(`SLR Primes (${Math.round(state.lensFocalMm)}mm)`);
+      showToast(`SLR Primes (${nearest.focalTag || nearest.mm + 'mm'})`);
     } else {
       state.lensId = '35-70mm';
       const z = Math.max(35, Math.min(70, Number(state.lensFocalMm) || 50));
