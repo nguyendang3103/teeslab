@@ -213,8 +213,7 @@
       font-size: 13px;
       color: var(--text-secondary);
     }
-    .app-shell[data-active-tab="camera"] #btnExport,
-    .app-shell[data-active-tab="camera"] #btnBottomPhoto {
+    .app-shell[data-active-tab="camera"] #btnExport {
       display: none;
     }
 
@@ -2082,8 +2081,7 @@
 
       <div class="topbar-actions">
         <input type="file" id="fileInput" accept="image/*" hidden />
-        <button class="btn-icon-top" id="btnOpenSamples" title="Sample & library photos" aria-label="Sample & library photos">🖼️</button>
-        <button class="btn-pill btn-ghost" id="btnBottomPhoto" type="button" title="Add photo from library" aria-label="Add photo from library">➕ Photo</button>
+        <button class="btn-icon-top" id="btnOpenSamples" title="Add Photo" aria-label="Add Photo">🖼️</button>
         <button class="btn-pill btn-brass" id="btnExport" title="Save edited photo" aria-label="Save edited photo">Save</button>
       </div>
     </header>
@@ -2393,16 +2391,15 @@
       </div>
     </div>
 
-    <!-- BOTTOM SHEET: SAMPLE SCENES -->
+    <!-- BOTTOM SHEET: ADD PHOTO & SAMPLE SCENES -->
     <div class="sheet-backdrop" id="sampleSheetBackdrop">
       <div class="sheet-card">
         <div class="sheet-head">
-          <span>🖼️ Photos &amp; Samples</span>
-          <div style="display:flex;gap:6px;align-items:center;">
-            <button class="btn-pill btn-brass" id="btnSheetOpenPhoto" type="button" style="height:26px;font-size:11px;">➕ Add Photo</button>
-            <button class="btn-pill btn-ghost" id="btnCloseSampleSheet" style="height:26px;">✕</button>
-          </div>
+          <span>🖼️ Add Photo</span>
+          <button class="btn-pill btn-ghost" id="btnCloseSampleSheet" style="height:26px;">✕</button>
         </div>
+        <button class="btn-pill btn-brass" id="btnSheetOpenPhoto" type="button" style="width:100%;height:36px;font-size:12.5px;border-radius:10px;margin-bottom:10px;">➕ Choose Photo from Library</button>
+        <div style="font-size:10.5px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">Sample scenes</div>
         <div class="sample-grid-3" id="sampleStrip"></div>
       </div>
     </div>
@@ -4211,8 +4208,6 @@
     state.fullSourceCanvas = srcCanvas;
     state.sourceIsDiptych = !!opts.isDiptych;
     state.exif = exifData;
-    const openSamplesBtn = document.getElementById('btnOpenSamples');
-    if (openSamplesBtn) openSamplesBtn.style.display = SAMPLES.some(x => x.canvas === srcCanvas) ? '' : 'none';
 
     const maxDim = window.matchMedia('(max-width: 700px)').matches ? 680 : 860;
     const scale = Math.min(1, maxDim / Math.max(srcCanvas.width, srcCanvas.height));
@@ -6773,7 +6768,6 @@
 
   // File & Export
   const fileInput = document.getElementById('fileInput');
-  document.getElementById('btnBottomPhoto').addEventListener('click', () => fileInput.click());
   fileInput.addEventListener('change', e => { if (e.target.files[0]) handleImageFile(e.target.files[0]); e.target.value = ''; });
   document.getElementById('btnExport').addEventListener('click', exportFullResolution);
 
