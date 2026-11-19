@@ -428,11 +428,17 @@
       gap: 6px;
       z-index: 12;
     }
-    .stage-actions-row {
+    .stage-info-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
+      gap: 6px;
+    }
+    .stage-actions-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 6px;
     }
     .stage-action-group {
       display: flex;
@@ -449,7 +455,7 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      width: 100%;
+      flex: 1;
       min-width: 0;
       text-align: left;
     }
@@ -2163,17 +2169,17 @@
         </div>
 
         <div class="stage-overlay-bottom">
-          <button class="rollie-combo-caption" id="liveGearBadge" title="Tap to change combo">SLR (3:2) — 50mm — <strong>Pro 400H</strong></button>
-          <div class="stage-actions-row">
+          <div class="stage-info-row">
+            <button class="rollie-combo-caption" id="liveGearBadge" title="Tap to change combo">SLR (3:2) — 50mm — <strong>Pro 400H</strong></button>
             <div class="stage-action-group">
               <button class="float-pill" id="btnToggleLabZoom" type="button" title="Toggle 2× zoom">🔍 1×</button>
               <button class="float-pill" id="btnToggleSplit" type="button">◧ Split</button>
             </div>
-            <div class="stage-action-group">
-              <input type="file" id="fileInput" accept="image/*" hidden />
-              <button class="btn-stage-photo" id="btnOpenSamples" type="button" title="Add Photo" aria-label="Add Photo">🖼️</button>
-              <button class="btn-pill btn-brass btn-stage-save" id="btnExport" type="button" title="Save edited photo" aria-label="Save edited photo">Save</button>
-            </div>
+          </div>
+          <div class="stage-actions-row">
+            <input type="file" id="fileInput" accept="image/*" hidden />
+            <button class="btn-stage-photo" id="btnOpenSamples" type="button" title="Add Photo" aria-label="Add Photo">🖼️</button>
+            <button class="btn-pill btn-brass btn-stage-save" id="btnExport" type="button" title="Save edited photo" aria-label="Save edited photo">Save</button>
           </div>
         </div>
       </div>
