@@ -709,22 +709,164 @@
       z-index: 3;
     }
 
-    /* Native 4:3 — minimal clean edges */
+    /* Corner finder brackets (shared by Pocket 110, Half Frame Single, Disposable) */
     .vf-corner {
       position: absolute;
       width: 14px;
       height: 14px;
-      border-color: rgba(255,255,255,0.68);
+      border-color: rgba(255,255,255,0.72);
       border-style: solid;
       pointer-events: none;
       opacity: 0;
       transition: opacity 0.15s ease;
     }
-    .vf-stage[data-vf-mode="native"] .vf-corner { opacity: 0.72; }
-    .vf-corner.tl { top: 8px; left: 8px; border-width: 1.5px 0 0 1.5px; }
-    .vf-corner.tr { top: 8px; right: 8px; border-width: 1.5px 1.5px 0 0; }
-    .vf-corner.bl { bottom: 8px; left: 8px; border-width: 0 0 1.5px 1.5px; }
-    .vf-corner.br { bottom: 8px; right: 8px; border-width: 0 1.5px 1.5px 0; }
+    .vf-stage[data-vf-mode="half-frame-single"] .vf-corner,
+    .vf-stage[data-vf-mode="pocket-110"] .vf-corner,
+    .vf-stage[data-vf-mode="disposable"] .vf-corner { opacity: 0.78; }
+    .vf-corner.tl { top: 10px; left: 10px; border-width: 1.5px 0 0 1.5px; }
+    .vf-corner.tr { top: 10px; right: 10px; border-width: 1.5px 1.5px 0 0; }
+    .vf-corner.bl { bottom: 10px; left: 10px; border-width: 0 0 1.5px 1.5px; }
+    .vf-corner.br { bottom: 10px; right: 10px; border-width: 0 1.5px 1.5px 0; }
+
+    /* Half-Frame Single 3:4 — Vertical Half-Frame Portrait Guide */
+    .vf-hfs-overlay {
+      position: absolute;
+      inset: 6px;
+      border: 1px solid rgba(245, 166, 35, 0.36);
+      display: none;
+      pointer-events: none;
+    }
+    .vf-stage[data-vf-mode="half-frame-single"] .vf-hfs-overlay { display: block; }
+    .vf-hfs-overlay::after {
+      content: "+";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: var(--mono);
+      font-size: 13px;
+      color: rgba(255,255,255,0.45);
+    }
+
+    /* Pocket 110 (4:3) — Simple Subminiature Oval Target */
+    .vf-110-overlay {
+      position: absolute;
+      inset: 0;
+      display: none;
+      pointer-events: none;
+    }
+    .vf-stage[data-vf-mode="pocket-110"] .vf-110-overlay { display: block; }
+    .vf-110-reticle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 24px;
+      height: 18px;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.55);
+    }
+    .vf-110-tag {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      font-family: var(--mono);
+      font-size: 8.5px;
+      font-weight: 800;
+      color: rgba(255,255,255,0.58);
+      letter-spacing: 0.5px;
+    }
+
+    /* Disposable 35mm — Plastic Finder + Parallax Ticks + Flash Status */
+    .vf-disp-overlay {
+      position: absolute;
+      inset: 14px;
+      border: 1px dashed rgba(255, 255, 255, 0.25);
+      display: none;
+      pointer-events: none;
+    }
+    .vf-stage[data-vf-mode="disposable"] .vf-disp-overlay { display: block; }
+    .vf-disp-overlay::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 14px;
+      height: 14px;
+      transform: translate(-50%, -50%);
+      border: 1px solid rgba(255,255,255,0.42);
+      border-radius: 50%;
+    }
+    .vf-disp-flash-pip {
+      position: absolute;
+      top: 6px;
+      right: 8px;
+      font-family: var(--mono);
+      font-size: 8.5px;
+      font-weight: 800;
+      padding: 1px 5px;
+      border-radius: 4px;
+      background: rgba(245, 166, 35, 0.22);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 166, 35, 0.65);
+      opacity: 0;
+      transition: opacity 0.14s ease;
+    }
+    .vf-disp-flash-pip.on { opacity: 1; }
+
+    /* Medium Format 120 — Waist-Level Ground Glass Etched Grid */
+    .vf-mf-overlay {
+      position: absolute;
+      inset: 0;
+      display: none;
+      pointer-events: none;
+    }
+    .vf-stage[data-vf-mode="medium-format"] .vf-mf-overlay { display: block; }
+    .vf-mf-frame {
+      position: absolute;
+      inset: 6px;
+      border: 1px solid rgba(255,255,255,0.34);
+    }
+    .vf-mf-grid-h1, .vf-mf-grid-h2 {
+      position: absolute;
+      left: 6px;
+      right: 6px;
+      height: 1px;
+      background: rgba(255,255,255,0.16);
+    }
+    .vf-mf-grid-h1 { top: 33.33%; }
+    .vf-mf-grid-h2 { top: 66.66%; }
+    .vf-mf-grid-v1, .vf-mf-grid-v2 {
+      position: absolute;
+      top: 6px;
+      bottom: 6px;
+      width: 1px;
+      background: rgba(255,255,255,0.16);
+    }
+    .vf-mf-grid-v1 { left: 33.33%; }
+    .vf-mf-grid-v2 { left: 66.66%; }
+    .vf-mf-loupe {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 58px;
+      height: 58px;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.48);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.28);
+    }
+    .vf-mf-loupe::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 6px;
+      height: 6px;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.68);
+    }
 
     /* SLR 3:2 — Split-Prism Focusing Circle + Classic LED Exposure Meter */
     .vf-slr-overlay {
@@ -1522,10 +1664,10 @@
           <input type="range" id="activeTweakSlider" min="0" max="100" value="100" />
         </div>
 
-        <!-- 3-Card Combo Selector (VIEWFINDER • FOCAL • FILM) -->
+        <!-- 3-Card Combo Selector (BODY • FOCAL • FILM) -->
         <div class="combo-trio-grid" id="labComboTrio">
           <button class="combo-card" data-open-combo="camera" type="button">
-            <span class="combo-card-tag">VIEWFINDER</span>
+            <span class="combo-card-tag">BODY</span>
             <span class="combo-card-val" id="labCardBodyName">SLR</span>
             <span class="combo-card-caret">▾</span>
             <div class="combo-card-art" id="labCardBodyArt"></div>
@@ -1551,7 +1693,7 @@
       </div>
     </main>
 
-    <!-- 2B. VIEW: VIEWFINDER CAMERA -->
+    <!-- 2B. VIEW: CAMERA -->
     <section id="view-camera" class="view-section">
       <div class="cam-wrap">
         <!-- Mechanical Top Plate (Counter + Viewfinder Eye + Lever/Audio) -->
@@ -1564,7 +1706,7 @@
           </div>
         </div>
 
-        <!-- Dynamic Viewfinder Stage (Native 4:3, SLR 3:2, Rangefinder 3:2, Half-Frame 3:4x2) -->
+        <!-- Dynamic Viewfinder Stage (7 Film Body Viewfinders) -->
         <div class="cam-vf-box" id="camVfBox">
           <video id="camVideo" autoplay playsinline muted style="display:none;"></video>
           <div class="vf-stage" id="vfStage" data-vf-mode="slr">
@@ -1614,6 +1756,30 @@
                   <span class="vf-hf-slot-badge" id="vfHfRightBadge">2/2 NEXT</span>
                 </div>
               </div>
+
+              <!-- Half-Frame Single: 3:4 Portrait Guide -->
+              <div class="vf-hfs-overlay" aria-hidden="true"></div>
+
+              <!-- Pocket 110: Subminiature Reticle -->
+              <div class="vf-110-overlay" aria-hidden="true">
+                <div class="vf-110-reticle"></div>
+                <span class="vf-110-tag">110</span>
+              </div>
+
+              <!-- Disposable: Plastic Brightframe + Flash Pip -->
+              <div class="vf-disp-overlay" aria-hidden="true">
+                <span class="vf-disp-flash-pip on" id="vfDispFlashPip">⚡ READY</span>
+              </div>
+
+              <!-- Medium Format: Waist-Level Ground Glass Grid -->
+              <div class="vf-mf-overlay" aria-hidden="true">
+                <div class="vf-mf-frame"></div>
+                <div class="vf-mf-grid-h1"></div>
+                <div class="vf-mf-grid-h2"></div>
+                <div class="vf-mf-grid-v1"></div>
+                <div class="vf-mf-grid-v2"></div>
+                <div class="vf-mf-loupe"></div>
+              </div>
             </div>
           </div>
 
@@ -1630,6 +1796,7 @@
             <div style="display:flex;align-items:center;gap:4px;">
               <button class="vf-badge-btn" id="btnVfFrameToggle" type="button" title="Cycle film border">FRAME: OFF</button>
               <button class="vf-badge-btn active" id="btnVfHalfRetake" type="button" title="Retake Frame 1" style="display:none;">↺ 1/2</button>
+              <button class="vf-badge-btn active" id="btnVfFlashToggle" type="button" title="Toggle Disposable Flash" style="display:none;">⚡ FLASH</button>
             </div>
             <div class="vf-focal-pills" id="vfFocalPills" aria-label="Focal length"></div>
             <span id="camSourceStatus" style="font-family:var(--mono);font-size:9.5px;color:rgba(255,255,255,0.65);text-shadow:0 1px 3px #000;">Rear</span>
@@ -1641,7 +1808,7 @@
         <!-- 3-Card Combo Selector in Camera -->
         <div class="combo-trio-grid" id="camComboTrio">
           <button class="combo-card" data-open-combo="camera" type="button">
-            <span class="combo-card-tag">VIEWFINDER</span>
+            <span class="combo-card-tag">BODY</span>
             <span class="combo-card-val" id="camCardBodyName">SLR</span>
             <span class="combo-card-caret">▾</span>
             <div class="combo-card-art" id="camCardBodyArt"></div>
@@ -1696,8 +1863,8 @@
         <div class="clapper-cols">
           <button class="clapper-col active" data-picker-tab="camera" type="button">
             <div class="clapper-col-head">
-              <span class="clapper-col-lbl">VIEWFINDER</span>
-              <span class="clapper-col-num" id="pickerBodyCount"><strong>02</strong>/4</span>
+              <span class="clapper-col-lbl">BODY</span>
+              <span class="clapper-col-num" id="pickerBodyCount"><strong>01</strong>/7</span>
             </div>
             <div class="clapper-col-val" id="clapperBodyVal">SLR</div>
           </button>
@@ -1721,7 +1888,7 @@
       <div class="picker-section active" id="pickerSecCamera">
         <div class="picker-spec-bar">
           <span class="picker-spec-note" id="pickerBodyEffect">Split-prism focus + LED meter</span>
-          <span class="picker-spec-stat" id="pickerBodyStat">Full Frame 3:2</span>
+          <span class="picker-spec-stat" id="pickerBodyStat">35mm · 3:2</span>
         </div>
         <div class="h-scroll" id="pickerBodyTrack"></div>
       </div>
@@ -1810,35 +1977,26 @@
 
   const VIEWFINDER_MODES = [
     {
-      id: 'native',
-      name: 'Native',
-      formatLabel: 'Phone (4:3)',
-      aspect: 4 / 3,
-      meta: 'Clean edge-to-edge sensor, fast zoom',
-      defaultFocalId: '1x',
-      blackLift: 0.018,
-      contrast: 1.02,
-      highlightRolloff: 0.16,
-      bodyWarmth: 0,
-      bodyTint: 0
-    },
-    {
       id: 'slr',
       name: 'SLR',
-      formatLabel: 'Full Frame (3:2)',
+      formatLabel: '35mm · 3:2',
       aspect: 3 / 2,
-      meta: 'Split-prism focus + classic LED meter',
+      meta: 'Split-prism focus + LED exposure meter',
       defaultFocalId: '50mm',
-      blackLift: 0.025,
+      blackLift: 0.024,
       contrast: 1.08,
       highlightRolloff: 0.18,
       bodyWarmth: 1,
-      bodyTint: 0
+      bodyTint: 0,
+      grainScale: 1.0,
+      softFocus: 0,
+      vignetteBoost: 0,
+      disposableCast: false
     },
     {
       id: 'rangefinder',
       name: 'Rangefinder',
-      formatLabel: 'Full Frame (3:2)',
+      formatLabel: '35mm · 3:2',
       aspect: 3 / 2,
       meta: 'Brightline frames + outside-the-frame',
       defaultFocalId: '35mm',
@@ -1846,30 +2004,100 @@
       contrast: 1.11,
       highlightRolloff: 0.15,
       bodyWarmth: 1,
-      bodyTint: 0
+      bodyTint: 0,
+      grainScale: 1.0,
+      softFocus: 0,
+      vignetteBoost: 0,
+      disposableCast: false
     },
     {
       id: 'half-frame',
-      name: 'Half-Frame',
-      formatLabel: 'Half Frame (3:4 × 2)',
+      name: 'Half Frame',
+      formatLabel: '3:4 × 2 Diptych',
       aspect: 3 / 4,
       meta: '2-step diptych, keeps Shot 1 beside live',
       defaultFocalId: '35mm',
       blackLift: 0.035,
-      contrast: 1.03,
+      contrast: 1.04,
       highlightRolloff: 0.20,
       bodyWarmth: 2,
-      bodyTint: 0
+      bodyTint: 0,
+      grainScale: 1.28,
+      softFocus: 0,
+      vignetteBoost: 4,
+      disposableCast: false
+    },
+    {
+      id: 'half-frame-single',
+      name: 'Half Frame Single',
+      formatLabel: '3:4 Portrait',
+      aspect: 3 / 4,
+      meta: 'Single vertical 3:4 half-frame shot',
+      defaultFocalId: '35mm',
+      blackLift: 0.032,
+      contrast: 1.05,
+      highlightRolloff: 0.19,
+      bodyWarmth: 1,
+      bodyTint: 0,
+      grainScale: 1.28,
+      softFocus: 0,
+      vignetteBoost: 4,
+      disposableCast: false
+    },
+    {
+      id: 'pocket-110',
+      name: 'Pocket 110',
+      formatLabel: '110 · 4:3',
+      aspect: 4 / 3,
+      meta: 'Heavy grain, soft focus & pocket vignette',
+      defaultFocalId: '24mm',
+      blackLift: 0.055,
+      contrast: 1.03,
+      highlightRolloff: 0.14,
+      bodyWarmth: 4,
+      bodyTint: -2,
+      grainScale: 1.85,
+      softFocus: 0.45,
+      vignetteBoost: 16,
+      disposableCast: false
+    },
+    {
+      id: 'disposable',
+      name: 'Disposable',
+      formatLabel: '35mm · Flash Cam',
+      aspect: 3 / 2,
+      meta: 'Fixed 32mm lens + toggleable direct flash',
+      defaultFocalId: '32mm',
+      blackLift: 0.032,
+      contrast: 1.09,
+      highlightRolloff: 0.14,
+      bodyWarmth: -2,
+      bodyTint: -5,
+      grainScale: 1.18,
+      softFocus: 0.12,
+      vignetteBoost: 10,
+      disposableCast: true
+    },
+    {
+      id: 'medium-format',
+      name: 'Medium Format',
+      formatLabel: '120 · 6×6',
+      aspect: 1,
+      meta: 'Ultra-fine grain, wide dynamic range',
+      defaultFocalId: '6x6',
+      blackLift: 0.012,
+      contrast: 1.04,
+      highlightRolloff: 0.30,
+      bodyWarmth: 0,
+      bodyTint: 0,
+      grainScale: 0.52,
+      softFocus: 0,
+      vignetteBoost: 0,
+      disposableCast: false
     }
   ];
 
   const FOCAL_OPTIONS_BY_MODE = {
-    native: [
-      { id: '0.5x', label: '0.5x', meta: 'Ultra-wide sensor', cropZoom: 1.0, hwZoom: 0.5, coatingWarmth: 0, coatingTint: 0, bloomBase: 10, vignetteBase: 18, chromaticAb: 0.35, edgeSoft: 0.03 },
-      { id: '1x', label: '1x', meta: 'Standard sensor', cropZoom: 1.28, hwZoom: 1.0, coatingWarmth: 0, coatingTint: 0, bloomBase: 12, vignetteBase: 14, chromaticAb: 0.15, edgeSoft: 0.01 },
-      { id: '2x', label: '2x', meta: 'Medium tele crop', cropZoom: 2.05, hwZoom: 2.0, coatingWarmth: 1, coatingTint: 0, bloomBase: 14, vignetteBase: 12, chromaticAb: 0.15, edgeSoft: 0.015 },
-      { id: '3x', label: '3x', meta: 'Telephoto crop', cropZoom: 2.95, hwZoom: 3.0, coatingWarmth: 1, coatingTint: 0, bloomBase: 16, vignetteBase: 12, chromaticAb: 0.15, edgeSoft: 0.02 }
-    ],
     slr: [
       { id: '28mm', label: '28mm', meta: 'Wide SLR angle', cropZoom: 1.0, brightlinePct: 100, coatingWarmth: 0, coatingTint: 0, bloomBase: 18, vignetteBase: 26, chromaticAb: 0.40, edgeSoft: 0.04 },
       { id: '35mm', label: '35mm', meta: 'Street SLR focal', cropZoom: 1.25, brightlinePct: 100, coatingWarmth: 1, coatingTint: 0, bloomBase: 20, vignetteBase: 23, chromaticAb: 0.32, edgeSoft: 0.03 },
@@ -1885,6 +2113,23 @@
     'half-frame': [
       { id: '28mm', label: '28mm', meta: 'Wide diptych frame', cropZoom: 1.0, coatingWarmth: 2, coatingTint: 0, bloomBase: 24, vignetteBase: 30, chromaticAb: 0.45, edgeSoft: 0.05 },
       { id: '35mm', label: '35mm', meta: 'Standard diptych frame', cropZoom: 1.25, coatingWarmth: 2, coatingTint: 0, bloomBase: 26, vignetteBase: 26, chromaticAb: 0.38, edgeSoft: 0.04 }
+    ],
+    'half-frame-single': [
+      { id: '28mm', label: '28mm', meta: 'Wide portrait half-frame', cropZoom: 1.0, coatingWarmth: 2, coatingTint: 0, bloomBase: 24, vignetteBase: 28, chromaticAb: 0.42, edgeSoft: 0.04 },
+      { id: '35mm', label: '35mm', meta: 'Standard portrait half-frame', cropZoom: 1.25, coatingWarmth: 1, coatingTint: 0, bloomBase: 24, vignetteBase: 24, chromaticAb: 0.34, edgeSoft: 0.03 },
+      { id: '50mm', label: '50mm', meta: 'Tight portrait half-frame', cropZoom: 1.65, coatingWarmth: 2, coatingTint: 0, bloomBase: 26, vignetteBase: 22, chromaticAb: 0.28, edgeSoft: 0.03 }
+    ],
+    'pocket-110': [
+      { id: '24mm', label: '24mm', meta: 'Wide 110 plastic lens', cropZoom: 1.0, coatingWarmth: 3, coatingTint: -1, bloomBase: 30, vignetteBase: 32, chromaticAb: 0.65, edgeSoft: 0.09 },
+      { id: '48mm', label: '48mm', meta: 'Tele 110 converter', cropZoom: 1.65, coatingWarmth: 4, coatingTint: -1, bloomBase: 32, vignetteBase: 28, chromaticAb: 0.55, edgeSoft: 0.08 }
+    ],
+    disposable: [
+      { id: '32mm', label: '32mm', meta: 'Fixed plastic lens', cropZoom: 1.12, coatingWarmth: -2, coatingTint: -4, bloomBase: 28, vignetteBase: 26, chromaticAb: 0.55, edgeSoft: 0.06 }
+    ],
+    'medium-format': [
+      { id: '6x6', label: '6×6', meta: 'Square 1:1 ground glass', formatAspect: 1, formatLabel: '120 · 6×6', cropZoom: 1.0, coatingWarmth: 0, coatingTint: 0, bloomBase: 16, vignetteBase: 14, chromaticAb: 0.12, edgeSoft: 0.01 },
+      { id: '6x45', label: '6×4.5', meta: 'Classic 4:3 medium frame', formatAspect: 4 / 3, formatLabel: '120 · 6×4.5', cropZoom: 1.12, coatingWarmth: 0, coatingTint: 0, bloomBase: 16, vignetteBase: 14, chromaticAb: 0.12, edgeSoft: 0.01 },
+      { id: '6x7', label: '6×7', meta: 'Ideal 7:6 studio frame', formatAspect: 7 / 6, formatLabel: '120 · 6×7', cropZoom: 1.06, coatingWarmth: 0, coatingTint: 0, bloomBase: 16, vignetteBase: 14, chromaticAb: 0.12, edgeSoft: 0.01 }
     ]
   };
 
@@ -2263,7 +2508,7 @@
   }
 
   function processFilmCanvas(sourceImgData, width, height, cfg) {
-    const { phone, body, lens, film, strength, exposureEV, warmth, grainAmt, halationAmt, bloomAmt, vignetteAmt, leakType, leakAmt, frameType, dateStampText, frameNumberStr } = cfg;
+    const { phone, body, lens, film, strength, exposureEV, warmth, grainAmt, halationAmt, bloomAmt, vignetteAmt, leakType, leakAmt, frameType, dateStampText, frameNumberStr, flashBurst } = cfg;
     const src = sourceImgData.data;
     const outData = new Uint8ClampedArray(src.length);
     const str = strength / 100;
@@ -2275,7 +2520,8 @@
     const { lutR, lutG, lutB } = buildToneLUT(exposureEV, totalContrast, totalLift, totalRolloff, totalWarmth, totalTint);
 
     const m = film.matrix, sT = film.shadowTint, mT = film.midTint, hT = film.highlightTint;
-    const deSharp = Math.min(0.45, phone.deSharpen + lens.edgeSoft * 0.45);
+    const softFocus = body.softFocus || 0;
+    const deSharp = Math.min(0.85, phone.deSharpen + lens.edgeSoft * 0.45 + softFocus * 0.65);
     const hasCA = lens.chromaticAb > 0.2, caStr = lens.chromaticAb * (width / 900);
     const invW = 1 / width, invH = 1 / height;
 
@@ -2300,6 +2546,13 @@
           r0 += ((src[pL] + src[pR] + src[pU] + src[pD]) * 0.25 - r0) * ef;
           g0 += ((src[pL+1] + src[pR+1] + src[pU+1] + src[pD+1]) * 0.25 - g0) * ef;
           b0 += ((src[pL+2] + src[pR+2] + src[pU+2] + src[pD+2]) * 0.25 - b0) * ef;
+          if (softFocus > 0.25 && x > 1 && x < width - 2 && y > 1 && y < height - 2) {
+            const pL2 = p - 8, pR2 = p + 8, pU2 = p - width * 8, pD2 = p + width * 8;
+            const sf = softFocus * 0.52;
+            r0 += ((src[pL2] + src[pR2] + src[pU2] + src[pD2]) * 0.25 - r0) * sf;
+            g0 += ((src[pL2+1] + src[pR2+1] + src[pU2+1] + src[pD2+1]) * 0.25 - g0) * sf;
+            b0 += ((src[pL2+2] + src[pR2+2] + src[pU2+2] + src[pD2+2]) * 0.25 - b0) * sf;
+          }
         }
         if (phone.blueTame > 0 || phone.greenTame > 0 || phone.satScale !== 1) {
           const gray0 = 0.299 * r0 + 0.587 * g0 + 0.114 * b0;
@@ -2330,6 +2583,12 @@
           mr += sT[0]*wS + mT[0]*wM + hT[0]*wH;
           mg += sT[1]*wS + mT[1]*wM + hT[1]*wH;
           mb += sT[2]*wS + mT[2]*wM + hT[2]*wH;
+
+          if (body.disposableCast) {
+            mr -= 4 * wS;
+            mg += 6 * wS + 2 * wM;
+            mb += 5 * wS - 2 * wH;
+          }
 
           if (film.foliageShift && mg > mr && mg > mb) {
             const gDom = Math.min(1, (mg - Math.max(mr, mb)) / 70);
@@ -2401,17 +2660,27 @@
       }
     }
 
-    const vigStr = (vignetteAmt / 100) * 0.72, grainGain = (grainAmt / 100) * 26;
-    const grainScale = 1 / Math.max(0.65, film.grainSize * (width / 950));
-    if (vigStr > 0.01 || grainGain > 0.2) {
+    const bodyGrain = body.grainScale || 1.0;
+    const effVig = Math.min(100, vignetteAmt + (body.vignetteBoost || 0));
+    const vigStr = (effVig / 100) * 0.72, grainGain = (grainAmt / 100) * 26 * bodyGrain;
+    const grainScale = 1 / Math.max(0.55, film.grainSize * (0.72 + 0.28 * bodyGrain) * (width / 950));
+    if (vigStr > 0.01 || grainGain > 0.2 || flashBurst) {
       for (let y = 0; y < height; y++) {
         const ny = (y * invH - 0.5) * 2, gy = ((y * grainScale) | 0) & (GRAIN_SIZE - 1);
         for (let x = 0; x < width; x++) {
           const sp = (y * width + x) * 4;
           let r = outData[sp], g = outData[sp+1], b = outData[sp+2];
+          const nx = (x * invW - 0.5) * 2;
+          const r2 = nx * nx + ny * ny;
+          if (flashBurst) {
+            const fMask = Math.max(0, 1 - r2 * 0.52);
+            const fGain = 1 + fMask * 0.42 - (1 - fMask) * 0.16;
+            r = r * fGain + fMask * 16;
+            g = g * fGain + fMask * 15;
+            b = b * fGain + fMask * 12;
+          }
           if (vigStr > 0.01) {
-            const nx = (x * invW - 0.5) * 2;
-            const vig = Math.max(0.18, 1 - vigStr * Math.pow((nx*nx + ny*ny) * 0.55, 1.35));
+            const vig = Math.max(0.18, 1 - vigStr * Math.pow(r2 * 0.55, 1.35));
             r *= vig; g *= vig; b *= vig;
           }
           if (grainGain > 0.2) {
@@ -2793,6 +3062,7 @@
     camFacing: 'environment',
     camAnimId: null,
     camSound: true,
+    camFlashOn: true,
     camExposureEV: 0,
     camIso: 'film',
     camShutter: 'auto',
@@ -2838,7 +3108,8 @@
   function migrateModeId(oldId) {
     if (VIEWFINDER_MODES.some(m => m.id === oldId)) return oldId;
     if (oldId === 'leica-m6' || oldId === 'fuji-tx1') return 'rangefinder';
-    if (oldId === 'rollie-35' || oldId === 'contax-t2') return 'half-frame';
+    if (oldId === 'rollie-35' || oldId === 'contax-t2') return 'half-frame-single';
+    if (oldId === 'hasselblad-500') return 'medium-format';
     return 'slr';
   }
   function migrateFocalId(modeId, oldFocal) {
@@ -2853,7 +3124,7 @@
       state.recipes = JSON.parse(saved).map(r => {
         const mId = migrateModeId(r.bodyId);
         const fId = migrateFocalId(mId, r.lensId);
-        const mode = VIEWFINDER_MODES.find(m => m.id === mId) || VIEWFINDER_MODES[1];
+        const mode = VIEWFINDER_MODES.find(m => m.id === mId) || VIEWFINDER_MODES[0];
         const film = FILM_STOCKS.find(f => f.id === r.filmId) || FILM_STOCKS[0];
         return { ...r, bodyId: mId, lensId: fId, name: `${mode.name} • ${fId} • ${film.name}` };
       });
@@ -2916,7 +3187,7 @@
       transaction.onabort = () => reject(transaction.error || new Error('Camera roll clear was interrupted'));
     });
   }
-  const SYNC_FIELDS = ['phoneId', 'bodyId', 'lensId', 'filmId', 'filmBrandFilter', 'strength', 'exposure', 'warmth', 'grain', 'halation', 'bloom', 'vignette', 'leakType', 'leakAmt', 'frameType', 'dateStamp', 'camFacing', 'camSound', 'camExposureEV', 'camIso', 'camShutter', 'camWhiteBalance', 'camTimer'];
+  const SYNC_FIELDS = ['phoneId', 'bodyId', 'lensId', 'filmId', 'filmBrandFilter', 'strength', 'exposure', 'warmth', 'grain', 'halation', 'bloom', 'vignette', 'leakType', 'leakAmt', 'frameType', 'dateStamp', 'camFacing', 'camSound', 'camFlashOn', 'camExposureEV', 'camIso', 'camShutter', 'camWhiteBalance', 'camTimer'];
   function stateSnapshot() {
     const settings = {};
     SYNC_FIELDS.forEach(key => { settings[key] = state[key]; });
@@ -2943,7 +3214,7 @@
       state.recipes = snapshot.recipes.map(r => {
         const mId = migrateModeId(r.bodyId);
         const fId = migrateFocalId(mId, r.lensId);
-        const mode = VIEWFINDER_MODES.find(m => m.id === mId) || VIEWFINDER_MODES[1];
+        const mode = VIEWFINDER_MODES.find(m => m.id === mId) || VIEWFINDER_MODES[0];
         const film = FILM_STOCKS.find(f => f.id === r.filmId) || FILM_STOCKS[0];
         return { ...r, bodyId: mId, lensId: fId, name: `${mode.name} • ${fId} • ${film.name}` };
       });
@@ -2989,7 +3260,7 @@
   }
 
   function getSelectedGear() {
-    const mode = VIEWFINDER_MODES.find(m => m.id === state.bodyId) || VIEWFINDER_MODES[1];
+    const mode = VIEWFINDER_MODES.find(m => m.id === state.bodyId) || VIEWFINDER_MODES[0];
     const focals = getModeFocals(mode.id);
     const focal = focals.find(f => f.id === state.lensId) || focals[0];
     return {
@@ -3004,45 +3275,17 @@
     return lens.label || lens.id;
   }
 
-  /* ==========================================================================
-     6. CLEAN VIEWFINDER & FOCAL SVG GRAPHICS + FILM CANISTERS
-     ========================================================================== */
-
-  function svgViewfinderMode(modeId) {
-    if (modeId === 'native') {
-      return `<svg viewBox="0 0 60 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="7" y="4" width="46" height="32" rx="4" fill="#141820" stroke="#9ca3af" stroke-width="1.4"/>
-        <path d="M12 12V9H16M48 12V9H44M12 28V31H16M48 28V31H44" stroke="#f5a623" stroke-width="1.4" stroke-linecap="round"/>
-        <circle cx="30" cy="20" r="3" stroke="#e5e7eb" stroke-width="1.2"/>
-        <text x="30" y="29.5" text-anchor="middle" fill="#cbd5e1" font-family="monospace" font-size="6.5" font-weight="700">4:3</text>
-      </svg>`;
-    }
-    if (modeId === 'slr') {
-      return `<svg viewBox="0 0 60 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="6" y="4" width="48" height="32" rx="3" fill="#141820" stroke="#9ca3af" stroke-width="1.4"/>
-        <circle cx="30" cy="20" r="8.5" stroke="#e5e7eb" stroke-width="1.3"/>
-        <circle cx="30" cy="20" r="4.5" stroke="#f5a623" stroke-width="1.1"/>
-        <line x1="25.5" y1="20" x2="34.5" y2="20" stroke="#f5a623" stroke-width="1.1"/>
-        <circle cx="48" cy="13" r="1.4" fill="#ef4444"/>
-        <circle cx="48" cy="20" r="1.6" fill="#22c55e"/>
-        <circle cx="48" cy="27" r="1.4" fill="#f59e0b"/>
-      </svg>`;
-    }
-    if (modeId === 'rangefinder') {
-      return `<svg viewBox="0 0 60 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="6" y="4" width="48" height="32" rx="3" fill="#0f131a" stroke="#6b7280" stroke-width="1.3"/>
-        <rect x="13" y="9" width="34" height="22" stroke="rgba(255,255,255,0.22)" stroke-width="0.9"/>
-        <path d="M13 14V9H19M41 9H47V14M13 26V31H19M41 31H47V26" stroke="#f5a623" stroke-width="1.6" stroke-linecap="round"/>
-        <rect x="26" y="17.5" width="8" height="5" fill="rgba(245,166,35,0.22)" stroke="#f5a623" stroke-width="1"/>
-      </svg>`;
-    }
-    return `<svg viewBox="0 0 60 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="6" y="4" width="22" height="32" rx="2.5" fill="#181c24" stroke="#f5a623" stroke-width="1.4"/>
-      <rect x="32" y="4" width="22" height="32" rx="2.5" fill="#12151c" stroke="#9ca3af" stroke-width="1.3" stroke-dasharray="3 2"/>
-      <text x="17" y="22.5" text-anchor="middle" fill="#f5a623" font-family="monospace" font-size="8" font-weight="800">1</text>
-      <text x="43" y="22.5" text-anchor="middle" fill="#9ca3af" font-family="monospace" font-size="8" font-weight="800">2</text>
-    </svg>`;
+  function getBodyAspect(body, lens) {
+    return lens?.formatAspect || body?.aspect || (3 / 2);
   }
+
+  function getBodyFormatLabel(body, lens) {
+    return lens?.formatLabel || body?.formatLabel || '35mm · 3:2';
+  }
+
+  /* ==========================================================================
+     6. REAL BODY CUTOUTS & FOCAL BADGES + FILM CANISTERS
+     ========================================================================== */
 
   function svgFocalBadge(focalObj) {
     const label = escapeHtml(focalObj?.label || '50mm');
@@ -3050,7 +3293,7 @@
     return `<svg viewBox="0 0 54 40" fill="none" xmlns="http://www.w3.org/2000/svg">
       <circle cx="27" cy="20" r="17" fill="#141820" stroke="#4b5563" stroke-width="1.4"/>
       <circle cx="27" cy="20" r="13.5" stroke="#f5a623" stroke-opacity="0.65" stroke-width="1" stroke-dasharray="3 2"/>
-      <text x="27" y="23" text-anchor="middle" fill="#f3f4f6" font-family="monospace" font-size="${isShort ? 10.5 : 9}" font-weight="800">${label}</text>
+      <text x="27" y="23" text-anchor="middle" fill="#f3f4f6" font-family="monospace" font-size="${isShort ? 10.5 : 8.5}" font-weight="800">${label}</text>
     </svg>`;
   }
 
@@ -3076,10 +3319,21 @@
   window.__gearImgErr = function(img) {
     if (!img || !img.parentElement) return;
     const id = img.dataset.id;
-    const film = FILM_STOCKS.find(f => f.id === id) || { brand: 'fuji' };
+    const folder = img.dataset.folder;
     delete img.parentElement.dataset.gearKey;
+    if (folder === 'bodies') {
+      img.parentElement.innerHTML = `<svg viewBox="0 0 60 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="8" width="44" height="26" rx="4" fill="#181c24" stroke="#9ca3af" stroke-width="1.4"/><circle cx="30" cy="21" r="8" stroke="#f5a623" stroke-width="1.4"/></svg>`;
+      return;
+    }
+    const film = FILM_STOCKS.find(f => f.id === id) || { brand: 'fuji' };
     img.parentElement.innerHTML = svgFilmCanister(film);
   };
+
+  function renderBodyArt(id, alt) {
+    const safeId = escapeHtml(id);
+    const safeAlt = escapeHtml(alt || id);
+    return `<img src="./assets/gear/bodies/${safeId}.webp" alt="${safeAlt}" data-folder="bodies" data-id="${safeId}" loading="eager" decoding="async" onerror="window.__gearImgErr(this)" />`;
+  }
 
   function renderFilmArt(id, alt) {
     const safeId = escapeHtml(id);
@@ -3093,6 +3347,15 @@
     if (el.dataset.gearKey === key) return;
     el.dataset.gearKey = key;
     el.innerHTML = svgHtml;
+  }
+
+  function setBodyArt(elId, bodyId, alt) {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    const key = `bodies/${bodyId}`;
+    if (el.dataset.gearKey === key) return;
+    el.dataset.gearKey = key;
+    el.innerHTML = renderBodyArt(bodyId, alt);
   }
 
   function setFilmArt(elId, filmId, alt) {
@@ -3140,9 +3403,9 @@
         zoom: 1.0
       };
     }
-    let ratio = body.aspect;
-    if (body.id !== 'half-frame' && srcCanvas.height > srcCanvas.width) {
-      ratio = 1 / body.aspect;
+    let ratio = getBodyAspect(body, lens);
+    if (body.id !== 'half-frame' && body.id !== 'half-frame-single' && ratio > 1 && srcCanvas.height > srcCanvas.width) {
+      ratio = 1 / ratio;
     }
     const zoom = lens.cropZoom || 1.0;
     let w, h;
@@ -3220,7 +3483,8 @@
         leakAmt: state.leakAmt,
         frameType,
         dateStampText: formatDateStamp(),
-        frameNumberStr: '24A'
+        frameNumberStr: '24A',
+        flashBurst: body.id === 'disposable' && state.camFlashOn
       }, { output: 'bitmap', coalesceKey: 'preview' });
       if (!output || requestVersion !== previewRequestVersion) { output?.bitmap?.close(); return; }
       const image = output.bitmap || output.canvas;
@@ -3243,7 +3507,8 @@
       }
 
       const lensShort = shortLensLabel(lens);
-      document.getElementById('liveGearBadge').innerHTML = `${escapeHtml(body.name)} (${escapeHtml(body.formatLabel)}) — ${escapeHtml(lensShort)} — <strong>${escapeHtml(film.name)}</strong>`;
+      const formatLbl = getBodyFormatLabel(body, lens);
+      document.getElementById('liveGearBadge').innerHTML = `${escapeHtml(body.name)} (${escapeHtml(formatLbl)}) — ${escapeHtml(lensShort)} — <strong>${escapeHtml(film.name)}</strong>`;
       output.bitmap?.close();
     } catch (error) { console.error('Preview rendering failed', error); }
   }
@@ -3255,12 +3520,13 @@
   function renderComboCards() {
     const { body, lens, film } = getSelectedGear();
     const lensShort = shortLensLabel(lens);
+    const formatLbl = getBodyFormatLabel(body, lens);
 
     // Lab 3-card deck
     document.getElementById('labCardBodyName').textContent = body.name;
     document.getElementById('labCardLensName').textContent = lensShort;
     document.getElementById('labCardFilmName').textContent = film.name;
-    setArtSvg('labCardBodyArt', `vf/${body.id}`, svgViewfinderMode(body.id));
+    setBodyArt('labCardBodyArt', body.id, body.name);
     setArtSvg('labCardLensArt', `focal/${body.id}/${lens.id}`, svgFocalBadge(lens));
     setFilmArt('labCardFilmArt', film.id, film.name);
 
@@ -3268,7 +3534,7 @@
     document.getElementById('camCardBodyName').textContent = body.name;
     document.getElementById('camCardLensName').textContent = lensShort;
     document.getElementById('camCardFilmName').textContent = film.name;
-    setArtSvg('camCardBodyArt', `vf/${body.id}`, svgViewfinderMode(body.id));
+    setBodyArt('camCardBodyArt', body.id, body.name);
     setArtSvg('camCardLensArt', `focal/${body.id}/${lens.id}`, svgFocalBadge(lens));
     setFilmArt('camCardFilmArt', film.id, film.name);
 
@@ -3277,7 +3543,7 @@
     document.getElementById('clapperLensVal').textContent = lensShort;
     document.getElementById('clapperFilmVal').textContent = film.name;
     const liveBadge = document.getElementById('liveGearBadge');
-    if (liveBadge) liveBadge.innerHTML = `${escapeHtml(body.name)} (${escapeHtml(body.formatLabel)}) — ${escapeHtml(lensShort)} — <strong>${escapeHtml(film.name)}</strong>`;
+    if (liveBadge) liveBadge.innerHTML = `${escapeHtml(body.name)} (${escapeHtml(formatLbl)}) — ${escapeHtml(lensShort)} — <strong>${escapeHtml(film.name)}</strong>`;
     const shotNum = String(Math.max(1, state.camShotCount || 1)).padStart(2, '0');
     const rollNum = String(Math.max(1, state.camRollNumber || 1)).padStart(2, '0');
     document.getElementById('clapperSceneLabel').textContent = `SCENE ${shotNum} · ROLL ${rollNum}`;
@@ -3309,14 +3575,14 @@
     document.getElementById('pickerLensCount').innerHTML = `<strong>${String(focalIdx).padStart(2, '0')}</strong>/${focals.length}`;
 
     document.getElementById('pickerBodyEffect').textContent = body.meta;
-    document.getElementById('pickerBodyStat').textContent = body.formatLabel;
+    document.getElementById('pickerBodyStat').textContent = getBodyFormatLabel(body, lens);
 
     document.getElementById('pickerLensEffect').textContent = `${lens.label} · ${lens.meta}`;
     document.getElementById('pickerLensStat').textContent = body.id === 'rangefinder'
       ? `Brightline ${Math.round(lens.brightlinePct)}%`
-      : (body.id === 'native' ? `Zoom ${lens.label}` : `Crop ${lens.cropZoom.toFixed(2)}x`);
+      : (body.id === 'medium-format' ? `Format ${lens.label}` : `Crop ${lens.cropZoom.toFixed(2)}x`);
 
-    // 1. Viewfinder Modes Track
+    // 1. Film Camera Body Track
     const bodyTrack = document.getElementById('pickerBodyTrack');
     if (bodyTrack.childElementCount !== VIEWFINDER_MODES.length) {
       bodyTrack.innerHTML = '';
@@ -3326,7 +3592,7 @@
         btn.dataset.id = m.id;
         btn.className = 'picker-tile';
         btn.innerHTML = `
-          <div class="combo-card-art">${svgViewfinderMode(m.id)}</div>
+          <div class="combo-card-art">${renderBodyArt(m.id, m.name)}</div>
           <span class="picker-tile-name">${escapeHtml(m.name)}</span>
           <span class="picker-tile-sub">${escapeHtml(m.formatLabel)}</span>
         `;
@@ -3338,7 +3604,7 @@
       btn.classList.toggle('active', btn.dataset.id === body.id);
     });
 
-    // 2. Mode-Specific Focal Options Track (rebuilds when viewfinder mode changes)
+    // 2. Mode-Specific Focal / Format Options Track
     const lensTrack = document.getElementById('pickerLensTrack');
     if (lensTrack.dataset.mode !== body.id) {
       lensTrack.dataset.mode = body.id;
@@ -3494,7 +3760,9 @@
           phoneId: 'auto-detect', bodyId: mId, lensId: fId, filmId: r.filmId,
           strength: r.strength, exposure: r.exposure, warmth: r.warmth, grain: r.grain,
           halation: r.halation, bloom: r.bloom, vignette: r.vignette,
-          leakType: r.leakType, leakAmt: r.leakAmt, frameType: r.frameType, dateStamp: r.dateStamp && r.dateStamp !== 'off' ? 'exif-or-today' : 'off'
+          leakType: r.leakType, leakAmt: r.leakAmt, frameType: r.frameType,
+          dateStamp: r.dateStamp && r.dateStamp !== 'off' ? 'exif-or-today' : 'off',
+          camFlashOn: typeof r.camFlashOn === 'boolean' ? r.camFlashOn : state.camFlashOn
         });
         resetHalfFramePending();
         syncAllUI();
@@ -3562,7 +3830,7 @@
   }
 
   function selectViewfinderMode(modeId) {
-    const mode = VIEWFINDER_MODES.find(m => m.id === modeId) || VIEWFINDER_MODES[1];
+    const mode = VIEWFINDER_MODES.find(m => m.id === modeId) || VIEWFINDER_MODES[0];
     state.bodyId = mode.id;
     const focals = getModeFocals(mode.id);
     const keepCurrent = focals.find(f => f.id === state.lensId);
@@ -3584,17 +3852,20 @@
   }
 
   /* ==========================================================================
-     8. VIEWFINDER CAMERA ENGINE (NATIVE • SLR • RANGEFINDER • HALF-FRAME)
+     8. VIEWFINDER CAMERA ENGINE (7 FILM BODY VIEWFINDERS)
      ========================================================================== */
 
   const vfCanvas = document.getElementById('cameraViewfinderCanvas');
   const camVideo = document.getElementById('camVideo');
 
   const SHUTTER_SOUND_PROFILES = {
-    native: { level: 0.90, clickFreq: 4200, clickLevel: 0.16, impactDelay: 0.002, impactDuration: 0.024, impactFreq: 2100, impactLevel: 0.18, curtainDelay: 0.010, curtainFreq: 3400, curtainLevel: 0.12, returnDelay: 0.048, returnFreq: 3900, returnLevel: 0.06, bodyFreq: 240, bodyLevel: 0.035, bodyTail: 0.045 },
     slr: { level: 1.32, clickFreq: 3600, clickLevel: 0.21, impactDelay: 0.003, impactDuration: 0.056, impactFreq: 980, impactLevel: 0.44, curtainDelay: 0.016, curtainFreq: 3100, curtainLevel: 0.28, returnDelay: 0.082, returnFreq: 3450, returnLevel: 0.17, bodyFreq: 138, bodyLevel: 0.11, bodyTail: 0.12 },
     rangefinder: { level: 1.02, clickFreq: 3150, clickLevel: 0.16, impactDelay: 0.007, impactDuration: 0.046, impactFreq: 720, impactLevel: 0.28, curtainDelay: 0.026, curtainFreq: 2150, curtainLevel: 0.19, returnDelay: 0.088, returnFreq: 2800, returnLevel: 0.11, bodyFreq: 122, bodyLevel: 0.07, bodyTail: 0.095 },
-    'half-frame': { level: 1.04, clickFreq: 3800, clickLevel: 0.19, impactDelay: 0.003, impactDuration: 0.036, impactFreq: 1650, impactLevel: 0.27, curtainDelay: 0.014, curtainFreq: 2950, curtainLevel: 0.18, returnDelay: 0.065, returnFreq: 3500, returnLevel: 0.10, bodyFreq: 195, bodyLevel: 0.06, bodyTail: 0.068 }
+    'half-frame': { level: 1.04, clickFreq: 3800, clickLevel: 0.19, impactDelay: 0.003, impactDuration: 0.036, impactFreq: 1650, impactLevel: 0.27, curtainDelay: 0.014, curtainFreq: 2950, curtainLevel: 0.18, returnDelay: 0.065, returnFreq: 3500, returnLevel: 0.10, bodyFreq: 195, bodyLevel: 0.06, bodyTail: 0.068 },
+    'half-frame-single': { level: 1.00, clickFreq: 3950, clickLevel: 0.18, impactDelay: 0.003, impactDuration: 0.032, impactFreq: 1750, impactLevel: 0.24, curtainDelay: 0.013, curtainFreq: 3050, curtainLevel: 0.16, returnDelay: 0.060, returnFreq: 3600, returnLevel: 0.09, bodyFreq: 205, bodyLevel: 0.055, bodyTail: 0.062 },
+    'pocket-110': { level: 0.92, clickFreq: 4500, clickLevel: 0.20, impactDelay: 0.002, impactDuration: 0.022, impactFreq: 2400, impactLevel: 0.20, curtainDelay: 0.009, curtainFreq: 3700, curtainLevel: 0.14, returnDelay: 0.042, returnFreq: 4200, returnLevel: 0.07, bodyFreq: 280, bodyLevel: 0.03, bodyTail: 0.040 },
+    disposable: { level: 0.98, clickFreq: 4800, clickLevel: 0.24, impactDelay: 0.001, impactDuration: 0.020, impactFreq: 2800, impactLevel: 0.22, curtainDelay: 0.008, curtainFreq: 4100, curtainLevel: 0.15, returnDelay: 0.038, returnFreq: 4400, returnLevel: 0.08, bodyFreq: 310, bodyLevel: 0.028, bodyTail: 0.038 },
+    'medium-format': { level: 1.42, clickFreq: 2900, clickLevel: 0.20, impactDelay: 0.004, impactDuration: 0.072, impactFreq: 740, impactLevel: 0.50, curtainDelay: 0.020, curtainFreq: 2400, curtainLevel: 0.30, returnDelay: 0.098, returnFreq: 2650, returnLevel: 0.18, bodyFreq: 98, bodyLevel: 0.14, bodyTail: 0.15 }
   };
 
   function playShutterSound() {
@@ -3646,6 +3917,29 @@
     return state.exposure / 100 + (state.camAppliedHardware?.exposureCompensation ? 0 : state.camExposureEV);
   }
 
+  function getCameraStageDimensions(body, lens) {
+    if (body.id === 'half-frame') return { w: 420, h: 280, ratio: 3 / 2 };
+    if (body.id === 'half-frame-single') return { w: 240, h: 320, ratio: 3 / 4 };
+    if (body.id === 'pocket-110') return { w: 400, h: 300, ratio: 4 / 3 };
+    if (body.id === 'medium-format') {
+      if (lens.id === '6x45') return { w: 400, h: 300, ratio: 4 / 3 };
+      if (lens.id === '6x7') return { w: 350, h: 300, ratio: 7 / 6 };
+      return { w: 320, h: 320, ratio: 1 };
+    }
+    return { w: 420, h: 280, ratio: 3 / 2 };
+  }
+
+  function getCameraCaptureDimensions(body, lens) {
+    if (body.id === 'half-frame-single') return { w: 960, h: 1280, ratio: 3 / 4 };
+    if (body.id === 'pocket-110') return { w: 1280, h: 960, ratio: 4 / 3 };
+    if (body.id === 'medium-format') {
+      if (lens.id === '6x45') return { w: 1280, h: 960, ratio: 4 / 3 };
+      if (lens.id === '6x7') return { w: 1260, h: 1080, ratio: 7 / 6 };
+      return { w: 1200, h: 1200, ratio: 1 };
+    }
+    return { w: 1280, h: 853, ratio: 3 / 2 };
+  }
+
   function layoutViewfinderStage() {
     const box = document.getElementById('camVfBox');
     const stage = document.getElementById('vfStage');
@@ -3653,7 +3947,7 @@
     const { body, lens } = getSelectedGear();
     stage.dataset.vfMode = body.id;
 
-    const targetRatio = body.id === 'native' ? (4 / 3) : (3 / 2);
+    const targetRatio = getCameraStageDimensions(body, lens).ratio;
     const bw = box.clientWidth;
     const bh = box.clientHeight;
     if (bw > 20 && bh > 20) {
@@ -3684,6 +3978,10 @@
       document.querySelectorAll('#vfSlrLedBar .vf-led-row').forEach(row => {
         row.classList.toggle('lit', row.dataset.led === activeLed);
       });
+    }
+
+    if (body.id === 'disposable') {
+      document.getElementById('vfDispFlashPip')?.classList.toggle('on', !!state.camFlashOn);
     }
 
     if (body.id === 'half-frame') {
@@ -3749,6 +4047,14 @@
       retakeBtn.style.display = state.bodyId === 'half-frame' && state.hfStep === 2 ? '' : 'none';
     }
 
+    const flashBtn = document.getElementById('btnVfFlashToggle');
+    if (flashBtn) {
+      const isDisp = state.bodyId === 'disposable';
+      flashBtn.style.display = isDisp ? '' : 'none';
+      flashBtn.classList.toggle('active', !!state.camFlashOn);
+      flashBtn.textContent = state.camFlashOn ? '⚡ FLASH' : '⚡ OFF';
+    }
+
     const evSlider = document.getElementById('camExposureControl');
     const evBadge = document.getElementById('camExposureValue');
     if (evSlider) evSlider.value = state.camExposureEV;
@@ -3782,16 +4088,9 @@
       const max = capabilities.exposureCompensation.max ?? 2;
       advanced.exposureCompensation = Math.max(min, Math.min(max, Number(state.camExposureEV) || 0));
     }
-    const { body, lens, film } = getSelectedGear();
+    const { film } = getSelectedGear();
     if (capabilities.iso && Number.isFinite(capabilities.iso.min) && Number.isFinite(capabilities.iso.max)) {
       advanced.iso = Math.max(capabilities.iso.min, Math.min(capabilities.iso.max, film.iso));
-    }
-    if (body.id === 'native' && capabilities.zoom && Number.isFinite(lens.hwZoom)) {
-      const zMin = capabilities.zoom.min ?? 1;
-      const zMax = capabilities.zoom.max ?? 3;
-      if (lens.hwZoom >= zMin && lens.hwZoom <= zMax) {
-        advanced.zoom = lens.hwZoom;
-      }
     }
     state.camAppliedHardware = {};
     if (Object.keys(advanced).length) {
@@ -3846,8 +4145,9 @@
       if (!src) return;
 
       const { phone, body, lens, film } = getSelectedGear();
-      const targetW = body.id === 'native' ? 400 : 420;
-      const targetH = body.id === 'native' ? 300 : 280;
+      const stageDim = getCameraStageDimensions(body, lens);
+      const targetW = stageDim.w;
+      const targetH = stageDim.h;
       if (vfCanvas.width !== targetW || vfCanvas.height !== targetH) {
         vfCanvas.width = targetW;
         vfCanvas.height = targetH;
@@ -3862,7 +4162,8 @@
         processFilmImage(tCtx.getImageData(0, 0, slotW, slotH), slotW, slotH, {
           phone, body, lens, film, strength: 100, exposureEV: cameraExposureEV(), warmth: state.warmth,
           grainAmt: Math.round(film.grainBase * 0.65), halationAmt: Math.round(film.halationBase * 0.6),
-          bloomAmt: lens.bloomBase, vignetteAmt: lens.vignetteBase, leakType: 'none', leakAmt: 0, frameType: 'none', dateStampText: formatDateStamp(), frameNumberStr: ''
+          bloomAmt: lens.bloomBase, vignetteAmt: lens.vignetteBase, leakType: 'none', leakAmt: 0, frameType: 'none', dateStampText: formatDateStamp(), frameNumberStr: '',
+          flashBurst: false
         }, { output: 'bitmap', coalesceKey: 'camera-preview' }).then(output => {
           if (!output || version !== cameraPreviewFrameVersion) { output?.bitmap?.close(); return; }
           const liveImg = output.bitmap || output.canvas;
@@ -3880,16 +4181,16 @@
       }
 
       if (tmp.width !== targetW || tmp.height !== targetH) { tmp.width = targetW; tmp.height = targetH; }
-      const vfRatio = targetW / targetH;
-      const hwAppliedZoom = hasLiveVideo && body.id === 'native' && state.camAppliedHardware?.zoom;
-      const vfZoom = body.id === 'rangefinder' ? 1.0 : (hwAppliedZoom ? 1.0 : (lens.cropZoom || 1.0));
+      const vfRatio = stageDim.ratio;
+      const vfZoom = body.id === 'rangefinder' ? 1.0 : (lens.cropZoom || 1.0);
       drawCroppedSource(tCtx, src, targetW, targetH, vfRatio, vfZoom);
 
       const version = ++cameraPreviewFrameVersion;
       processFilmImage(tCtx.getImageData(0, 0, targetW, targetH), targetW, targetH, {
         phone, body, lens, film, strength: 100, exposureEV: cameraExposureEV(), warmth: state.warmth,
         grainAmt: Math.round(film.grainBase * 0.65), halationAmt: Math.round(film.halationBase * 0.6),
-        bloomAmt: lens.bloomBase, vignetteAmt: lens.vignetteBase, leakType: 'none', leakAmt: 0, frameType: 'none', dateStampText: formatDateStamp(), frameNumberStr: ''
+        bloomAmt: lens.bloomBase, vignetteAmt: lens.vignetteBase, leakType: 'none', leakAmt: 0, frameType: 'none', dateStampText: formatDateStamp(), frameNumberStr: '',
+        flashBurst: body.id === 'disposable' && state.camFlashOn
       }, { output: 'bitmap', coalesceKey: 'camera-preview' }).then(output => {
         if (!output || version !== cameraPreviewFrameVersion) { output?.bitmap?.close(); return; }
         vfCtx.drawImage(output.bitmap || output.canvas, 0, 0);
@@ -3948,7 +4249,8 @@
     const processed = await processFilmImage(cCtx.getImageData(0, 0, capW, capH), capW, capH, {
       phone, body, lens, film, strength: 100, exposureEV: cameraExposureEV(), warmth: state.warmth,
       grainAmt: film.grainBase, halationAmt: film.halationBase, bloomAmt: lens.bloomBase, vignetteAmt: lens.vignetteBase,
-      leakType: state.leakType, leakAmt: state.leakAmt, frameType: state.frameType, dateStampText: formatDateStamp(), frameNumberStr: numStr
+      leakType: state.leakType, leakAmt: state.leakAmt, frameType: state.frameType, dateStampText: formatDateStamp(), frameNumberStr: numStr,
+      flashBurst: body.id === 'disposable' && state.camFlashOn
     }, { output: 'blob', quality: 0.92 });
     const photoBlob = processed.blob;
     const thumbnailBlob = await createShotThumbnail(photoBlob);
@@ -3999,8 +4301,7 @@
       const { phone, body, lens, film } = getSelectedGear();
       const hasLiveVideo = !!(state.camStream && camVideo.readyState >= 2);
       const src = hasLiveVideo ? camVideo : (state.fullSourceCanvas || SAMPLES[0].canvas);
-      const hwAppliedZoom = hasLiveVideo && body.id === 'native' && state.camAppliedHardware?.zoom;
-      const capZoom = hwAppliedZoom ? 1.0 : (lens.cropZoom || 1.0);
+      const capZoom = lens.cropZoom || 1.0;
 
       if (body.id === 'half-frame') {
         const halfW = 712, halfH = 960;
@@ -4018,7 +4319,8 @@
           const processedPrev = await processFilmImage(pCtx.getImageData(0, 0, prevW, prevH), prevW, prevH, {
             phone, body, lens, film, strength: 100, exposureEV: cameraExposureEV(), warmth: state.warmth,
             grainAmt: Math.round(film.grainBase * 0.65), halationAmt: Math.round(film.halationBase * 0.6),
-            bloomAmt: lens.bloomBase, vignetteAmt: lens.vignetteBase, leakType: 'none', leakAmt: 0, frameType: 'none', dateStampText: formatDateStamp(), frameNumberStr: ''
+            bloomAmt: lens.bloomBase, vignetteAmt: lens.vignetteBase, leakType: 'none', leakAmt: 0, frameType: 'none', dateStampText: formatDateStamp(), frameNumberStr: '',
+            flashBurst: false
           }, { output: 'bitmap' });
           if (processedPrev) {
             const img = processedPrev.bitmap || processedPrev.canvas;
@@ -4048,11 +4350,10 @@
       }
 
       const shotNumber = (state.camShotCount % state.camMaxShots) + 1;
-      const capW = body.id === 'native' ? 1280 : 1280;
-      const capH = body.id === 'native' ? 960 : 853;
+      const capDim = getCameraCaptureDimensions(body, lens);
       const capC = document.createElement('canvas');
-      capC.width = capW; capC.height = capH;
-      drawCroppedSource(capC.getContext('2d'), src, capW, capH, body.aspect, capZoom);
+      capC.width = capDim.w; capC.height = capDim.h;
+      drawCroppedSource(capC.getContext('2d'), src, capDim.w, capDim.h, capDim.ratio, capZoom);
       const rawBlob = await canvasToJpegBlob(capC, 0.92);
       await saveCameraExposure(rawBlob, shotNumber, { isDiptych: false });
     } catch (error) {
@@ -4191,7 +4492,8 @@
       const output = await processFilmImage(sourceData, src.width, src.height, {
         phone, body, lens, film, strength: state.strength, exposureEV: state.exposure / 100, warmth: state.warmth,
         grainAmt: state.grain, halationAmt: state.halation, bloomAmt: state.bloom, vignetteAmt: state.vignette,
-        leakType: state.leakType, leakAmt: state.leakAmt, frameType: state.frameType, dateStampText: formatDateStamp(), frameNumberStr: '36'
+        leakType: state.leakType, leakAmt: state.leakAmt, frameType: state.frameType, dateStampText: formatDateStamp(), frameNumberStr: '36',
+        flashBurst: body.id === 'disposable' && state.camFlashOn
       }, { output: 'blob', quality: 0.94 });
       blob = output.blob;
     } catch (error) { showToast('❌ Could not process this image'); return; }
@@ -4374,7 +4676,8 @@
       name, phoneId: state.phoneId, bodyId: state.bodyId, lensId: state.lensId, filmId: state.filmId,
       strength: state.strength, exposure: state.exposure, warmth: state.warmth, grain: state.grain,
       halation: state.halation, bloom: state.bloom, vignette: state.vignette,
-      leakType: state.leakType, leakAmt: state.leakAmt, frameType: state.frameType, dateStamp: state.dateStamp
+      leakType: state.leakType, leakAmt: state.leakAmt, frameType: state.frameType, dateStamp: state.dateStamp,
+      camFlashOn: state.camFlashOn
     });
     localStorage.setItem('tees_lab_recipes_v1', JSON.stringify(state.recipes));
     renderSavedRecipesList();
@@ -4393,7 +4696,7 @@
   document.getElementById('btnCloseContactSheet').addEventListener('click', () => contactSheet.classList.remove('open'));
   contactSheet.addEventListener('click', e => { if (e.target === contactSheet) contactSheet.classList.remove('open'); });
 
-  // Camera Viewfinder HUD Events (EV Ruler, DATE toggle, FRAME toggle, Half-Frame Retake)
+  // Camera Viewfinder HUD Events (EV Ruler, DATE toggle, FRAME toggle, Half-Frame Retake, Disposable Flash)
   const camExposureControl = document.getElementById('camExposureControl');
   camExposureControl.addEventListener('input', e => {
     state.camExposureEV = Number(e.target.value);
@@ -4421,6 +4724,12 @@
     resetHalfFramePending();
     syncCameraHudUI();
     showToast('↺ Frame 1 cleared');
+  });
+  document.getElementById('btnVfFlashToggle').addEventListener('click', () => {
+    state.camFlashOn = !state.camFlashOn;
+    syncAllUI();
+    renderPreview();
+    showToast(state.camFlashOn ? '⚡ Disposable Flash: ON' : '⚡ Disposable Flash: OFF');
   });
 
   document.getElementById('btnFlipCam').addEventListener('click', () => {

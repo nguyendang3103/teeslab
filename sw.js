@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tees-lab-shell-v26';
+const CACHE_NAME = 'tees-lab-shell-v27';
 const APP_FILES = [
   './index.html', './manifest.json', './logo.jpg', './version.json',
   './assets/samples/golden-hour.jpg',
@@ -8,6 +8,13 @@ const APP_FILES = [
   './assets/samples/coffee.jpg',
   './assets/samples/ocean.jpg',
   './assets/fonts/Caveat-TeeLab.woff2',
+  './assets/gear/bodies/slr.webp',
+  './assets/gear/bodies/rangefinder.webp',
+  './assets/gear/bodies/half-frame.webp',
+  './assets/gear/bodies/half-frame-single.webp',
+  './assets/gear/bodies/pocket-110.webp',
+  './assets/gear/bodies/disposable.webp',
+  './assets/gear/bodies/medium-format.webp',
   './assets/gear/films/fuji-pro-400h.webp',
   './assets/gear/films/fuji-superia-400.webp',
   './assets/gear/films/fuji-classic-chrome.webp',
