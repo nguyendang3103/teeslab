@@ -998,6 +998,11 @@
       border-radius: 50%;
       border: 1px solid rgba(255,255,255,0.45);
       box-shadow: 0 0 0 10px rgba(0,0,0,0.06) inset;
+      transition: border-color 0.14s ease, box-shadow 0.14s ease;
+    }
+    .vf-slr-focus-ring.in-focus {
+      border-color: rgba(74, 222, 128, 0.72);
+      box-shadow: 0 0 0 10px rgba(0,0,0,0.06) inset, 0 0 10px rgba(74, 222, 128, 0.25);
     }
     .vf-slr-microprism {
       position: absolute;
@@ -1005,6 +1010,10 @@
       border-radius: 50%;
       border: 1px dashed rgba(255,255,255,0.42);
       background: radial-gradient(circle, transparent 58%, rgba(255,255,255,0.06) 59%, transparent 62%);
+      transition: border-color 0.14s ease;
+    }
+    .vf-slr-focus-ring.mf-off .vf-slr-microprism {
+      border-color: rgba(245, 166, 35, 0.76);
     }
     .vf-slr-split {
       position: absolute;
@@ -1022,6 +1031,26 @@
       height: 1px;
       background: rgba(255,255,255,0.85);
       box-shadow: 0 0 3px rgba(0,0,0,0.75);
+    }
+    .vf-slr-split-half {
+      position: absolute;
+      left: 50%;
+      width: 2px;
+      height: 50%;
+      background: rgba(255,255,255,0.58);
+      box-shadow: 0 0 2px rgba(0,0,0,0.8);
+      transition: transform 0.08s ease-out, opacity 0.12s ease;
+    }
+    .vf-slr-split-half.top {
+      top: 0;
+      transform: translateX(calc(-50% - var(--split-shift, 0px)));
+    }
+    .vf-slr-split-half.bot {
+      bottom: 0;
+      transform: translateX(calc(-50% + var(--split-shift, 0px)));
+    }
+    .vf-slr-focus-ring.in-focus .vf-slr-split-half {
+      background: rgba(74, 222, 128, 0.72);
     }
     .vf-slr-led-bar {
       position: absolute;
@@ -1091,11 +1120,39 @@
       position: absolute;
       top: 50%;
       left: 50%;
-      width: 18px;
-      height: 12px;
+      width: 20px;
+      height: 13px;
       transform: translate(-50%, -50%);
       border: 1px solid rgba(245, 196, 81, 0.72);
       background: rgba(245, 196, 81, 0.12);
+      overflow: hidden;
+      transition: border-color 0.14s ease, box-shadow 0.14s ease;
+    }
+    .vf-rf-patch::before {
+      content: "";
+      position: absolute;
+      top: 1px;
+      bottom: 1px;
+      left: 50%;
+      width: 1.5px;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.85);
+    }
+    .vf-rf-ghost {
+      position: absolute;
+      top: 1px;
+      bottom: 1px;
+      left: 50%;
+      width: 1.5px;
+      background: rgba(245, 166, 35, 0.95);
+      transform: translateX(calc(-50% + var(--rf-shift, 0px)));
+      transition: transform 0.08s ease-out, opacity 0.12s ease;
+      opacity: 0;
+    }
+    .vf-rf-patch.mf-off .vf-rf-ghost { opacity: 0.95; }
+    .vf-rf-patch.in-focus {
+      border-color: rgba(74, 222, 128, 0.85);
+      box-shadow: 0 0 8px rgba(74, 222, 128, 0.35);
     }
     .vf-rf-focal-tag {
       position: absolute;
@@ -1138,6 +1195,11 @@
       color: #f5a623;
       border-color: rgba(245, 166, 35, 0.7);
       background: rgba(245, 166, 35, 0.14);
+    }
+    .vf-badge-btn.af-active {
+      color: #4ade80;
+      border-color: rgba(74, 222, 128, 0.72);
+      background: rgba(22, 101, 52, 0.36);
     }
     .vf-ev-ruler-wrap {
       pointer-events: auto;
@@ -1230,7 +1292,7 @@
       text-shadow: 0 1px 3px #000;
     }
 
-    /* Mechanical Knurled Dual-Ring Lens Barrel Controller */
+    /* Mechanical Knurled Tri-Ring Lens Barrel Controller (FOCAL / FOCUS+AF / IRIS) */
     .lens-barrel-dock {
       width: 100%;
       pointer-events: auto;
@@ -1259,14 +1321,26 @@
     .lens-barrel-ring {
       display: flex;
       align-items: center;
-      height: 24px;
+      height: 22px;
       position: relative;
     }
+    .lens-barrel-vf .lens-barrel-ring[data-ring="focal"] {
+      height: 20px;
+    }
     .lens-barrel-picker .lens-barrel-ring {
-      height: 27px;
+      height: 25px;
+    }
+    .lens-barrel-picker .lens-barrel-ring[data-ring="focal"] {
+      height: 23px;
+    }
+    @media (max-height: 700px) {
+      .lens-barrel-vf .lens-barrel-ring { height: 20px; }
+      .lens-barrel-vf .lens-barrel-ring[data-ring="focal"] { height: 18px; }
+      .lens-barrel-picker .lens-barrel-ring { height: 22px; }
+      .lens-barrel-picker .lens-barrel-ring[data-ring="focal"] { height: 20px; }
     }
     .lens-ring-tag {
-      width: 34px;
+      width: 38px;
       height: 100%;
       flex-shrink: 0;
       display: flex;
@@ -1275,13 +1349,35 @@
       font-family: var(--mono);
       font-size: 8px;
       font-weight: 800;
-      letter-spacing: 0.6px;
+      letter-spacing: 0.5px;
       color: #8f98a8;
       background: linear-gradient(180deg, #1e232d, #13161e);
       border-right: 1px solid rgba(255,255,255,0.1);
     }
     .lens-barrel-ring[data-ring="aperture"] .lens-ring-tag {
       color: #f5a623;
+    }
+    .lens-af-btn {
+      cursor: pointer;
+      color: #cbd5e1;
+      transition: all 0.14s ease;
+      position: relative;
+    }
+    .lens-af-btn:hover { color: #ffffff; }
+    .lens-af-btn.is-af {
+      color: #4ade80;
+      background: linear-gradient(180deg, rgba(22, 101, 52, 0.55), rgba(12, 42, 24, 0.78));
+      text-shadow: 0 0 8px rgba(74, 222, 128, 0.45);
+    }
+    .lens-af-btn:not(.is-af):not(:disabled) {
+      color: #e2e8f0;
+      background: linear-gradient(180deg, #252b38, #161a24);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+    }
+    .lens-af-btn:disabled {
+      cursor: default;
+      color: #6b7280;
+      opacity: 0.72;
     }
     .lens-ring-viewport {
       flex: 1;
@@ -1310,11 +1406,38 @@
       will-change: transform;
       pointer-events: none;
     }
+    .lens-ring-track.snap-af {
+      transition: transform 0.16s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .lens-dof-bracket {
+      position: absolute;
+      top: 3px;
+      height: 3.5px;
+      left: 50%;
+      width: 24px;
+      max-width: calc(100% - 8px);
+      transform: translateX(-50%);
+      border-left: 1.5px solid #f5a623;
+      border-right: 1.5px solid #f5a623;
+      border-top: 1px solid rgba(245, 166, 35, 0.55);
+      background: linear-gradient(180deg, rgba(245, 166, 35, 0.24), transparent);
+      pointer-events: none;
+      z-index: 1;
+      transition: width 0.08s ease-out, border-color 0.14s ease, opacity 0.14s ease;
+    }
+    .lens-dof-bracket.is-af {
+      border-color: rgba(74, 222, 128, 0.85);
+      border-top-color: rgba(74, 222, 128, 0.45);
+      background: linear-gradient(180deg, rgba(74, 222, 128, 0.2), transparent);
+    }
+    .lens-dof-bracket.hidden {
+      opacity: 0;
+    }
     .lens-knurl-band {
       position: absolute;
       left: -240px;
       right: -240px;
-      height: 3.5px;
+      height: 3px;
       opacity: 0.85;
       background: repeating-linear-gradient(90deg, rgba(255,255,255,0.22) 0 1px, rgba(0,0,0,0.75) 1px 4px);
     }
@@ -1354,7 +1477,7 @@
       top: 43%;
       transform: translate(-50%, -50%);
       font-family: var(--mono);
-      font-size: 9px;
+      font-size: 8.5px;
       font-weight: 700;
       letter-spacing: -0.2px;
       color: #cbd5e1;
@@ -1363,10 +1486,10 @@
       padding: 0 2px;
     }
     .lens-barrel-picker .lens-mark {
-      font-size: 9.5px;
+      font-size: 9px;
     }
     .lens-mark.minor {
-      font-size: 8px;
+      font-size: 7.5px;
       font-weight: 600;
       color: rgba(203, 213, 225, 0.56);
     }
@@ -1379,6 +1502,10 @@
       color: #f5a623;
       font-weight: 800;
       text-shadow: 0 0 8px rgba(245, 166, 35, 0.45);
+    }
+    .lens-barrel-ring[data-ring="focus"].is-af .lens-mark.on-mark {
+      color: #4ade80;
+      text-shadow: 0 0 8px rgba(74, 222, 128, 0.45);
     }
     .lens-ring-shade {
       position: absolute;
@@ -1406,6 +1533,9 @@
       pointer-events: none;
       z-index: 2;
     }
+    .lens-barrel-ring[data-ring="focus"].is-af .lens-ring-index {
+      background: rgba(74, 222, 128, 0.8);
+    }
     .lens-ring-index::before {
       content: "";
       position: absolute;
@@ -1415,6 +1545,9 @@
       border-left: 3.5px solid transparent;
       border-right: 3.5px solid transparent;
       border-top: 3.5px solid #f5a623;
+    }
+    .lens-barrel-ring[data-ring="focus"].is-af .lens-ring-index::before {
+      border-top-color: #4ade80;
     }
     .lens-ring-index::after {
       content: "";
@@ -1426,26 +1559,39 @@
       border-right: 3.5px solid transparent;
       border-bottom: 3.5px solid #f5a623;
     }
+    .lens-barrel-ring[data-ring="focus"].is-af .lens-ring-index::after {
+      border-bottom-color: #4ade80;
+    }
     .lens-ring-val {
-      width: 52px;
+      width: 54px;
       height: 100%;
       flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: center;
       font-family: var(--mono);
-      font-size: 9.5px;
+      font-size: 9px;
       font-weight: 800;
       color: #f5a623;
       background: linear-gradient(180deg, #171b23, #0e1117);
       border-left: 1px solid rgba(255,255,255,0.1);
-      letter-spacing: -0.2px;
+      letter-spacing: -0.3px;
       font-variant-numeric: tabular-nums;
       white-space: nowrap;
+    }
+    .lens-barrel-ring[data-ring="focus"] .lens-ring-val {
+      cursor: pointer;
+    }
+    .lens-barrel-ring[data-ring="focus"].is-af .lens-ring-val {
+      color: #4ade80;
+    }
+    .lens-barrel-ring[data-ring="focus"].in-focus:not(.is-af) .lens-ring-val {
+      color: #fde68a;
     }
     .lens-barrel-ring[data-locked="1"] .lens-ring-val {
       color: #9ca3af;
       font-size: 8.5px;
+      cursor: default;
     }
 
     .shutter-flash {
@@ -2018,9 +2164,12 @@
               <!-- SLR: Center Split-Prism Circle + Classic LED Meter -->
               <div class="vf-slr-overlay">
                 <div class="vf-slr-matte"></div>
-                <div class="vf-slr-focus-ring">
+                <div class="vf-slr-focus-ring in-focus" id="vfSlrFocusRing">
                   <div class="vf-slr-microprism"></div>
-                  <div class="vf-slr-split"></div>
+                  <div class="vf-slr-split">
+                    <span class="vf-slr-split-half top"></span>
+                    <span class="vf-slr-split-half bot"></span>
+                  </div>
                 </div>
                 <div class="vf-slr-led-bar" id="vfSlrLedBar" aria-hidden="true">
                   <div class="vf-led-row over" data-led="over2"><span class="vf-led-dot"></span><span>+2</span></div>
@@ -2038,7 +2187,7 @@
                   <div class="vf-rf-bracket tr"></div>
                   <div class="vf-rf-bracket bl"></div>
                   <div class="vf-rf-bracket br"></div>
-                  <div class="vf-rf-patch"></div>
+                  <div class="vf-rf-patch in-focus" id="vfRfPatch"><span class="vf-rf-ghost"></span></div>
                   <span class="vf-rf-focal-tag" id="vfRfFocalTag">35mm</span>
                 </div>
               </div>
@@ -2096,12 +2245,13 @@
                 <button class="vf-badge-btn active" id="btnVfFlashToggle" type="button" title="Toggle Disposable Flash" style="display:none;">⚡ FLASH</button>
               </div>
               <div class="vf-hud-center-actions">
+                <button class="vf-badge-btn af-active" id="btnVfAutoFocus" type="button" title="Auto Focus — tap to return to AF">AF</button>
                 <button class="vf-badge-btn" id="btnVfZoomModeToggle" type="button" title="Switch between primes & 35–70mm zoom" style="display:none;">35–70</button>
                 <button class="vf-badge-btn" id="btnVfDiptychToggle" type="button" title="Switch between 1-frame and paired 2-frame diptych" style="display:none;">1F</button>
               </div>
               <span id="camSourceStatus" class="vf-source-status">Rear</span>
             </div>
-            <div class="lens-barrel-dock lens-barrel-vf" id="camLensBarrel" aria-label="Lens focal length and aperture rings"></div>
+            <div class="lens-barrel-dock lens-barrel-vf" id="camLensBarrel" aria-label="Lens focal, manual focus and aperture rings"></div>
           </div>
 
           <div class="shutter-flash" id="shutterFlash"></div>
@@ -2842,7 +2992,8 @@
     }
 
     const dofStr = lens.dofStrength || 0;
-    if (dofStr > 0.04) {
+    const mfDefocus = lens.mfDefocus || 0;
+    if (dofStr > 0.04 || mfDefocus > 0.015) {
       const dofRad = lens.dofRadius ?? 0.42;
       const dofRad2 = dofRad * dofRad;
       const div = width <= 720 ? 4 : 3;
@@ -2856,16 +3007,21 @@
           dofBuf[bp] = outData[sp]; dofBuf[bp + 1] = outData[sp + 1]; dofBuf[bp + 2] = outData[sp + 2];
         }
       }
-      const blurRad = Math.max(2, Math.round(bw * (0.011 + dofStr * 0.022)));
+      const blurEffort = Math.max(dofStr, mfDefocus * 1.28);
+      const blurRad = Math.max(2, Math.round(bw * (0.012 + blurEffort * 0.038)));
       fastBoxBlurRGB(dofBuf, bw, bh, blurRad);
-      fastBoxBlurRGB(dofBuf, bw, bh, Math.max(2, Math.round(blurRad * 0.7)));
+      fastBoxBlurRGB(dofBuf, bw, bh, Math.max(2, Math.round(blurRad * 0.72)));
+      if (mfDefocus > 0.25) fastBoxBlurRGB(dofBuf, bw, bh, Math.max(2, Math.round(blurRad * 0.48)));
+      const mfMix = mfDefocus > 0.015 ? Math.min(1, mfDefocus * 3.2) : 0;
       const dofMixLut = new Float32Array(257);
       for (let i = 0; i <= 256; i++) {
         const d = Math.sqrt(i / 128);
-        if (d > dofRad) {
+        let radialMix = 0;
+        if (dofStr > 0.04 && d > dofRad) {
           const t = Math.min(1, (d - dofRad) / 0.58);
-          dofMixLut[i] = t * t * (3 - 2 * t) * dofStr;
+          radialMix = t * t * (3 - 2 * t) * dofStr;
         }
+        dofMixLut[i] = Math.max(radialMix, mfMix);
       }
       for (let y = 0; y < height; y++) {
         const ny = (y * invH - 0.5) * 2;
@@ -2875,8 +3031,10 @@
         for (let x = 0; x < width; x++) {
           const nx = (x * invW - 0.5) * 2;
           const d2 = nx * nx + dy2;
-          if (d2 <= dofRad2) continue;
-          const mix = dofMixLut[Math.min(256, (d2 * 128) | 0)];
+          if (mfDefocus <= 0.015 && d2 <= dofRad2) continue;
+          const mix = mfDefocus > 0.015 && d2 <= dofRad2
+            ? mfMix
+            : dofMixLut[Math.min(256, (d2 * 128) | 0)];
           if (mix <= 0.002) continue;
           const gxf = (x / width) * (bw - 1), gx0 = gxf | 0, gx1 = Math.min(bw - 1, gx0 + 1), fx = gxf - gx0;
           const p00 = (gy0 * bw + gx0) * 3, p10 = (gy0 * bw + gx1) * 3, p01 = (gy1 * bw + gx0) * 3, p11 = (gy1 * bw + gx1) * 3;
@@ -3325,6 +3483,9 @@
     lensFocalMm: 50,
     lensAperture: 1.4,
     zoomFocalMm: 50,
+    focusMode: 'af',
+    focusPos: 0.45,
+    afTargetPos: 0.45,
     filmId: 'fuji-pro-400h',
     filmBrandFilter: 'all',
     pickerTab: 'camera',
@@ -3465,7 +3626,7 @@
     });
   }
   let apPinnedWideOpen = true;
-  const SYNC_FIELDS = ['phoneId', 'bodyId', 'lensId', 'lensFocalMm', 'lensAperture', 'zoomFocalMm', 'filmId', 'filmBrandFilter', 'strength', 'exposure', 'warmth', 'grain', 'halation', 'bloom', 'vignette', 'leakType', 'leakAmt', 'frameType', 'dateStamp', 'hfDiptychMode', 'camFacing', 'camSound', 'camFlashOn', 'camExposureEV'];
+  const SYNC_FIELDS = ['phoneId', 'bodyId', 'lensId', 'lensFocalMm', 'lensAperture', 'zoomFocalMm', 'focusMode', 'focusPos', 'filmId', 'filmBrandFilter', 'strength', 'exposure', 'warmth', 'grain', 'halation', 'bloom', 'vignette', 'leakType', 'leakAmt', 'frameType', 'dateStamp', 'hfDiptychMode', 'camFacing', 'camSound', 'camFlashOn', 'camExposureEV'];
   function stateSnapshot() {
     const settings = {};
     SYNC_FIELDS.forEach(key => { settings[key] = state[key]; });
@@ -3517,6 +3678,14 @@
     } else {
       state.lensAperture = baseMinF;
       apPinnedWideOpen = true;
+    }
+
+    state.focusMode = state.focusMode === 'mf' ? 'mf' : 'af';
+    const fpVal = Number(state.focusPos);
+    state.focusPos = Number.isFinite(fpVal) ? Math.max(0, Math.min(1, fpVal)) : state.afTargetPos;
+    if (activeLens.isFixedAperture) {
+      state.focusMode = 'af';
+      state.focusPos = state.afTargetPos;
     }
 
     if (Array.isArray(snapshot.recipes)) {
@@ -3622,6 +3791,83 @@
     };
   }
 
+  const FOCUS_STOPS = [
+    { pos: 0.00, label: '0.45', meters: 0.45, adrClass: 'adr-warm' },
+    { pos: 0.15, label: '0.6', meters: 0.6 },
+    { pos: 0.30, label: '0.8', meters: 0.8 },
+    { pos: 0.45, label: '1.2', meters: 1.2 },
+    { pos: 0.60, label: '2', meters: 2.0 },
+    { pos: 0.74, label: '3', meters: 3.0 },
+    { pos: 0.87, label: '5', meters: 5.0 },
+    { pos: 1.00, label: '∞', meters: Infinity, adrClass: 'adr-cyan' }
+  ];
+  const FOCUS_TRACK_MAX_X = 320;
+
+  function focusPosToTrackX(pos) {
+    return Math.max(0, Math.min(1, Number.isFinite(Number(pos)) ? Number(pos) : 0.45)) * FOCUS_TRACK_MAX_X;
+  }
+
+  function trackXToFocusPos(x) {
+    return Math.max(0, Math.min(1, (Number(x) || 0) / FOCUS_TRACK_MAX_X));
+  }
+
+  function focusPosToMeters(pos) {
+    const p = Math.max(0, Math.min(1, Number.isFinite(Number(pos)) ? Number(pos) : 0.45));
+    if (p >= 0.985) return Infinity;
+    if (p >= 0.87) {
+      const invD = 0.2 * (1 - (p - 0.87) / 0.13);
+      return 1 / Math.max(0.02, invD);
+    }
+    for (let i = 0; i < FOCUS_STOPS.length - 2; i++) {
+      const a = FOCUS_STOPS[i], b = FOCUS_STOPS[i + 1];
+      if (p <= b.pos) {
+        const t = Math.max(0, Math.min(1, (p - a.pos) / Math.max(1e-5, b.pos - a.pos)));
+        return a.meters + (b.meters - a.meters) * t;
+      }
+    }
+    return 5.0;
+  }
+
+  function formatFocusDistance(pos) {
+    const meters = focusPosToMeters(pos);
+    if (!Number.isFinite(meters)) return '∞';
+    if (meters < 1.0) return `${meters.toFixed(2).replace(/0$/, '')}m`;
+    if (meters < 10) return `${meters.toFixed(1).replace(/\.0$/, '')}m`;
+    return `${Math.round(meters)}m`;
+  }
+
+  function computeFocusOptics(mm, curF, isFixedAperture) {
+    const focusLocked = !!isFixedAperture;
+    const focusMode = focusLocked ? 'af' : (state.focusMode === 'mf' ? 'mf' : 'af');
+    const targetPos = Number.isFinite(Number(state.afTargetPos)) ? state.afTargetPos : 0.45;
+    const curPos = focusLocked ? targetPos : Math.max(0, Math.min(1, Number.isFinite(Number(state.focusPos)) ? Number(state.focusPos) : targetPos));
+    const displayPos = focusMode === 'af' ? targetPos : curPos;
+    const focusRawErr = focusMode === 'af' ? 0 : Math.abs(curPos - targetPos);
+    const focusSignedErr = focusMode === 'af' ? 0 : (curPos - targetPos);
+    const safeMm = Math.max(20, Number(mm) || 50);
+    const safeF = Math.max(1.2, Number(curF) || 2.8);
+    const focalFactor = Math.max(0.45, Math.min(1.65, safeMm / 50));
+    const apCoC = Math.max(0.14, 1.8 / safeF);
+    const zoneTolerance = focusLocked ? 0.42 : Math.min(0.42, (safeF / 16) * (50 / safeMm) * 0.34);
+    const effectiveErr = Math.max(0, focusRawErr - zoneTolerance);
+    const mfDefocus = focusLocked ? 0 : Math.min(1.0, Math.pow(effectiveErr * 2.15, 1.05) * focalFactor * apCoC);
+    const dofWidthPx = focusLocked ? 28 : Math.max(14, Math.min(132, Math.round(10 + zoneTolerance * 340)));
+    const inFocusPeak = focusLocked || focusMode === 'af' || mfDefocus < 0.02;
+    const focusDistanceLabel = formatFocusDistance(displayPos);
+    return {
+      focusLocked,
+      focusMode,
+      focusPos: displayPos,
+      focusRawErr,
+      focusSignedErr,
+      zoneTolerance,
+      mfDefocus,
+      dofWidthPx,
+      inFocusPeak,
+      focusDistanceLabel
+    };
+  }
+
   function getModeFocals(modeId) {
     return FOCAL_OPTIONS_BY_MODE[modeId] || FOCAL_OPTIONS_BY_MODE.slr;
   }
@@ -3658,12 +3904,14 @@
         edgeSoft: lerp('edgeSoft')
       };
       const optics = applyApertureOptics(interp, curF, minF, lerp('apertureEV'));
+      const focusOptics = computeFocusOptics(zMm, curF, false);
       const zRound = Math.round(zMm);
       const apStr = formatApertureLabel(curF);
       const ringAngleDeg = (zMm - 35) * 4 + 2 * Math.log2(curF) * 28;
       return {
         ...interp,
         ...optics,
+        ...focusOptics,
         mm: zMm,
         minF,
         activeF: curF,
@@ -3678,6 +3926,7 @@
       const minF = lens.minF || 2.8;
       const curF = lens.isFixedAperture ? minF : Math.max(minF, Math.min(lens.maxF || 16, Number(state.lensAperture) || minF));
       const optics = applyApertureOptics(lens, curF, minF, lens.apertureEV || 0);
+      const focusOptics = computeFocusOptics(lens.mm || 50, curF, !!lens.isFixedAperture);
       const apStr = formatApertureLabel(curF);
       const displayLabel = lens.isFormatLens
         ? (Math.abs(curF - minF) < 0.05 ? lens.label : `${lens.label} ${apStr}`)
@@ -3685,6 +3934,7 @@
       return {
         ...lens,
         ...optics,
+        ...focusOptics,
         minF,
         activeF: curF,
         aperture: apStr,
@@ -3725,6 +3975,7 @@
       edgeSoft: lerp('edgeSoft')
     };
     const optics = applyApertureOptics(interp, curF, curMinF, lerp('apertureEV'));
+    const focusOptics = computeFocusOptics(mm, curF, false);
     const mmRound = Math.round(mm);
     const apStr = formatApertureLabel(curF);
     const ringAngleDeg = (mm - minMm) * 2.2 + 2 * Math.log2(curF) * 28;
@@ -3732,6 +3983,7 @@
       ...nearest,
       ...interp,
       ...optics,
+      ...focusOptics,
       id: nearest.id,
       mm,
       minF: curMinF,
@@ -4165,9 +4417,13 @@
     const statEl = document.getElementById('pickerLensStat');
     if (statEl) {
       const apTxt = lens.aperture ? `${lens.aperture} · ` : '';
-      statEl.textContent = body.id === 'rangefinder'
-        ? `${apTxt}Brightline ${Math.round(lens.brightlinePct)}%`
-        : (body.id === 'medium-format' ? `${apTxt}Format ${lens.label}` : `${apTxt}${lens.cropZoom.toFixed(2)}x`);
+      const focTxt = lens.focusLocked
+        ? 'FF'
+        : (lens.focusMode === 'af' ? `AF ${lens.focusDistanceLabel}` : `MF ${lens.focusDistanceLabel}`);
+      const mainTxt = body.id === 'rangefinder'
+        ? `Brightline ${Math.round(lens.brightlinePct)}%`
+        : (body.id === 'medium-format' ? `Format ${lens.label}` : `${lens.cropZoom.toFixed(2)}x`);
+      statEl.textContent = `${apTxt}${focTxt} · ${mainTxt}`;
     }
 
     const lensTrack = document.getElementById('pickerLensTrack');
@@ -4392,6 +4648,8 @@
           lensFocalMm: nextFocalMm,
           lensAperture: nextAp,
           zoomFocalMm: nextZoomMm,
+          focusMode: matchedFocal.isFixedAperture ? 'af' : (r.focusMode === 'mf' ? 'mf' : 'af'),
+          focusPos: matchedFocal.isFixedAperture ? state.afTargetPos : (Number.isFinite(Number(r.focusPos)) ? Math.max(0, Math.min(1, Number(r.focusPos))) : state.afTargetPos),
           filmId: r.filmId,
           strength: r.strength, exposure: r.exposure, warmth: r.warmth, grain: r.grain,
           halation: r.halation, bloom: r.bloom, vignette: r.vignette,
@@ -4811,12 +5069,159 @@
     };
   }
 
+  function buildFocusScaleSpec(body, rawLens, resolvedLens) {
+    if (resolvedLens.focusLocked) {
+      return {
+        modeKey: 'focus-fixed',
+        tag: 'FF',
+        locked: true,
+        minX: 0,
+        maxX: 0,
+        marks: [{ x: 0, label: '1.5m–∞', isMajor: true }],
+        ticks: [-24, -12, 0, 12, 24].map(x => ({ x, cls: x === 0 ? 'major' : '' })),
+        getCurX: () => 0,
+        getMinDragX: () => 0,
+        getValText: () => 'FIXED',
+        applyX: () => ({ changed: false, needsLayout: false })
+      };
+    }
+
+    const maxX = FOCUS_TRACK_MAX_X;
+    const marks = FOCUS_STOPS.map(s => ({
+      x: s.pos * maxX,
+      label: s.label,
+      isMajor: true,
+      adrClass: s.adrClass || ''
+    }));
+    const ticks = [];
+    for (let i = 0; i < FOCUS_STOPS.length; i++) {
+      const x0 = FOCUS_STOPS[i].pos * maxX;
+      ticks.push({ x: x0, cls: 'major' });
+      if (i < FOCUS_STOPS.length - 1) {
+        const x1 = FOCUS_STOPS[i + 1].pos * maxX;
+        ticks.push({ x: x0 + (x1 - x0) * 0.25, cls: '' });
+        ticks.push({ x: x0 + (x1 - x0) * 0.5, cls: 'half' });
+        ticks.push({ x: x0 + (x1 - x0) * 0.75, cls: '' });
+      }
+    }
+
+    return {
+      modeKey: 'focus-helical',
+      tag: 'AF',
+      locked: false,
+      minX: 0,
+      maxX,
+      marks,
+      ticks,
+      getCurX: () => focusPosToTrackX(resolvedLens.focusPos),
+      getMinDragX: () => 0,
+      getValText: () => resolvedLens.focusMode === 'af'
+        ? `AF ${resolvedLens.focusDistanceLabel}`
+        : `MF ${resolvedLens.focusDistanceLabel}`,
+      applyX: (rawX, isRelease, prevDetent) => {
+        let cx = Math.max(0, Math.min(maxX, rawX));
+        const afX = focusPosToTrackX(state.afTargetPos);
+        if (isRelease) {
+          if (Math.abs(cx - afX) <= 3) {
+            cx = afX;
+          } else {
+            for (const s of FOCUS_STOPS) {
+              const sx = s.pos * maxX;
+              if (Math.abs(cx - sx) <= 2.5) { cx = sx; break; }
+            }
+          }
+        }
+        state.focusMode = 'mf';
+        state.focusPos = Number(trackXToFocusPos(cx).toFixed(4));
+        const detentSlot = Math.round(cx / 16);
+        if (prevDetent !== undefined && prevDetent !== detentSlot) {
+          playLensClickSound(detentSlot % 3 === 0);
+        }
+        return { changed: true, needsLayout: false, detent: detentSlot };
+      }
+    };
+  }
+
+  function syncViewfinderFocusAid(body, lens) {
+    const inFocus = !!lens.inFocusPeak;
+    const isMfOff = !lens.focusLocked && lens.focusMode === 'mf' && !inFocus;
+    const clampedErr = Math.max(-1, Math.min(1, (lens.focusSignedErr || 0) * 2.4));
+
+    const slrRing = document.getElementById('vfSlrFocusRing');
+    if (slrRing) {
+      slrRing.classList.toggle('in-focus', inFocus);
+      slrRing.classList.toggle('mf-off', isMfOff);
+      slrRing.style.setProperty('--split-shift', `${(clampedErr * 7).toFixed(2)}px`);
+    }
+
+    const rfPatch = document.getElementById('vfRfPatch');
+    if (rfPatch) {
+      rfPatch.classList.toggle('in-focus', inFocus);
+      rfPatch.classList.toggle('mf-off', isMfOff);
+      rfPatch.style.setProperty('--rf-shift', `${(clampedErr * 6).toFixed(2)}px`);
+    }
+
+    const afBtn = document.getElementById('btnVfAutoFocus');
+    if (afBtn) {
+      afBtn.style.display = lens.focusLocked ? 'none' : '';
+      const isAf = lens.focusMode === 'af';
+      afBtn.classList.toggle('af-active', isAf);
+      afBtn.textContent = isAf ? 'AF' : 'AF ↺';
+    }
+  }
+
+  let afSnapTimer = 0;
+  let vfReticleTimer = 0;
+  function showVfFocusReticle(leftCss, topCss, durationMs = 1200) {
+    const reticle = document.getElementById('vfFocusReticle');
+    if (!reticle) return;
+    if (leftCss != null) reticle.style.left = leftCss;
+    if (topCss != null) reticle.style.top = topCss;
+    reticle.classList.add('active');
+    window.clearTimeout(vfReticleTimer);
+    vfReticleTimer = window.setTimeout(() => {
+      if (!state.camAELocked) reticle.classList.remove('active');
+    }, durationMs);
+  }
+
+  function activateAutoFocus(showFeedback = true) {
+    const { body, lens } = getSelectedGear();
+    if (lens.focusLocked) {
+      if (showFeedback) showToast('📷 Fixed Focus (1.5m–∞)');
+      return;
+    }
+    state.focusMode = 'af';
+    state.focusPos = state.afTargetPos;
+
+    document.querySelectorAll('.lens-barrel-ring[data-ring="focus"] .lens-ring-track').forEach(tr => {
+      tr.classList.add('snap-af');
+    });
+    window.clearTimeout(afSnapTimer);
+    afSnapTimer = window.setTimeout(() => {
+      document.querySelectorAll('.lens-barrel-ring[data-ring="focus"] .lens-ring-track.snap-af').forEach(tr => {
+        tr.classList.remove('snap-af');
+      });
+    }, 210);
+
+    if (document.getElementById('view-camera')?.classList.contains('active')) {
+      showVfFocusReticle('50%', '50%', 900);
+    }
+
+    playLensClickSound(true);
+    syncLensLiveUI(false);
+    syncViewfinderFocusAid(body, getSelectedGear().lens);
+    scheduleCameraSettingsApply();
+    scheduleSaveLocalAppState();
+    if (showFeedback) showToast('🎯 Auto Focus (AF)');
+  }
+
   function syncLensLiveUI(needsLayout = false) {
     const { body, lens } = getSelectedGear();
     state.bloom = lens.bloomBase;
     state.vignette = lens.vignetteBase;
     renderComboCards();
     syncLensBarrelWidgets();
+    syncViewfinderFocusAid(body, lens);
 
     if (body.id === 'rangefinder') {
       const bl = document.getElementById('vfRfBrightline');
@@ -4866,6 +5271,17 @@
         <span class="lens-ring-val">50mm</span>
       </div>
       <div class="lens-barrel-divider"></div>
+      <div class="lens-barrel-ring is-af in-focus" data-ring="focus">
+        <button type="button" class="lens-ring-tag lens-af-btn is-af" title="Auto Focus — tap to return to AF">AF</button>
+        <div class="lens-ring-viewport" tabindex="0" role="slider" aria-label="Manual focus distance ring">
+          <div class="lens-ring-track"></div>
+          <div class="lens-dof-bracket is-af"></div>
+          <div class="lens-ring-shade"></div>
+          <div class="lens-ring-index"></div>
+        </div>
+        <span class="lens-ring-val" title="Tap to switch to Manual Focus">AF 1.2m</span>
+      </div>
+      <div class="lens-barrel-divider"></div>
       <div class="lens-barrel-ring" data-ring="aperture">
         <span class="lens-ring-tag">IRIS</span>
         <div class="lens-ring-viewport" tabindex="0" role="slider" aria-label="Lens aperture ring">
@@ -4883,12 +5299,34 @@
       const viewport = row.querySelector('.lens-ring-viewport');
       const track = row.querySelector('.lens-ring-track');
       const valEl = row.querySelector('.lens-ring-val');
+      const dofBracketEl = row.querySelector('.lens-dof-bracket');
       let spec = null;
       let builtModeKey = '';
       let curtainEl = null;
       let markEls = [];
       let tickEls = [];
       let dragState = null;
+
+      if (ringKind === 'focus') {
+        tagEl.addEventListener('click', e => {
+          e.stopPropagation();
+          if (spec?.locked) return;
+          activateAutoFocus(true);
+        });
+        valEl.addEventListener('click', e => {
+          e.stopPropagation();
+          if (spec?.locked) return;
+          if (state.focusMode === 'af') {
+            state.focusMode = 'mf';
+            track.classList.remove('snap-af');
+            playLensClickSound(false);
+            syncLensLiveUI(false);
+            scheduleCameraSettingsApply();
+            scheduleSaveLocalAppState();
+            showToast('🖐️ Manual Focus (MF) — drag focus ring');
+          }
+        });
+      }
 
       const buildTrackDom = (nextSpec) => {
         builtModeKey = nextSpec.modeKey;
@@ -4936,7 +5374,9 @@
       const renderFrame = (body, rawLens, resolvedLens) => {
         spec = ringKind === 'focal'
           ? buildTopScaleSpec(body, resolvedLens)
-          : buildApertureScaleSpec(body, rawLens, resolvedLens);
+          : (ringKind === 'focus'
+            ? buildFocusScaleSpec(body, rawLens, resolvedLens)
+            : buildApertureScaleSpec(body, rawLens, resolvedLens));
 
         if (spec.modeKey !== builtModeKey) buildTrackDom(spec);
 
@@ -4945,6 +5385,21 @@
         const tx = vw * 0.5 - curX;
         track.style.transform = `translate3d(${tx.toFixed(2)}px, 0, 0)`;
         valEl.textContent = spec.getValText();
+
+        if (ringKind === 'focus') {
+          const isAf = !spec.locked && resolvedLens.focusMode === 'af';
+          const isInFocus = !spec.locked && !!resolvedLens.inFocusPeak;
+          row.classList.toggle('is-af', isAf);
+          row.classList.toggle('in-focus', isInFocus);
+          row.classList.toggle('mf-off', !spec.locked && !isAf && !isInFocus);
+          tagEl.disabled = !!spec.locked;
+          tagEl.classList.toggle('is-af', isAf);
+          if (dofBracketEl) {
+            dofBracketEl.classList.toggle('hidden', !!spec.locked);
+            dofBracketEl.classList.toggle('is-af', isAf);
+            if (!spec.locked) dofBracketEl.style.width = `${resolvedLens.dofWidthPx || 24}px`;
+          }
+        }
 
         const curMinF = resolvedLens.minF || 1.4;
         if (curtainEl) {
@@ -4970,6 +5425,7 @@
       viewport.addEventListener('pointerdown', e => {
         if (!spec || spec.locked || (e.button && e.button !== 0)) return;
         e.preventDefault();
+        if (ringKind === 'focus') track.classList.remove('snap-af');
         if (state.camSound && state.audioCtx?.state === 'suspended') {
           state.audioCtx.resume().catch(() => {});
         }
@@ -5043,6 +5499,7 @@
       viewport.addEventListener('wheel', e => {
         if (!spec || spec.locked) return;
         e.preventDefault();
+        if (ringKind === 'focus') track.classList.remove('snap-af');
         const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
         const stepX = Math.max(-24, Math.min(24, delta * 0.4));
         const res = spec.applyX(spec.getCurX() + stepX, true, undefined);
@@ -5057,6 +5514,7 @@
         if (!spec || spec.locked) return;
         if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
         e.preventDefault();
+        if (ringKind === 'focus') track.classList.remove('snap-af');
         const step = e.key === 'ArrowRight' ? 12 : -12;
         const res = spec.applyX(spec.getCurX() + step, true, undefined);
         if (res.changed) {
@@ -5082,11 +5540,13 @@
     };
 
     const focalCtrl = makeRingController('focal');
+    const focusCtrl = makeRingController('focus');
     const apCtrl = makeRingController('aperture');
     barrelWidgets.push({
       el: container,
       sync: (body, rawLens, resolvedLens) => {
         focalCtrl.renderFrame(body, rawLens, resolvedLens);
+        focusCtrl.renderFrame(body, rawLens, resolvedLens);
         apCtrl.renderFrame(body, rawLens, resolvedLens);
       }
     });
@@ -5255,6 +5715,7 @@
     if (body.id === 'disposable') {
       document.getElementById('vfDispFlashPip')?.classList.toggle('on', !!state.camFlashOn);
     }
+    syncViewfinderFocusAid(body, lens);
   }
 
   function clearPendingHalfFrame() {
@@ -5335,6 +5796,7 @@
       evBadge.classList.toggle('active', Math.abs(val) > 0.04);
     }
 
+    syncViewfinderFocusAid(body, lens);
     syncLensBarrelWidgets();
     layoutViewfinderStage();
   }
@@ -5359,9 +5821,25 @@
       const max = capabilities.exposureCompensation.max ?? 2;
       advanced.exposureCompensation = Math.max(min, Math.min(max, Number(state.camExposureEV) || 0));
     }
-    const { film } = getSelectedGear();
+    const { lens, film } = getSelectedGear();
     if (capabilities.iso && Number.isFinite(capabilities.iso.min) && Number.isFinite(capabilities.iso.max)) {
       advanced.iso = Math.max(capabilities.iso.min, Math.min(capabilities.iso.max, film.iso));
+    }
+    if (Array.isArray(capabilities.focusMode)) {
+      if (lens.focusMode === 'mf' && capabilities.focusMode.includes('manual')) {
+        advanced.focusMode = 'manual';
+        if (capabilities.focusDistance && Number.isFinite(capabilities.focusDistance.min) && Number.isFinite(capabilities.focusDistance.max)) {
+          const minD = capabilities.focusDistance.min;
+          const maxD = capabilities.focusDistance.max;
+          const m = focusPosToMeters(lens.focusPos);
+          const dist = Number.isFinite(m) ? m : maxD;
+          advanced.focusDistance = Math.max(minD, Math.min(maxD, dist));
+        }
+      } else if (capabilities.focusMode.includes('continuous')) {
+        advanced.focusMode = 'continuous';
+      } else if (capabilities.focusMode.includes('single-shot')) {
+        advanced.focusMode = 'single-shot';
+      }
     }
     state.camAppliedHardware = {};
     if (Object.keys(advanced).length) {
@@ -5622,6 +6100,7 @@
       uniform vec2 uSize;
       uniform float uDofStr;
       uniform float uDofRad;
+      uniform float uMfDefocus;
       uniform float uHalGain;
       uniform float uBloomGain;
       uniform float uFlashBurst;
@@ -5635,15 +6114,18 @@
         float nx = vUv.x * 2.0 - 1.0;
         float ny = 1.0 - 2.0 * vUv.y;
 
-        if (uDofStr > 0.04) {
+        if (uDofStr > 0.04 || uMfDefocus > 0.015) {
           float dy2 = (ny + 0.08) * (ny + 0.08) * 0.72;
           float d2 = nx * nx + dy2;
-          if (d2 > uDofRad * uDofRad) {
-            float mixV = smoothstep(uDofRad, uDofRad + 0.58, sqrt(d2)) * uDofStr;
-            if (mixV > 0.002) {
-              vec3 br = texture(uDof, vUv).rgb * 255.0;
-              rgb = mix(rgb, br, mixV);
-            }
+          float radialMix = 0.0;
+          if (uDofStr > 0.04 && d2 > uDofRad * uDofRad) {
+            radialMix = smoothstep(uDofRad, uDofRad + 0.58, sqrt(d2)) * uDofStr;
+          }
+          float mfMix = uMfDefocus > 0.015 ? min(1.0, uMfDefocus * 3.2) : 0.0;
+          float mixV = max(radialMix, mfMix);
+          if (mixV > 0.002) {
+            vec3 br = texture(uDof, vUv).rgb * 255.0;
+            rgb = mix(rgb, br, mixV);
           }
         }
         if (uHalGain > 0.001) {
@@ -5909,15 +6391,18 @@
         drawQuad(pGrade, fboBase.fbo, w, h);
 
         const dofStr = lens.dofStrength || 0;
-        if (dofStr > 0.04) {
+        const mfDefocus = lens.mfDefocus || 0;
+        if (dofStr > 0.04 || mfDefocus > 0.015) {
           gl.useProgram(pExtract.prog);
           gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, fboBase.tex);
           gl.uniform1i(pExtract.u.uBase, 0);
           gl.uniform1i(pExtract.u.uMode, 0);
           drawQuad(pExtract, fboQ0.fbo, curQw, curQh);
-          const blurRad = Math.max(2, Math.round(curQw * (0.011 + dofStr * 0.022)));
+          const blurEffort = Math.max(dofStr, mfDefocus * 1.28);
+          const blurRad = Math.max(2, Math.round(curQw * (0.012 + blurEffort * 0.038)));
           runBlurPass(fboQ0, fboDof, blurRad);
-          runBlurPass(fboDof, fboDof, Math.max(2, Math.round(blurRad * 0.7)));
+          runBlurPass(fboDof, fboDof, Math.max(2, Math.round(blurRad * 0.72)));
+          if (mfDefocus > 0.25) runBlurPass(fboDof, fboDof, Math.max(2, Math.round(blurRad * 0.48)));
         }
 
         const br = Math.max(3, Math.round(curQw * 0.022));
@@ -5954,6 +6439,7 @@
         gl.uniform2f(uc.uSize, w, h);
         gl.uniform1f(uc.uDofStr, dofStr);
         gl.uniform1f(uc.uDofRad, lens.dofRadius ?? 0.42);
+        gl.uniform1f(uc.uMfDefocus, mfDefocus);
         gl.uniform1f(uc.uHalGain, halationAmt > 0 ? (halationAmt / 100) * 1.15 * str : 0);
         gl.uniform1f(uc.uBloomGain, bloomAmt > 0 ? (bloomAmt / 100) * 0.55 : 0);
         gl.uniform1f(uc.uFlashBurst, flashBurst ? 1 : 0);
@@ -5994,7 +6480,7 @@
       const dateStampText = formatDateStamp();
       const staticKey = hasLiveVideo
         ? ''
-        : `${state.activeSampleId || 'custom'}|${previewSourceVersion}|${body.id}|${lens.id}|${Number(lens.mm || 50).toFixed(1)}|${Number(state.zoomFocalMm || 50).toFixed(1)}|${Number(lens.activeF || 2.8).toFixed(2)}|${film.id}|${cameraExposureEV().toFixed(2)}|${state.warmth}|${state.camFlashOn ? 1 : 0}|${dateStampText}|${targetW}x${targetH}`;
+        : `${state.activeSampleId || 'custom'}|${previewSourceVersion}|${body.id}|${lens.id}|${Number(lens.mm || 50).toFixed(1)}|${Number(state.zoomFocalMm || 50).toFixed(1)}|${Number(lens.activeF || 2.8).toFixed(2)}|${state.focusMode}|${Number(lens.mfDefocus || 0).toFixed(3)}|${film.id}|${cameraExposureEV().toFixed(2)}|${state.warmth}|${state.camFlashOn ? 1 : 0}|${dateStampText}|${targetW}x${targetH}`;
 
       if (!hasLiveVideo && staticKey === cameraLastStaticKey && vfCanvas.width === targetW && vfCanvas.height === targetH) {
         return;
@@ -6562,6 +7048,8 @@
       state.lensAperture = rawLens.minF || 2.8;
     }
     apPinnedWideOpen = true;
+    state.focusMode = 'af';
+    state.focusPos = state.afTargetPos;
     const resolved = getSelectedGear().lens;
     state.filmId = film.id;
     state.filmBrandFilter = 'all';
@@ -6582,6 +7070,8 @@
       mm: Math.round(Number(state.lensFocalMm) * 100) / 100,
       ap: Math.round(Number(state.lensAperture) * 100) / 100,
       zm: Math.round(Number(state.zoomFocalMm) * 100) / 100,
+      fm: state.focusMode === 'mf' ? 'mf' : 'af',
+      fp: Math.round(Number(state.focusPos) * 1000) / 1000,
       f: state.filmId,
       st: state.strength,
       ev: state.exposure,
@@ -6630,6 +7120,8 @@
       const minF = rawLens.isZoom ? (3.5 + ((state.zoomFocalMm - 35) / 35) * 1.0) : (rawLens.minF || 2.8);
       state.lensAperture = rawLens.isFixedAperture ? minF : clamp(p.ap, minF, rawLens.maxF || 16, minF);
       apPinnedWideOpen = Math.abs(state.lensAperture - minF) < 0.04;
+      state.focusMode = rawLens.isFixedAperture ? 'af' : (p.fm === 'mf' ? 'mf' : 'af');
+      state.focusPos = rawLens.isFixedAperture ? state.afTargetPos : clamp(p.fp, 0, 1, state.afTargetPos);
       state.strength = Math.round(clamp(p.st, 0, 100, state.strength));
       state.exposure = Math.round(clamp(p.ev, -150, 150, state.exposure));
       state.warmth = Math.round(clamp(p.w, -40, 40, state.warmth));
@@ -6727,6 +7219,7 @@
     state.recipes.unshift({
       name, phoneId: state.phoneId, bodyId: state.bodyId, lensId: state.lensId,
       lensFocalMm: state.lensFocalMm, lensAperture: state.lensAperture, zoomFocalMm: state.zoomFocalMm,
+      focusMode: state.focusMode, focusPos: state.focusPos,
       filmId: state.filmId,
       strength: state.strength, exposure: state.exposure, warmth: state.warmth, grain: state.grain,
       halation: state.halation, bloom: state.bloom, vignette: state.vignette,
@@ -6753,7 +7246,6 @@
   // Tap-to-Focus & Spot AE Metering on #vfStage
   const vfStageEl = document.getElementById('vfStage');
   const vfFocusReticle = document.getElementById('vfFocusReticle');
-  let vfReticleTimer = 0;
   vfStageEl?.addEventListener('click', e => {
     if (e.target.closest('button, input, .lens-barrel-dock, .vf-hf-diptych-bar')) return;
     const rect = vfStageEl.getBoundingClientRect();
@@ -6761,15 +7253,7 @@
     const nx = Math.max(0.06, Math.min(0.94, (e.clientX - rect.left) / rect.width));
     const ny = Math.max(0.08, Math.min(0.92, (e.clientY - rect.top) / rect.height));
 
-    if (vfFocusReticle) {
-      vfFocusReticle.style.left = `${(nx * 100).toFixed(1)}%`;
-      vfFocusReticle.style.top = `${(ny * 100).toFixed(1)}%`;
-      vfFocusReticle.classList.add('active');
-      clearTimeout(vfReticleTimer);
-      vfReticleTimer = setTimeout(() => {
-        if (!state.camAELocked) vfFocusReticle.classList.remove('active');
-      }, 1600);
-    }
+    showVfFocusReticle(`${(nx * 100).toFixed(1)}%`, `${(ny * 100).toFixed(1)}%`, 1600);
 
     if (!state.camAELocked) {
       const hasLiveVideo = !!(state.camStream && camVideo.readyState >= 2);
@@ -6807,7 +7291,7 @@
     }
 
     const track = cameraTrack();
-    if (track?.applyConstraints) {
+    if (track?.applyConstraints && state.focusMode !== 'mf') {
       try {
         const caps = track.getCapabilities?.();
         if (caps?.focusMode?.includes?.('continuous') || caps?.pointsOfInterest) {
@@ -6820,6 +7304,8 @@
     scheduleCameraSettingsApply();
     scheduleSaveLocalAppState();
   });
+
+  document.getElementById('btnVfAutoFocus')?.addEventListener('click', () => activateAutoFocus(true));
 
   document.getElementById('btnVfAeLock')?.addEventListener('click', () => {
     state.camAELocked = !state.camAELocked;
