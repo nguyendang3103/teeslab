@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tees-lab-shell-v21';
+const CACHE_NAME = 'tees-lab-shell-v22';
 const APP_FILES = [
   './index.html', './manifest.json', './logo.jpg', './version.json',
   './assets/samples/golden-hour.jpg',
