@@ -1,19 +1,16 @@
-const CACHE_NAME = 'tees-lab-shell-v31';
-const APP_FILES = [
-  './index.html', './manifest.json', './logo.jpg', './version.json',
-  './assets/samples/golden-hour.jpg',
-  './assets/samples/neon-street.jpg',
-  './assets/samples/forest.jpg',
-  './assets/samples/portrait.jpg',
+const CACHE_NAME = 'tees-lab-shell-v32';
+const CORE_FILES = [
+  './', './index.html', './manifest.json', './logo.jpg', './version.json',
   './assets/samples/coffee.jpg',
-  './assets/samples/ocean.jpg',
   './assets/fonts/Caveat-TeeLab.woff2',
   './assets/gear/bodies/slr.webp',
   './assets/gear/bodies/rangefinder.webp',
   './assets/gear/bodies/half-frame.webp',
   './assets/gear/bodies/pocket-110.webp',
   './assets/gear/bodies/disposable.webp',
-  './assets/gear/bodies/medium-format.webp',
+  './assets/gear/bodies/medium-format.webp'
+];
+const WARM_FILES = [
   './assets/gear/films/fuji-pro-400h.webp',
   './assets/gear/films/fuji-superia-400.webp',
   './assets/gear/films/fuji-classic-chrome.webp',
@@ -33,19 +30,38 @@ const APP_FILES = [
   './assets/gear/films/cinestill-50d.webp',
   './assets/gear/films/ilford-hp5.webp',
   './assets/gear/films/kodak-trix-400.webp',
-  './assets/gear/films/fuji-acros-100.webp'
+  './assets/gear/films/fuji-acros-100.webp',
+  './assets/samples/golden-hour.jpg',
+  './assets/samples/neon-street.jpg',
+  './assets/samples/forest.jpg',
+  './assets/samples/portrait.jpg',
+  './assets/samples/ocean.jpg'
 ];
 
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE_NAME).then(cache =>
-    Promise.all(APP_FILES.map(url => cache.add(new Request(url, { cache: 'no-cache' }))))
-  ).then(() => self.skipWaiting()));
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => Promise.all(CORE_FILES.map(url => cache.add(new Request(url, { cache: 'no-cache' })))))
+      .then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener('activate', event => {
-  event.waitUntil(caches.keys()
-    .then(keys => Promise.all(keys.filter(key => key.startsWith('tees-lab-shell-') && key !== CACHE_NAME).map(key => caches.delete(key))))
-    .then(() => self.clients.claim()));
+  event.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(keys.filter(key => key.startsWith('tees-lab-shell-') && key !== CACHE_NAME).map(key => caches.delete(key))))
+      .then(() => self.clients.claim())
+      .then(() => {
+        caches.open(CACHE_NAME).then(async cache => {
+          for (const url of WARM_FILES) {
+            try {
+              const hit = await cache.match(url);
+              if (!hit) await cache.add(new Request(url, { cache: 'no-cache' }));
+            } catch (e) {}
+          }
+        }).catch(() => {});
+      })
+  );
 });
 
 self.addEventListener('fetch', event => {
@@ -56,7 +72,7 @@ self.addEventListener('fetch', event => {
     event.respondWith(fetch(new Request(request, { cache: 'no-cache' })).then(async response => {
       if (response.ok) await caches.open(CACHE_NAME).then(cache => cache.put('./index.html', response.clone()));
       return response;
-    }).catch(async () => (await caches.match('./index.html')) || Response.error()));
+    }).catch(async () => (await caches.match('./index.html')) || (await caches.match('./')) || Response.error()));
     return;
   }
 

@@ -213,6 +213,9 @@
       font-size: 13px;
       color: var(--text-secondary);
     }
+    .app-shell[data-active-tab="camera"] #btnExport {
+      display: none;
+    }
 
     /* MAIN VIEWS */
     .view-section {
@@ -335,6 +338,16 @@
       user-select: none;
       touch-action: none;
       cursor: pointer;
+      transform-origin: center center;
+      transition: transform 0.14s ease-out;
+      will-change: transform;
+    }
+    .canvas-stack.zoom-dragging {
+      transition: none;
+      cursor: grab;
+    }
+    .canvas-stack.zoomed {
+      cursor: grab;
     }
     #previewCanvas, #originalOverlayCanvas {
       display: block;
@@ -434,6 +447,13 @@
     .rollie-combo-caption strong {
       color: #f5a623;
       font-weight: 700;
+    }
+    .canvas-stack.zoomed + .stage-overlay-bottom .rollie-combo-caption {
+      background: rgba(9, 11, 15, 0.82);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      padding: 3px 8px;
+      backdrop-filter: blur(4px);
     }
     .float-pill {
       pointer-events: auto;
@@ -745,6 +765,94 @@
       font-size: 13px;
       color: rgba(255,255,255,0.45);
     }
+    .vf-hf-ghost {
+      display: none;
+      position: absolute;
+      top: 32px;
+      left: 6px;
+      width: 44px;
+      aspect-ratio: 3 / 4;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1.5px solid #f5a623;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.75);
+      opacity: 0.92;
+      pointer-events: none;
+    }
+    .vf-hf-ghost.visible { display: block; }
+    .vf-hf-diptych-bar {
+      display: none;
+      position: absolute;
+      top: 32px;
+      left: 6px;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 6px;
+      border-radius: 5px;
+      background: rgba(10, 12, 16, 0.88);
+      border: 1px solid rgba(245, 166, 35, 0.75);
+      font-family: var(--mono);
+      font-size: 9px;
+      font-weight: 800;
+      color: #f5a623;
+      pointer-events: auto;
+      z-index: 6;
+    }
+    .vf-hf-diptych-bar.active { display: inline-flex; }
+    .vf-hf-diptych-bar.has-first { left: 56px; }
+    .vf-hf-diptych-bar button {
+      color: #cbd5e1;
+      font-size: 10px;
+      line-height: 1;
+      padding: 0 2px;
+    }
+
+    /* Tap-to-Focus / AE Reticle */
+    .vf-focus-reticle {
+      position: absolute;
+      width: 44px;
+      height: 44px;
+      margin-left: -22px;
+      margin-top: -22px;
+      border: 1.5px solid #f5a623;
+      border-radius: 4px;
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.55), 0 0 12px rgba(245, 166, 35, 0.35);
+      pointer-events: none;
+      opacity: 0;
+      transform: scale(1.24);
+      transition: opacity 0.22s ease, transform 0.16s ease-out;
+      z-index: 5;
+    }
+    .vf-focus-reticle::before,
+    .vf-focus-reticle::after {
+      content: "";
+      position: absolute;
+      background: #f5a623;
+    }
+    .vf-focus-reticle::before {
+      left: 50%;
+      top: -4px;
+      bottom: -4px;
+      width: 1px;
+      transform: translateX(-0.5px);
+      opacity: 0.45;
+    }
+    .vf-focus-reticle::after {
+      top: 50%;
+      left: -4px;
+      right: -4px;
+      height: 1px;
+      transform: translateY(-0.5px);
+      opacity: 0.45;
+    }
+    .vf-focus-reticle.active {
+      opacity: 0.95;
+      transform: scale(1);
+    }
+    .vf-focus-reticle.locked {
+      border-color: #22c55e;
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.55), 0 0 12px rgba(34, 197, 94, 0.45);
+    }
 
     /* Pocket 110 (4:3) — Simple Subminiature Oval Target */
     .vf-110-overlay {
@@ -1009,11 +1117,13 @@
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
+      gap: 4px;
       z-index: 6;
       pointer-events: none;
     }
     .vf-badge-btn {
       pointer-events: auto;
+      flex-shrink: 0;
       font-family: var(--mono);
       font-size: 9.5px;
       font-weight: 800;
@@ -1034,10 +1144,30 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      flex: 1 1 auto;
       width: 148px;
+      min-width: 56px;
+      max-width: 148px;
       padding: 2px 6px 4px;
       border-radius: 6px;
       background: rgba(8, 10, 14, 0.72);
+    }
+    .vf-stage[data-vf-mode="half-frame"] ~ .vf-top-hud {
+      left: 6px;
+      right: 6px;
+      top: 6px;
+    }
+    .vf-stage[data-vf-mode="half-frame"] ~ .vf-top-hud .vf-badge-btn {
+      font-size: 8.5px;
+      padding: 2px 4px;
+    }
+    .vf-stage[data-vf-mode="half-frame"] ~ .vf-bottom-hud {
+      left: 6px;
+      right: 6px;
+    }
+    .vf-stage[data-vf-mode="half-frame"] ~ .vf-bottom-hud .vf-badge-btn {
+      font-size: 8.5px;
+      padding: 2px 4px;
     }
     .vf-ev-ticks {
       width: 100%;
@@ -1082,7 +1212,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 6px;
+      gap: 4px;
     }
     .vf-hud-left,
     .vf-hud-center-actions {
@@ -1774,7 +1904,7 @@
   </style>
 </head>
 <body>
-  <div class="app-shell">
+  <div class="app-shell" data-active-tab="camera">
     <!-- 1. MINIMAL TOPBAR -->
     <header class="topbar">
       <div class="brand">
@@ -1810,7 +1940,8 @@
         <div class="stage-overlay-bottom">
           <button class="rollie-combo-caption" id="liveGearBadge" title="Tap to change combo">SLR (3:2) — 50mm — <strong>Pro 400H</strong></button>
           <div style="display:flex;gap:5px;flex-shrink:0;">
-            <button class="float-pill" id="btnToggleSplit">◧ Split</button>
+            <button class="float-pill" id="btnToggleLabZoom" type="button" title="Toggle 2× zoom">🔍 1×</button>
+            <button class="float-pill" id="btnToggleSplit" type="button">◧ Split</button>
           </div>
         </div>
       </div>
@@ -1912,8 +2043,14 @@
                 </div>
               </div>
 
-              <!-- Half Frame: 3:4 Portrait Guide -->
-              <div class="vf-hfs-overlay" aria-hidden="true"></div>
+              <!-- Half Frame: 3:4 Portrait Guide + Optional 2F Diptych Ghost -->
+              <div class="vf-hfs-overlay" aria-hidden="true">
+                <img class="vf-hf-ghost" id="vfHfGhostImg" alt="" />
+                <div class="vf-hf-diptych-bar" id="vfHfDiptychBar">
+                  <span id="vfHfHalfLabel">1/2</span>
+                  <button type="button" id="btnCancelHalfFrame" title="Discard first half">✕</button>
+                </div>
+              </div>
 
               <!-- Pocket 110: Subminiature Reticle -->
               <div class="vf-110-overlay" aria-hidden="true">
@@ -1935,6 +2072,8 @@
                 <div class="vf-mf-grid-v2"></div>
                 <div class="vf-mf-loupe"></div>
               </div>
+
+              <div class="vf-focus-reticle" id="vfFocusReticle"></div>
             </div>
           </div>
 
@@ -1944,7 +2083,10 @@
               <div class="vf-ev-ticks"><span>-2</span><span>-1</span><span>0</span><span>+1</span><span>+2</span></div>
               <input id="camExposureControl" type="range" min="-2" max="2" step="0.1" value="0" aria-label="Exposure compensation" />
             </div>
-            <button class="vf-badge-btn" id="camExposureValue" type="button" title="Tap to reset EV">0.0</button>
+            <div style="display:flex;align-items:center;gap:4px;pointer-events:auto;">
+              <button class="vf-badge-btn" id="btnVfAeLock" type="button" title="Toggle AE Lock">AE-L</button>
+              <button class="vf-badge-btn" id="camExposureValue" type="button" title="Tap to reset EV">0.0</button>
+            </div>
           </div>
 
           <div class="vf-bottom-hud">
@@ -1955,6 +2097,7 @@
               </div>
               <div class="vf-hud-center-actions">
                 <button class="vf-badge-btn" id="btnVfZoomModeToggle" type="button" title="Switch between primes & 35–70mm zoom" style="display:none;">35–70</button>
+                <button class="vf-badge-btn" id="btnVfDiptychToggle" type="button" title="Switch between 1-frame and paired 2-frame diptych" style="display:none;">1F</button>
               </div>
               <span id="camSourceStatus" class="vf-source-status">Rear</span>
             </div>
@@ -2011,6 +2154,7 @@
           <span style="font-family:var(--mono);font-size:10.5px;letter-spacing:0.6px;color:var(--text-secondary);" id="clapperSceneLabel">SCENE 01 · ROLL 01</span>
           <button class="filter-chip" id="btnTabSaved" type="button" style="padding:2px 8px;font-size:9.5px;">★ Saved</button>
           <button class="filter-chip" id="btnRandomCombo" type="button" title="Randomize combo" style="padding:2px 7px;font-size:9.5px;">🎲</button>
+          <button class="filter-chip" id="btnShareCombo" type="button" title="Copy shareable recipe link" style="padding:2px 7px;font-size:9.5px;">🔗</button>
         </div>
         <div class="picker-topbar-right">
           <button class="btn-pill btn-brass" id="btnCloseComboSheet" type="button" style="height:24px;padding:0 10px;font-size:10.5px;">✓ Done</button>
@@ -2118,22 +2262,8 @@
      ========================================================================== */
 
   const PHONE_PROFILES = [
-    { id: 'auto-detect', name: 'Automatic', deSharpen: 0.14, warmthOffset: 0, tintOffset: 0, satScale: 0.96, blueTame: 0.08, greenTame: 0.08, highlightRecover: 0.10, shadowLift: 0.04, contrastSoften: 0.06 },
-    { id: 'iphone', name: 'iPhone', deSharpen: 0.20, warmthOffset: -4, tintOffset: 2, satScale: 0.94, blueTame: 0.06, greenTame: 0.05, highlightRecover: 0.15, shadowLift: 0.06, contrastSoften: 0.10 },
-    { id: 'samsung-vivid', name: 'Samsung Galaxy', deSharpen: 0.22, warmthOffset: 3, tintOffset: -2, satScale: 0.85, blueTame: 0.28, greenTame: 0.26, highlightRecover: 0.14, shadowLift: 0.08, contrastSoften: 0.14 },
-    { id: 'xiaomi-leica', name: 'Xiaomi', deSharpen: 0.12, warmthOffset: 1, tintOffset: 0, satScale: 0.95, blueTame: 0.05, greenTame: 0.06, highlightRecover: 0.08, shadowLift: 0.14, contrastSoften: 0.08 },
-    { id: 'pixel-hdr', name: 'Google Pixel', deSharpen: 0.20, warmthOffset: 6, tintOffset: -1, satScale: 0.94, blueTame: 0.12, greenTame: 0.08, highlightRecover: 0.12, shadowLift: 0.10, contrastSoften: 0.16 },
-    { id: 'oppo-vivo', name: 'OPPO / Vivo / OnePlus', deSharpen: 0.16, warmthOffset: 2, tintOffset: -2, satScale: 0.90, blueTame: 0.16, greenTame: 0.16, highlightRecover: 0.18, shadowLift: 0.04, contrastSoften: 0.08 },
-    { id: 'other-phone', name: 'Other phone', deSharpen: 0.08, warmthOffset: 2, tintOffset: 0, satScale: 0.97, blueTame: 0.05, greenTame: 0.05, highlightRecover: 0.08, shadowLift: 0.05, contrastSoften: 0.04 },
-    { id: 'neutral-raw', name: 'Digital camera / RAW', deSharpen: 0.02, warmthOffset: 0, tintOffset: 0, satScale: 1.0, blueTame: 0, greenTame: 0, highlightRecover: 0.02, shadowLift: 0, contrastSoften: 0 }
+    { id: 'auto-detect', name: 'Automatic', deSharpen: 0.14, warmthOffset: 0, tintOffset: 0, satScale: 0.96, blueTame: 0.08, greenTame: 0.08, highlightRecover: 0.10, shadowLift: 0.04, contrastSoften: 0.06 }
   ];
-  const LEGACY_PHONE_PROFILE_IDS = {
-    'iphone-18': 'iphone',
-    'iphone-hdr': 'iphone',
-    'iphone-classic': 'iphone',
-    'sony-honor': 'other-phone'
-  };
-  const normalizePhoneProfileId = id => LEGACY_PHONE_PROFILE_IDS[id] || id;
 
   const VIEWFINDER_MODES = [
     {
@@ -2331,45 +2461,8 @@
   ];
 
   /* ==========================================================================
-     2. BINARY EXIF PARSER & SMART IMAGE ANALYZER
+     2. BINARY EXIF DATE PARSER
      ========================================================================== */
-
-  const DEVICE_MODEL_MAP = [
-    // All iPhone generations share one easy-to-select profile.
-    { match: /iphone/i, name: null, profile: 'iphone' },
-    // Samsung Galaxy S26 / S25 / S24 / Z Fold & Flip
-    { match: /SM-S948/i, name: 'Galaxy S26 Ultra', profile: 'samsung-vivid' },
-    { match: /SM-S946/i, name: 'Galaxy S26+', profile: 'samsung-vivid' },
-    { match: /SM-S941/i, name: 'Galaxy S26', profile: 'samsung-vivid' },
-    { match: /SM-S938/i, name: 'Galaxy S25 Ultra', profile: 'samsung-vivid' },
-    { match: /SM-S936/i, name: 'Galaxy S25+', profile: 'samsung-vivid' },
-    { match: /SM-S931/i, name: 'Galaxy S25', profile: 'samsung-vivid' },
-    { match: /SM-S928/i, name: 'Galaxy S24 Ultra', profile: 'samsung-vivid' },
-    { match: /SM-S926/i, name: 'Galaxy S24+', profile: 'samsung-vivid' },
-    { match: /SM-S921/i, name: 'Galaxy S24', profile: 'samsung-vivid' },
-    { match: /SM-S918/i, name: 'Galaxy S23 Ultra', profile: 'samsung-vivid' },
-    { match: /SM-F976/i, name: 'Galaxy Z Fold8', profile: 'samsung-vivid' },
-    { match: /SM-F966/i, name: 'Galaxy Z Fold7', profile: 'samsung-vivid' },
-    { match: /SM-F956/i, name: 'Galaxy Z Fold6', profile: 'samsung-vivid' },
-    { match: /SM-F766/i, name: 'Galaxy Z Flip8', profile: 'samsung-vivid' },
-    { match: /SM-F756/i, name: 'Galaxy Z Flip7', profile: 'samsung-vivid' },
-    // Xiaomi 13 - 17 Leica Series
-    { match: /xiaomi\s*17\s*ultra/i, name: 'Xiaomi 17 Ultra', profile: 'xiaomi-leica' },
-    { match: /xiaomi\s*16\s*ultra/i, name: 'Xiaomi 16 Ultra', profile: 'xiaomi-leica' },
-    { match: /25020PN60|xiaomi\s*15\s*ultra/i, name: 'Xiaomi 15 Ultra', profile: 'xiaomi-leica' },
-    { match: /24030PN60/i, name: 'Xiaomi 14 Ultra', profile: 'xiaomi-leica' },
-    { match: /2304FPN6D/i, name: 'Xiaomi 13 Ultra', profile: 'xiaomi-leica' },
-    { match: /xiaomi\s*(13|14|15|16|17)/i, name: null, profile: 'xiaomi-leica' },
-    // Google Pixel 8 - 11 Pro
-    { match: /pixel\s*(8|9|10|11)/i, name: null, profile: 'pixel-hdr' },
-    { match: /pixel/i, name: null, profile: 'pixel-hdr' },
-    // OPPO Find X8/X9, Vivo X200/X300, OnePlus 13-15
-    { match: /(find\s*x[789]|vivo\s*x[123]00|oppo|vivo|realme|oneplus|cph|v2[0-9]{3}|rmx)/i, name: null, profile: 'oppo-vivo' },
-    // Sony Xperia / Honor Magic
-    { match: /(xperia|XQ-[A-Z]{2}[0-9]{2}|honor|PGT-|BVL-|PTP-)/i, name: null, profile: 'other-phone' },
-    // Dedicated Cameras
-    { match: /(fujifilm|canon|nikon|sony\s*ilce|leica|ricoh|olympus|panasonic|hasselblad)/i, name: null, profile: 'neutral-raw' }
-  ];
 
   function parseExifFromArrayBuffer(buffer) {
     const view = new DataView(buffer);
@@ -2422,8 +2515,6 @@
       if (type === 2) return readAscii(view, pos, count);
       if (type === 3) return view.getUint16(pos, le);
       if (type === 4) return view.getUint32(pos, le);
-      if (type === 5) { const d = view.getUint32(pos + 4, le); return d ? view.getUint32(pos, le) / d : null; }
-      if (type === 10) { const d = view.getInt32(pos + 4, le); return d ? view.getInt32(pos, le) / d : null; }
       return null;
     };
 
@@ -2437,7 +2528,7 @@
         if (ep + 12 > view.byteLength) break;
         const tag = view.getUint16(ep, le);
         if (tag === 0x8769) sub = view.getUint32(ep + 8, le);
-        else {
+        else if (tag === 0x9003 || tag === 0x0132) {
           const v = readVal(view.getUint16(ep + 2, le), view.getUint32(ep + 4, le), ep + 8);
           if (v !== null && v !== '') tags[tag] = v;
         }
@@ -2447,97 +2538,7 @@
 
     const subIfd = parseIfd(firstIfd);
     if (subIfd) parseIfd(subIfd);
-    if (Object.keys(tags).length === 0) return null;
-
-    const make = tags[0x010F] || '', model = tags[0x0110] || '';
-    const combined = `${make} ${model}`.trim();
-    let commercialModel = model || make || 'Digital camera';
-    let mappedProfile = 'auto-detect';
-
-    for (const e of DEVICE_MODEL_MAP) {
-      if (e.match.test(combined)) {
-        mappedProfile = e.profile;
-        if (e.name) commercialModel = e.name;
-        break;
-      }
-    }
-    if (mappedProfile === 'auto-detect') {
-      if (/apple/i.test(make)) mappedProfile = 'iphone';
-      else if (/samsung/i.test(make)) mappedProfile = 'samsung-vivid';
-      else if (/xiaomi|redmi|poco/i.test(make)) mappedProfile = 'xiaomi-leica';
-      else if (/google/i.test(make)) mappedProfile = 'pixel-hdr';
-      else if (/oppo|vivo|realme|oneplus/i.test(make)) mappedProfile = 'oppo-vivo';
-      else if (/sony|honor/i.test(make)) mappedProfile = 'other-phone';
-    }
-
-    const exp = tags[0x829A];
-    return {
-      commercialModel,
-      mappedProfile,
-      exposureStr: exp ? (exp >= 1 ? `${exp.toFixed(1)}s` : `1/${Math.round(1 / exp)}s`) : '',
-      fNumberStr: tags[0x829D] ? `f/${Number(tags[0x829D]).toFixed(1).replace(/\.0$/, '')}` : '',
-      isoStr: tags[0x8827] ? `ISO ${tags[0x8827]}` : '',
-      focalStr: tags[0xA405] ? `${tags[0xA405]}mm` : (tags[0x920A] ? `${Math.round(tags[0x920A])}mm` : ''),
-      dateRaw: tags[0x9003] || tags[0x0132] || ''
-    };
-  }
-
-  function analyzeImageCharacteristics(canvas) {
-    const size = 160;
-    const tmp = document.createElement('canvas');
-    const ratio = canvas.width / canvas.height;
-    tmp.width = ratio >= 1 ? size : Math.max(40, Math.round(size * ratio));
-    tmp.height = ratio >= 1 ? Math.max(40, Math.round(size / ratio)) : size;
-    const ctx = tmp.getContext('2d');
-    ctx.drawImage(canvas, 0, 0, tmp.width, tmp.height);
-
-    const { data, width, height } = ctx.getImageData(0, 0, tmp.width, tmp.height);
-    const total = width * height;
-    let sumLum = 0, sumWarmth = 0, sumSat = 0, highlightClip = 0, shadowCrush = 0, greenCount = 0, blueCount = 0, skinCount = 0, lapSum = 0;
-    const lumArr = new Float32Array(total);
-
-    for (let i = 0, p = 0; i < total; i++, p += 4) {
-      const r = data[p], g = data[p + 1], b = data[p + 2];
-      const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-      lumArr[i] = lum;
-      sumLum += lum;
-      sumWarmth += (r - b) / 255;
-      const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
-      sumSat += mx > 0 ? (mx - mn) / mx : 0;
-      if (lum > 0.93) highlightClip++;
-      if (lum < 0.08) shadowCrush++;
-      if (g > r * 1.07 && g > b * 1.07 && g > 40) greenCount++;
-      if (b > r * 1.12 && b > g * 1.02 && b > 50) blueCount++;
-      if (r > g && g > b && (r - b) > 18 && lum > 0.24 && lum < 0.85) skinCount++;
-    }
-    for (let y = 1; y < height - 1; y++) {
-      for (let x = 1; x < width - 1; x++) {
-        const idx = y * width + x;
-        lapSum += Math.abs(4 * lumArr[idx] - lumArr[idx-1] - lumArr[idx+1] - lumArr[idx-width] - lumArr[idx+width]);
-      }
-    }
-
-    const meanLum = sumLum / total, warmth = sumWarmth / total, meanSat = sumSat / total;
-    const greenR = greenCount / total, blueR = blueCount / total, skinR = skinCount / total;
-    const shadowR = shadowCrush / total, sharp = lapSum / total;
-
-    let sceneType = 'Everyday & street', sceneKey = 'balanced';
-    if (meanLum < 0.30 && (shadowR > 0.28 || highlightClip / total > 0.02)) {
-      sceneType = 'Night streets / Neon lights'; sceneKey = 'night';
-    } else if (greenR > 0.16) {
-      sceneType = 'Nature & greenery'; sceneKey = 'nature';
-    } else if (warmth > 0.10 || (skinR > 0.22 && warmth > 0.04)) {
-      sceneType = 'Warm sun / Portrait'; sceneKey = 'warm-portrait';
-    } else if (blueR > 0.18 && meanLum > 0.45) {
-      sceneType = 'Sunny sea and sky'; sceneKey = 'bright-sky';
-    }
-
-    let suggestedPhoneId = 'auto-detect';
-    if (sharp > 0.105) suggestedPhoneId = 'iphone';
-    else if (meanSat > 0.46 && (blueR > 0.14 || greenR > 0.14)) suggestedPhoneId = 'samsung-vivid';
-    else if (shadowR > 0.30 && meanLum < 0.42) suggestedPhoneId = 'xiaomi-leica';
-
-    return { sceneType, sceneKey, suggestedPhoneId };
+    return tags[0x9003] || tags[0x0132] ? { dateRaw: tags[0x9003] || tags[0x0132] || '' } : null;
   }
 
   /* ==========================================================================
@@ -3317,7 +3318,6 @@
     sourceIsDiptych: false,
     activeSampleId: SAMPLES[0].id,
     exif: null,
-    analysis: null,
 
     phoneId: 'auto-detect',
     bodyId: 'slr',
@@ -3341,6 +3341,7 @@
     leakAmt: 0,
     frameType: 'none',
     dateStamp: 'off',
+    hfDiptychMode: false,
 
     splitMode: false,
     splitPos: 50,
@@ -3352,18 +3353,11 @@
     camSound: true,
     camFlashOn: true,
     camExposureEV: 0,
-    camIso: 'film',
-    camShutter: 'auto',
-    camWhiteBalance: 'auto',
     camTrackCapabilities: null,
     camAppliedHardware: {},
-    camIsCocked: true,
-    camRollRewound: false,
-    camTimer: 0,
     camAELocked: false,
     camLockedEV: null,
-    camMultipleExposure: false,
-    camPendingExposures: [],
+    halfFrameFirstCanvas: null,
     camShotCount: 0,
     camMaxShots: 36,
     camRollId: '',
@@ -3380,13 +3374,11 @@
       state.camRollId = rollMeta.id || createRollId();
       state.camRollNumber = Math.max(1, Number(rollMeta.number) || 1);
       state.camShotCount = Math.max(0, Number(rollMeta.shotCount) || 0);
-      state.camIsCocked = rollMeta.cocked !== false;
-      state.camRollRewound = !!rollMeta.rewound;
     }
   } catch (error) {}
   if (!state.camRollId) state.camRollId = createRollId();
   function saveCameraRollMeta() {
-    try { localStorage.setItem(CAMERA_ROLL_META_KEY, JSON.stringify({ id: state.camRollId, number: state.camRollNumber, shotCount: state.camShotCount, cocked: state.camIsCocked, rewound: state.camRollRewound })); }
+    try { localStorage.setItem(CAMERA_ROLL_META_KEY, JSON.stringify({ id: state.camRollId, number: state.camRollNumber, shotCount: state.camShotCount })); }
     catch (error) {}
   }
 
@@ -3473,7 +3465,7 @@
     });
   }
   let apPinnedWideOpen = true;
-  const SYNC_FIELDS = ['phoneId', 'bodyId', 'lensId', 'lensFocalMm', 'lensAperture', 'zoomFocalMm', 'filmId', 'filmBrandFilter', 'strength', 'exposure', 'warmth', 'grain', 'halation', 'bloom', 'vignette', 'leakType', 'leakAmt', 'frameType', 'dateStamp', 'camFacing', 'camSound', 'camFlashOn', 'camExposureEV', 'camIso', 'camShutter', 'camWhiteBalance', 'camTimer'];
+  const SYNC_FIELDS = ['phoneId', 'bodyId', 'lensId', 'lensFocalMm', 'lensAperture', 'zoomFocalMm', 'filmId', 'filmBrandFilter', 'strength', 'exposure', 'warmth', 'grain', 'halation', 'bloom', 'vignette', 'leakType', 'leakAmt', 'frameType', 'dateStamp', 'hfDiptychMode', 'camFacing', 'camSound', 'camFlashOn', 'camExposureEV'];
   function stateSnapshot() {
     const settings = {};
     SYNC_FIELDS.forEach(key => { settings[key] = state[key]; });
@@ -3494,6 +3486,7 @@
     });
     state.phoneId = 'auto-detect';
     state.dateStamp = state.dateStamp && state.dateStamp !== 'off' ? 'exif-or-today' : 'off';
+    state.hfDiptychMode = !!state.hfDiptychMode;
     state.bodyId = migrateModeId(state.bodyId);
     state.lensId = migrateFocalId(state.bodyId, state.lensId);
     const zVal = Number(state.zoomFocalMm);
@@ -3969,6 +3962,37 @@
     }
   }
 
+  let previewSourceVersion = 0;
+  let sceneMeanLum = 0.5;
+  let labZoom = 1, labPanX = 0, labPanY = 0;
+  function applyLabZoomTransform(dragging = false) {
+    labZoom = Math.max(1, Math.min(3, Number(labZoom) || 1));
+    const cw = canvasStack.clientWidth || 300;
+    const ch = canvasStack.clientHeight || 200;
+    const maxX = Math.max(0, (cw * (labZoom - 1)) / 2);
+    const maxY = Math.max(0, (ch * (labZoom - 1)) / 2);
+    if (labZoom <= 1.02) {
+      labZoom = 1; labPanX = 0; labPanY = 0;
+      canvasStack.style.transform = '';
+    } else {
+      labPanX = Math.max(-maxX, Math.min(maxX, labPanX));
+      labPanY = Math.max(-maxY, Math.min(maxY, labPanY));
+      canvasStack.style.transform = `translate3d(${labPanX.toFixed(1)}px, ${labPanY.toFixed(1)}px, 0) scale(${labZoom.toFixed(3)})`;
+    }
+    canvasStack.classList.toggle('zoomed', labZoom > 1.05);
+    canvasStack.classList.toggle('zoom-dragging', dragging);
+    const zoomBtn = document.getElementById('btnToggleLabZoom');
+    if (zoomBtn) {
+      const zoomed = labZoom > 1.05;
+      zoomBtn.classList.toggle('active', zoomed);
+      zoomBtn.textContent = zoomed ? `🔍 ${Number.isInteger(labZoom) ? labZoom : labZoom.toFixed(1)}×` : '🔍 1×';
+    }
+  }
+  function resetLabZoom() {
+    labZoom = 1; labPanX = 0; labPanY = 0;
+    applyLabZoomTransform(false);
+  }
+
   function loadSourceCanvas(srcCanvas, exifData = null, opts = {}) {
     state.fullSourceCanvas = srcCanvas;
     state.sourceIsDiptych = !!opts.isDiptych;
@@ -3982,11 +4006,25 @@
     const ph = Math.max(100, Math.round(srcCanvas.height * scale));
     const prevC = document.createElement('canvas');
     prevC.width = pw; prevC.height = ph;
-    prevC.getContext('2d').drawImage(srcCanvas, 0, 0, pw, ph);
+    const pCtx = prevC.getContext('2d', { willReadFrequently: true });
+    pCtx.drawImage(srcCanvas, 0, 0, pw, ph);
+
+    // Quick 16-pt luminance sample for telephoto shutter-shake risk estimation
+    try {
+      const meterC = document.createElement('canvas');
+      meterC.width = 4; meterC.height = 4;
+      const mCtx = meterC.getContext('2d');
+      mCtx.drawImage(prevC, 0, 0, 4, 4);
+      const md = mCtx.getImageData(0, 0, 4, 4).data;
+      let sum = 0;
+      for (let i = 0; i < md.length; i += 4) sum += (0.299 * md[i] + 0.587 * md[i + 1] + 0.114 * md[i + 2]) / 255;
+      sceneMeanLum = sum / 16;
+    } catch (e) { sceneMeanLum = 0.5; }
 
     state.previewSourceCanvas = prevC;
     state.previewSourceData = null;
-    state.analysis = null;
+    previewSourceVersion += 1;
+    resetLabZoom();
 
     state.phoneId = 'auto-detect';
     labRenderDirty = true;
@@ -4456,6 +4494,7 @@
   function selectViewfinderMode(modeId) {
     const mode = VIEWFINDER_MODES.find(m => m.id === modeId) || VIEWFINDER_MODES[0];
     state.bodyId = mode.id;
+    if (mode.id !== 'half-frame') clearPendingHalfFrame();
     mfFormatDragX = null;
     const focals = getModeFocals(mode.id);
     const keepCurrent = focals.find(f => f.id === state.lensId);
@@ -5218,6 +5257,15 @@
     }
   }
 
+  function clearPendingHalfFrame() {
+    state.halfFrameFirstCanvas = null;
+    const ghost = document.getElementById('vfHfGhostImg');
+    if (ghost) {
+      ghost.classList.remove('visible');
+      ghost.removeAttribute('src');
+    }
+  }
+
   function syncCameraHudUI() {
     const { body, lens } = getSelectedGear();
     const frame = Math.min((state.camShotCount || 0) + 1, state.camMaxShots);
@@ -5245,6 +5293,26 @@
       if (isSlr) zoomModeBtn.classList.toggle('active', !!lens.isZoom);
     }
 
+    const isHalfFrame = body.id === 'half-frame';
+    const diptychBtn = document.getElementById('btnVfDiptychToggle');
+    if (diptychBtn) {
+      diptychBtn.style.display = isHalfFrame ? '' : 'none';
+      diptychBtn.classList.toggle('active', !!state.hfDiptychMode);
+      diptychBtn.textContent = state.hfDiptychMode ? '2F' : '1F';
+    }
+    const hasFirstHalf = !!(isHalfFrame && state.hfDiptychMode && state.halfFrameFirstCanvas);
+    const hfBar = document.getElementById('vfHfDiptychBar');
+    const hfLabel = document.getElementById('vfHfHalfLabel');
+    const hfGhost = document.getElementById('vfHfGhostImg');
+    const hfCancel = document.getElementById('btnCancelHalfFrame');
+    if (hfBar) {
+      hfBar.classList.toggle('active', isHalfFrame && !!state.hfDiptychMode);
+      hfBar.classList.toggle('has-first', hasFirstHalf);
+    }
+    if (hfLabel) hfLabel.textContent = hasFirstHalf ? '2/2' : '1/2';
+    if (hfGhost) hfGhost.classList.toggle('visible', hasFirstHalf);
+    if (hfCancel) hfCancel.style.display = hasFirstHalf ? '' : 'none';
+
     const flashBtn = document.getElementById('btnVfFlashToggle');
     if (flashBtn) {
       const isDisp = state.bodyId === 'disposable';
@@ -5252,6 +5320,11 @@
       flashBtn.classList.toggle('active', !!state.camFlashOn);
       flashBtn.textContent = state.camFlashOn ? '⚡ FLASH' : '⚡ OFF';
     }
+
+    const aeBtn = document.getElementById('btnVfAeLock');
+    if (aeBtn) aeBtn.classList.toggle('active', !!state.camAELocked);
+    const reticle = document.getElementById('vfFocusReticle');
+    if (reticle) reticle.classList.toggle('locked', !!state.camAELocked);
 
     const evSlider = document.getElementById('camExposureControl');
     const evBadge = document.getElementById('camExposureValue');
@@ -5310,7 +5383,12 @@
     }
     document.getElementById('camSourceStatus').textContent = 'Opening…';
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: state.camFacing, width: { ideal: 1280 }, height: { ideal: 960 } }, audio: false });
+      let stream;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: state.camFacing, width: { ideal: 1920 }, height: { ideal: 1440 } }, audio: false });
+      } catch (hiResErr) {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: state.camFacing, width: { ideal: 1280 }, height: { ideal: 960 } }, audio: false });
+      }
       if (!document.getElementById('view-camera').classList.contains('active')) {
         stream.getTracks().forEach(track => track.stop());
         return;
@@ -5328,6 +5406,575 @@
     }
   }
 
+  function createWebGLCameraRenderer() {
+    const glCanvas = document.createElement('canvas');
+    let gl = null;
+    try {
+      gl = glCanvas.getContext('webgl2', { alpha: false, antialias: false, depth: false, stencil: false, preserveDrawingBuffer: true });
+    } catch (e) { gl = null; }
+    if (!gl) return null;
+
+    let lost = false;
+    glCanvas.addEventListener('webglcontextlost', e => {
+      e.preventDefault();
+      lost = true;
+    }, false);
+    glCanvas.addEventListener('webglcontextrestored', () => {
+      lost = false;
+      initResources();
+    }, false);
+
+    const VS_SRC = `#version 300 es
+      in vec2 aPos;
+      out vec2 vUv;
+      void main() {
+        vUv = aPos * 0.5 + 0.5;
+        gl_Position = vec4(aPos, 0.0, 1.0);
+      }`;
+
+    const FS_GRADE = `#version 300 es
+      precision highp float;
+      in vec2 vUv;
+      out vec4 fragColor;
+      uniform sampler2D uSrc;
+      uniform sampler2D uToneLut;
+      uniform vec2 uCropScale;
+      uniform vec2 uInvSize;
+      uniform float uBarrelK;
+      uniform float uCaStr;
+      uniform float uShakeMix;
+      uniform float uShakeUvX;
+      uniform float uDeSharp;
+      uniform float uSoftFocus;
+      uniform float uEdgeSoft;
+      uniform float uBlueTame;
+      uniform float uGreenTame;
+      uniform float uSatScale;
+      uniform float uStrength;
+      uniform float uIsBW;
+      uniform vec3 uBwWeights;
+      uniform mat3 uFilmMatrix;
+      uniform vec3 uShadowTint;
+      uniform vec3 uMidTint;
+      uniform vec3 uHighlightTint;
+      uniform float uDisposableCast;
+      uniform float uHasFoliage;
+      uniform vec4 uFoliageShift;
+      uniform float uHasSky;
+      uniform vec2 uSkyShift;
+      uniform float uSkinProtect;
+      uniform float uSkinFlatter;
+      uniform float uFilmSat;
+
+      vec3 sampleSrc(vec2 fUv) {
+        vec2 suv = clamp(vec2(0.5) + (fUv - 0.5) * uCropScale, vec2(0.0), vec2(1.0));
+        return texture(uSrc, suv).rgb * 255.0;
+      }
+
+      void main() {
+        float nx = vUv.x * 2.0 - 1.0;
+        float ny = 1.0 - vUv.y * 2.0;
+        float dist2 = nx * nx + ny * ny;
+        vec2 baseUv = vUv;
+        if (uBarrelK > 0.002) {
+          float distScale = (1.0 + uBarrelK * dist2) / (1.0 + 2.0 * uBarrelK);
+          baseUv = vec2(0.5) + (vUv - 0.5) * distScale;
+        }
+        vec3 col0 = sampleSrc(baseUv);
+        if (uCaStr > 0.2 && dist2 > 0.25) {
+          float caUv = (uCaStr * dist2) * uInvSize.x;
+          col0.r = sampleSrc(vec2(baseUv.x - nx * caUv, baseUv.y)).r;
+          col0.b = sampleSrc(vec2(baseUv.x + nx * caUv, baseUv.y)).b;
+        } else if (uShakeMix > 0.03 && uBarrelK <= 0.002) {
+          vec3 sL = sampleSrc(vec2(baseUv.x - uShakeUvX, baseUv.y));
+          vec3 sR = sampleSrc(vec2(baseUv.x + uShakeUvX, baseUv.y));
+          col0 += ((sL + sR) * 0.5 - col0) * uShakeMix;
+        }
+
+        if (uDeSharp > 0.02) {
+          vec3 avg1 = (
+            sampleSrc(baseUv - vec2(uInvSize.x, 0.0)) +
+            sampleSrc(baseUv + vec2(uInvSize.x, 0.0)) +
+            sampleSrc(baseUv - vec2(0.0, uInvSize.y)) +
+            sampleSrc(baseUv + vec2(0.0, uInvSize.y))
+          ) * 0.25;
+          float ef = min(1.0, uDeSharp * (1.0 + dist2 * uEdgeSoft * 2.0));
+          col0 += (avg1 - col0) * ef;
+          if (uSoftFocus > 0.25) {
+            vec3 avg2 = (
+              sampleSrc(baseUv - vec2(uInvSize.x * 2.0, 0.0)) +
+              sampleSrc(baseUv + vec2(uInvSize.x * 2.0, 0.0)) +
+              sampleSrc(baseUv - vec2(0.0, uInvSize.y * 2.0)) +
+              sampleSrc(baseUv + vec2(0.0, uInvSize.y * 2.0))
+            ) * 0.25;
+            col0 += (avg2 - col0) * (uSoftFocus * 0.52);
+          }
+        }
+
+        if (uBlueTame > 0.0 || uGreenTame > 0.0 || abs(uSatScale - 1.0) > 0.001) {
+          float gray0 = dot(col0, vec3(0.299, 0.587, 0.114));
+          float satF = uSatScale;
+          if (col0.b > col0.r && col0.b > col0.g) satF *= (1.0 - uBlueTame * 0.45);
+          if (col0.g > col0.r && col0.g > col0.b) satF *= (1.0 - uGreenTame * 0.45);
+          col0 = gray0 + (col0 - gray0) * satF;
+        }
+
+        vec3 cBase = clamp(floor(col0 + 0.5), 0.0, 255.0);
+        float r = texture(uToneLut, vec2((cBase.r + 0.5) / 256.0, 0.5)).r * 255.0;
+        float g = texture(uToneLut, vec2((cBase.g + 0.5) / 256.0, 0.5)).g * 255.0;
+        float b = texture(uToneLut, vec2((cBase.b + 0.5) / 256.0, 0.5)).b * 255.0;
+        vec3 outC;
+
+        if (uIsBW > 0.5) {
+          float mono = dot(vec3(r, g, b), uBwWeights);
+          float lum = mono / 255.0;
+          float wS = (1.0 - lum) * (1.0 - lum);
+          float wM = 4.0 * lum * (1.0 - lum);
+          float wH = lum * lum;
+          outC = mono + uShadowTint * wS + uMidTint * wM + uHighlightTint * wH;
+        } else {
+          vec3 mrgb = uFilmMatrix * vec3(r, g, b);
+          float lum = dot(mrgb, vec3(0.299, 0.587, 0.114)) / 255.0;
+          float wS = (1.0 - lum) * (1.0 - lum);
+          float wM = 4.0 * lum * (1.0 - lum);
+          float wH = lum * lum;
+          mrgb += uShadowTint * wS + uMidTint * wM + uHighlightTint * wH;
+          if (uDisposableCast > 0.5) {
+            mrgb.r -= 4.0 * wS;
+            mrgb.g += 6.0 * wS + 2.0 * wM;
+            mrgb.b += 5.0 * wS - 2.0 * wH;
+          }
+          if (uHasFoliage > 0.5 && mrgb.g > mrgb.r && mrgb.g > mrgb.b) {
+            float gDom = min(1.0, (mrgb.g - max(mrgb.r, mrgb.b)) / 70.0);
+            mrgb += uFoliageShift.xyz * gDom;
+            if (abs(uFoliageShift.w - 1.0) > 0.001) {
+              float gg = dot(mrgb, vec3(0.299, 0.587, 0.114));
+              float mixF = 1.0 + (uFoliageShift.w - 1.0) * gDom;
+              mrgb = gg + (mrgb - gg) * mixF;
+            }
+          }
+          if (uHasSky > 0.5 && mrgb.b > mrgb.r * 1.08 && mrgb.b > mrgb.g) {
+            float bDom = min(1.0, (mrgb.b - max(mrgb.r, mrgb.g)) / 75.0);
+            mrgb.g += uSkyShift.x * bDom;
+            mrgb.b += uSkyShift.y * bDom;
+          }
+          if ((uSkinProtect > 0.0 || uSkinFlatter > 0.0) && r > g && g > b && (r - b) > 16.0 && lum > 0.2 && lum < 0.86) {
+            float sw = max(0.0, 1.0 - abs((r - g) - 30.0) / 48.0) * uSkinProtect * 0.45;
+            mrgb += (vec3(r * 1.03, g * 0.99, b * 0.95) - mrgb) * sw;
+            if (uSkinFlatter > 0.0) mrgb += vec3(22.0, 12.0, 6.0) * (uSkinFlatter * wM);
+          }
+          if (abs(uFilmSat - 1.0) > 0.001) {
+            float gray = dot(mrgb, vec3(0.299, 0.587, 0.114));
+            mrgb = gray + (mrgb - gray) * uFilmSat;
+          }
+          outC = mrgb;
+        }
+        if (uStrength < 0.999) outC = cBase + (outC - cBase) * uStrength;
+        fragColor = vec4(clamp(outC / 255.0, 0.0, 1.0), 1.0);
+      }`;
+
+    const FS_EXTRACT = `#version 300 es
+      precision mediump float;
+      in vec2 vUv;
+      out vec4 fragColor;
+      uniform sampler2D uBase;
+      uniform int uMode;
+      void main() {
+        vec3 c = texture(uBase, vUv).rgb * 255.0;
+        if (uMode == 0) {
+          fragColor = vec4(c / 255.0, 1.0);
+        } else {
+          float lum = dot(c, vec3(0.299, 0.587, 0.114));
+          if (uMode == 1) {
+            float t = lum > 195.0 ? (lum - 195.0) / 60.0 : 0.0;
+            fragColor = vec4(clamp(vec3(255.0, 52.0, 14.0) * t / 255.0, 0.0, 1.0), 1.0);
+          } else {
+            float t = lum > 175.0 ? (lum - 175.0) / 80.0 : 0.0;
+            fragColor = vec4(clamp((c * t) / 255.0, 0.0, 1.0), 1.0);
+          }
+        }
+      }`;
+
+    const FS_BLUR = `#version 300 es
+      precision mediump float;
+      in vec2 vUv;
+      out vec4 fragColor;
+      uniform sampler2D uTex;
+      uniform vec2 uDir;
+      void main() {
+        vec4 s = texture(uTex, vUv) * 0.16;
+        s += (texture(uTex, vUv - uDir * 1.0) + texture(uTex, vUv + uDir * 1.0)) * 0.15;
+        s += (texture(uTex, vUv - uDir * 2.0) + texture(uTex, vUv + uDir * 2.0)) * 0.12;
+        s += (texture(uTex, vUv - uDir * 3.0) + texture(uTex, vUv + uDir * 3.0)) * 0.09;
+        s += (texture(uTex, vUv - uDir * 4.0) + texture(uTex, vUv + uDir * 4.0)) * 0.06;
+        fragColor = s;
+      }`;
+
+    const FS_COMPOSITE = `#version 300 es
+      precision highp float;
+      in vec2 vUv;
+      out vec4 fragColor;
+      uniform sampler2D uBase;
+      uniform sampler2D uDof;
+      uniform sampler2D uHal;
+      uniform sampler2D uBloom;
+      uniform sampler2D uGrain;
+      uniform vec2 uSize;
+      uniform float uDofStr;
+      uniform float uDofRad;
+      uniform float uHalGain;
+      uniform float uBloomGain;
+      uniform float uFlashBurst;
+      uniform float uVigStr;
+      uniform float uGrainGain;
+      uniform float uGrainScale;
+      uniform float uIsBW;
+
+      void main() {
+        vec3 rgb = texture(uBase, vUv).rgb * 255.0;
+        float nx = vUv.x * 2.0 - 1.0;
+        float ny = 1.0 - 2.0 * vUv.y;
+
+        if (uDofStr > 0.04) {
+          float dy2 = (ny + 0.08) * (ny + 0.08) * 0.72;
+          float d2 = nx * nx + dy2;
+          if (d2 > uDofRad * uDofRad) {
+            float mixV = smoothstep(uDofRad, uDofRad + 0.58, sqrt(d2)) * uDofStr;
+            if (mixV > 0.002) {
+              vec3 br = texture(uDof, vUv).rgb * 255.0;
+              rgb = mix(rgb, br, mixV);
+            }
+          }
+        }
+        if (uHalGain > 0.001) {
+          vec3 hCol = min(vec3(255.0), texture(uHal, vUv).rgb * 255.0 * uHalGain);
+          rgb = 255.0 - ((255.0 - rgb) * (255.0 - hCol)) / 255.0;
+        }
+        if (uBloomGain > 0.001) {
+          vec3 bCol = min(vec3(255.0), texture(uBloom, vUv).rgb * 255.0 * uBloomGain);
+          rgb = 255.0 - ((255.0 - rgb) * (255.0 - bCol)) / 255.0;
+        }
+        float r2 = nx * nx + ny * ny;
+        if (uFlashBurst > 0.5) {
+          float fMask = max(0.0, 1.0 - r2 * 0.52);
+          float fGain = 1.0 + fMask * 0.42 - (1.0 - fMask) * 0.16;
+          rgb = rgb * fGain + vec3(16.0, 15.0, 12.0) * fMask;
+        }
+        if (uVigStr > 0.01) {
+          float vig = max(0.18, 1.0 - uVigStr * pow(max(1e-5, r2 * 0.55), 1.35));
+          rgb *= vig;
+        }
+        if (uGrainGain > 0.2) {
+          vec2 px = vec2(gl_FragCoord.x - 0.5, uSize.y - gl_FragCoord.y - 0.5);
+          vec2 gUv = (floor(px * uGrainScale) + 0.5) / 256.0;
+          float gn = (texture(uGrain, gUv).r * 255.0 - 127.5) / 28.0;
+          float lumN = dot(rgb, vec3(0.299, 0.587, 0.114)) / 255.0;
+          float n = gn * uGrainGain * (0.35 + 2.6 * lumN * (1.0 - lumN));
+          rgb += uIsBW > 0.5 ? vec3(n) : vec3(n * 1.05, n * 0.96, n * 1.08);
+        }
+        fragColor = vec4(clamp(rgb / 255.0, 0.0, 1.0), 1.0);
+      }`;
+
+    function compileShader(type, src) {
+      const sh = gl.createShader(type);
+      gl.shaderSource(sh, src);
+      gl.compileShader(sh);
+      if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
+        gl.deleteShader(sh);
+        return null;
+      }
+      return sh;
+    }
+
+    function createProgram(fsSrc) {
+      const vs = compileShader(gl.VERTEX_SHADER, VS_SRC);
+      const fs = compileShader(gl.FRAGMENT_SHADER, fsSrc);
+      if (!vs || !fs) return null;
+      const prog = gl.createProgram();
+      gl.attachShader(prog, vs);
+      gl.attachShader(prog, fs);
+      gl.linkProgram(prog);
+      gl.deleteShader(vs);
+      gl.deleteShader(fs);
+      if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+        gl.deleteProgram(prog);
+        return null;
+      }
+      const uniforms = {};
+      const count = gl.getProgramParameter(prog, gl.ACTIVE_UNIFORMS);
+      for (let i = 0; i < count; i++) {
+        const info = gl.getActiveUniform(prog, i);
+        if (info) uniforms[info.name] = gl.getUniformLocation(prog, info.name);
+      }
+      return { prog, u: uniforms, aPos: gl.getAttribLocation(prog, 'aPos') };
+    }
+
+    function makeTex(w, h, filter, wrap, data = null) {
+      const tex = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrap);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrap);
+      if (w > 0 && h > 0) gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
+      return tex;
+    }
+
+    function makeFbo(w, h) {
+      const tex = makeTex(w, h, gl.LINEAR, gl.CLAMP_TO_EDGE);
+      const fbo = gl.createFramebuffer();
+      gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      return { tex, fbo, w, h };
+    }
+
+    let pGrade = null, pExtract = null, pBlur = null, pComposite = null;
+    let quadBuf = null, texSrc = null, texLut = null, texGrain = null;
+    let fboBase = null, fboQ0 = null, fboQ1 = null, fboDof = null, fboHal = null, fboBloom = null;
+    let curW = 0, curH = 0, curQw = 0, curQh = 0;
+    let uploadedSrcVer = -1, uploadedSrcW = 0, uploadedSrcH = 0;
+    let cachedLutKey = '';
+    const lutBuf = new Uint8Array(256 * 4);
+
+    function initResources() {
+      pGrade = createProgram(FS_GRADE);
+      pExtract = createProgram(FS_EXTRACT);
+      pBlur = createProgram(FS_BLUR);
+      pComposite = createProgram(FS_COMPOSITE);
+      if (!pGrade || !pExtract || !pBlur || !pComposite) { lost = true; return false; }
+
+      quadBuf = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, quadBuf);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+
+      texSrc = makeTex(0, 0, gl.LINEAR, gl.CLAMP_TO_EDGE);
+      texLut = makeTex(256, 1, gl.NEAREST, gl.CLAMP_TO_EDGE);
+
+      const grainBytes = new Uint8Array(GRAIN_SIZE * GRAIN_SIZE * 4);
+      for (let i = 0; i < GRAIN_TILE.length; i++) {
+        const v = Math.max(0, Math.min(255, Math.round(127.5 + GRAIN_TILE[i] * 28.0)));
+        const p = i * 4;
+        grainBytes[p] = v; grainBytes[p + 1] = v; grainBytes[p + 2] = v; grainBytes[p + 3] = 255;
+      }
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+      texGrain = makeTex(GRAIN_SIZE, GRAIN_SIZE, gl.NEAREST, gl.REPEAT, grainBytes);
+      curW = 0; curH = 0; uploadedSrcVer = -1; cachedLutKey = '';
+      return true;
+    }
+
+    if (!initResources()) return null;
+
+    function ensureSize(w, h) {
+      const qw = Math.max(48, Math.floor(w / 4)), qh = Math.max(36, Math.floor(h / 4));
+      if (curW !== w || curH !== h) {
+        glCanvas.width = w; glCanvas.height = h;
+        [fboBase, fboQ0, fboQ1, fboDof, fboHal, fboBloom].forEach(f => {
+          if (!f) return;
+          gl.deleteFramebuffer(f.fbo);
+          gl.deleteTexture(f.tex);
+        });
+        fboBase = makeFbo(w, h);
+        fboQ0 = makeFbo(qw, qh);
+        fboQ1 = makeFbo(qw, qh);
+        fboDof = makeFbo(qw, qh);
+        fboHal = makeFbo(qw, qh);
+        fboBloom = makeFbo(qw, qh);
+        curW = w; curH = h; curQw = qw; curQh = qh;
+      }
+    }
+
+    function drawQuad(programObj, targetFbo, w, h) {
+      gl.useProgram(programObj.prog);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, targetFbo);
+      gl.viewport(0, 0, w, h);
+      gl.bindBuffer(gl.ARRAY_BUFFER, quadBuf);
+      gl.enableVertexAttribArray(programObj.aPos);
+      gl.vertexAttribPointer(programObj.aPos, 2, gl.FLOAT, false, 0, 0);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    }
+
+    function runBlurPass(srcFbo, dstFbo, radiusPx) {
+      const spread = Math.max(0.55, radiusPx / 3.5);
+      const u = pBlur.u;
+      gl.useProgram(pBlur.prog);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, srcFbo.tex);
+      gl.uniform1i(u.uTex, 0);
+      gl.uniform2f(u.uDir, spread / curQw, 0);
+      drawQuad(pBlur, fboQ1.fbo, curQw, curQh);
+
+      gl.bindTexture(gl.TEXTURE_2D, fboQ1.tex);
+      gl.uniform1i(u.uTex, 0);
+      gl.uniform2f(u.uDir, 0, spread / curQh);
+      drawQuad(pBlur, dstFbo.fbo, curQw, curQh);
+    }
+
+    return {
+      isSupported: () => !lost && !!gl && !gl.isContextLost(),
+      render(src, isVideo, sourceVer, w, h, targetRatio, zoomFactor, cfg) {
+        if (lost || gl.isContextLost()) return null;
+        ensureSize(w, h);
+
+        const srcW = src.videoWidth || src.width || w;
+        const srcH = src.videoHeight || src.height || h;
+        if (isVideo || sourceVer !== uploadedSrcVer || srcW !== uploadedSrcW || srcH !== uploadedSrcH) {
+          gl.activeTexture(gl.TEXTURE0);
+          gl.bindTexture(gl.TEXTURE_2D, texSrc);
+          gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+          gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, src);
+          uploadedSrcVer = isVideo ? -1 : sourceVer;
+          uploadedSrcW = srcW; uploadedSrcH = srcH;
+        }
+
+        const { phone, body, lens, film, strength, exposureEV, warmth, grainAmt, halationAmt, bloomAmt, vignetteAmt, flashBurst } = cfg;
+        const str = strength / 100;
+        const effectiveEV = exposureEV + (lens.apertureEV || 0);
+        const totalContrast = body.contrast * (1 - phone.contrastSoften) * film.contrast;
+        const totalLift = Math.min(0.14, body.blackLift + film.blackLift + phone.shadowLift * 0.25);
+        const totalRolloff = body.highlightRolloff + phone.highlightRecover;
+        const totalWarmth = warmth + phone.warmthOffset + body.bodyWarmth + lens.coatingWarmth;
+        const totalTint = phone.tintOffset + body.bodyTint + lens.coatingTint;
+
+        const lutKey = `${effectiveEV.toFixed(3)}|${totalContrast.toFixed(3)}|${totalLift.toFixed(3)}|${totalRolloff.toFixed(3)}|${totalWarmth.toFixed(2)}|${totalTint.toFixed(2)}`;
+        if (lutKey !== cachedLutKey) {
+          const { lutR, lutG, lutB } = buildToneLUT(effectiveEV, totalContrast, totalLift, totalRolloff, totalWarmth, totalTint);
+          for (let i = 0; i < 256; i++) {
+            const p = i * 4;
+            lutBuf[p] = lutR[i]; lutBuf[p + 1] = lutG[i]; lutBuf[p + 2] = lutB[i]; lutBuf[p + 3] = 255;
+          }
+          gl.activeTexture(gl.TEXTURE1);
+          gl.bindTexture(gl.TEXTURE_2D, texLut);
+          gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+          gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 256, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, lutBuf);
+          cachedLutKey = lutKey;
+        }
+
+        const srcRatio = srcW / Math.max(1, srcH);
+        let sw = srcW, sh = srcH;
+        if (srcRatio > targetRatio) sw = srcH * targetRatio;
+        else sh = srcW / targetRatio;
+        const z = Math.max(1.0, zoomFactor || 1.0);
+        sw /= z; sh /= z;
+        const cropScaleX = sw / srcW, cropScaleY = sh / srcH;
+
+        let shakeMix = 0, shakePx = 0;
+        if ((lens.shakeSens || 0) > 0) {
+          const evDim = effectiveEV < -0.05 ? Math.min(1, (-effectiveEV) * 0.75) : 0;
+          const sceneDim = !isVideo && sceneMeanLum < 0.36 ? Math.min(1, (0.36 - sceneMeanLum) * 1.8) : 0;
+          const risk = Math.max(evDim, sceneDim);
+          if (risk > 0.08) {
+            shakeMix = Math.min(0.46, risk * 0.42 * lens.shakeSens);
+            shakePx = Math.max(1, Math.round(w * 0.0024));
+          }
+        }
+
+        const m = film.matrix, sT = film.shadowTint, mT = film.midTint, hT = film.highlightTint;
+        const softFocus = body.softFocus || 0;
+        const deSharp = Math.min(0.85, phone.deSharpen + (lens.edgeSoft || 0) * 0.45 + softFocus * 0.65);
+        const ug = pGrade.u;
+        gl.useProgram(pGrade.prog);
+        gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, texSrc); gl.uniform1i(ug.uSrc, 0);
+        gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, texLut); gl.uniform1i(ug.uToneLut, 1);
+        gl.uniform2f(ug.uCropScale, cropScaleX, cropScaleY);
+        gl.uniform2f(ug.uInvSize, 1 / w, 1 / h);
+        gl.uniform1f(ug.uBarrelK, lens.barrelDistort || 0);
+        gl.uniform1f(ug.uCaStr, (lens.chromaticAb || 0) * (w / 900));
+        gl.uniform1f(ug.uShakeMix, shakeMix);
+        gl.uniform1f(ug.uShakeUvX, shakePx / w);
+        gl.uniform1f(ug.uDeSharp, deSharp);
+        gl.uniform1f(ug.uSoftFocus, softFocus);
+        gl.uniform1f(ug.uEdgeSoft, lens.edgeSoft || 0);
+        gl.uniform1f(ug.uBlueTame, phone.blueTame || 0);
+        gl.uniform1f(ug.uGreenTame, phone.greenTame || 0);
+        gl.uniform1f(ug.uSatScale, phone.satScale ?? 1);
+        gl.uniform1f(ug.uStrength, str);
+        gl.uniform1f(ug.uIsBW, film.isBW ? 1 : 0);
+        const bwW = film.bwWeights || [0.33, 0.5, 0.17];
+        gl.uniform3f(ug.uBwWeights, bwW[0], bwW[1], bwW[2]);
+        gl.uniformMatrix3fv(ug.uFilmMatrix, false, new Float32Array([m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8]]));
+        gl.uniform3f(ug.uShadowTint, sT[0], sT[1], sT[2]);
+        gl.uniform3f(ug.uMidTint, mT[0], mT[1], mT[2]);
+        gl.uniform3f(ug.uHighlightTint, hT[0], hT[1], hT[2]);
+        gl.uniform1f(ug.uDisposableCast, body.disposableCast ? 1 : 0);
+        gl.uniform1f(ug.uHasFoliage, film.foliageShift ? 1 : 0);
+        const fs = film.foliageShift || { rShift: 0, gBoost: 0, bShift: 0, satScale: 1 };
+        gl.uniform4f(ug.uFoliageShift, fs.rShift, fs.gBoost, fs.bShift, fs.satScale ?? 1);
+        gl.uniform1f(ug.uHasSky, film.skyShift ? 1 : 0);
+        const ss = film.skyShift || { cyanBoost: 0, bDepth: 0 };
+        gl.uniform2f(ug.uSkyShift, ss.cyanBoost, ss.bDepth);
+        gl.uniform1f(ug.uSkinProtect, film.skinProtect || 0);
+        gl.uniform1f(ug.uSkinFlatter, lens.skinFlatter || 0);
+        gl.uniform1f(ug.uFilmSat, film.saturation ?? 1);
+        drawQuad(pGrade, fboBase.fbo, w, h);
+
+        const dofStr = lens.dofStrength || 0;
+        if (dofStr > 0.04) {
+          gl.useProgram(pExtract.prog);
+          gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, fboBase.tex);
+          gl.uniform1i(pExtract.u.uBase, 0);
+          gl.uniform1i(pExtract.u.uMode, 0);
+          drawQuad(pExtract, fboQ0.fbo, curQw, curQh);
+          const blurRad = Math.max(2, Math.round(curQw * (0.011 + dofStr * 0.022)));
+          runBlurPass(fboQ0, fboDof, blurRad);
+          runBlurPass(fboDof, fboDof, Math.max(2, Math.round(blurRad * 0.7)));
+        }
+
+        const br = Math.max(3, Math.round(curQw * 0.022));
+        if (halationAmt > 0) {
+          gl.useProgram(pExtract.prog);
+          gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, fboBase.tex);
+          gl.uniform1i(pExtract.u.uBase, 0);
+          gl.uniform1i(pExtract.u.uMode, 1);
+          drawQuad(pExtract, fboQ0.fbo, curQw, curQh);
+          runBlurPass(fboQ0, fboHal, br);
+          runBlurPass(fboHal, fboHal, Math.max(2, Math.round(br * 0.6)));
+        }
+        if (bloomAmt > 0) {
+          gl.useProgram(pExtract.prog);
+          gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, fboBase.tex);
+          gl.uniform1i(pExtract.u.uBase, 0);
+          gl.uniform1i(pExtract.u.uMode, 2);
+          drawQuad(pExtract, fboQ0.fbo, curQw, curQh);
+          runBlurPass(fboQ0, fboBloom, br);
+        }
+
+        const bodyGrain = body.grainScale || 1.0;
+        const effVig = Math.min(100, vignetteAmt + (body.vignetteBoost || 0));
+        const vigStr = (effVig / 100) * 0.72;
+        const grainGain = (grainAmt / 100) * 26 * bodyGrain;
+        const grainScale = 1 / Math.max(0.55, film.grainSize * (0.72 + 0.28 * bodyGrain) * (w / 950));
+        const uc = pComposite.u;
+        gl.useProgram(pComposite.prog);
+        gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, fboBase.tex); gl.uniform1i(uc.uBase, 0);
+        gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, fboDof.tex); gl.uniform1i(uc.uDof, 1);
+        gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, fboHal.tex); gl.uniform1i(uc.uHal, 2);
+        gl.activeTexture(gl.TEXTURE3); gl.bindTexture(gl.TEXTURE_2D, fboBloom.tex); gl.uniform1i(uc.uBloom, 3);
+        gl.activeTexture(gl.TEXTURE4); gl.bindTexture(gl.TEXTURE_2D, texGrain); gl.uniform1i(uc.uGrain, 4);
+        gl.uniform2f(uc.uSize, w, h);
+        gl.uniform1f(uc.uDofStr, dofStr);
+        gl.uniform1f(uc.uDofRad, lens.dofRadius ?? 0.42);
+        gl.uniform1f(uc.uHalGain, halationAmt > 0 ? (halationAmt / 100) * 1.15 * str : 0);
+        gl.uniform1f(uc.uBloomGain, bloomAmt > 0 ? (bloomAmt / 100) * 0.55 : 0);
+        gl.uniform1f(uc.uFlashBurst, flashBurst ? 1 : 0);
+        gl.uniform1f(uc.uVigStr, vigStr);
+        gl.uniform1f(uc.uGrainGain, grainGain);
+        gl.uniform1f(uc.uGrainScale, grainScale);
+        gl.uniform1f(uc.uIsBW, film.isBW ? 1 : 0);
+        drawQuad(pComposite, null, w, h);
+        return glCanvas;
+      }
+    };
+  }
+
+  let gpuCameraRenderer = null;
+  function getGpuCameraRenderer() {
+    if (gpuCameraRenderer === null) {
+      gpuCameraRenderer = createWebGLCameraRenderer() || false;
+    }
+    return gpuCameraRenderer || null;
+  }
+
   function startCameraLoop() {
     if (state.camAnimId) return;
     const tmp = document.createElement('canvas');
@@ -5335,7 +5982,6 @@
     let last = 0;
     const loop = (ts) => {
       state.camAnimId = requestAnimationFrame(loop);
-      if (cameraJobInFlight) return;
 
       const hasLiveVideo = !!(state.camStream && camVideo.readyState >= 2);
       const src = hasLiveVideo ? camVideo : state.previewSourceCanvas;
@@ -5345,14 +5991,19 @@
       const stageDim = getCameraStageDimensions(body, lens);
       const targetW = stageDim.w;
       const targetH = stageDim.h;
+      const dateStampText = formatDateStamp();
       const staticKey = hasLiveVideo
         ? ''
-        : `${state.activeSampleId || 'custom'}|${body.id}|${lens.id}|${Number(lens.mm || 50).toFixed(1)}|${Number(state.zoomFocalMm || 50).toFixed(1)}|${Number(lens.activeF || 2.8).toFixed(2)}|${film.id}|${cameraExposureEV().toFixed(2)}|${state.warmth}|${state.camFlashOn ? 1 : 0}|${formatDateStamp()}|${targetW}x${targetH}`;
+        : `${state.activeSampleId || 'custom'}|${previewSourceVersion}|${body.id}|${lens.id}|${Number(lens.mm || 50).toFixed(1)}|${Number(state.zoomFocalMm || 50).toFixed(1)}|${Number(lens.activeF || 2.8).toFixed(2)}|${film.id}|${cameraExposureEV().toFixed(2)}|${state.warmth}|${state.camFlashOn ? 1 : 0}|${dateStampText}|${targetW}x${targetH}`;
 
       if (!hasLiveVideo && staticKey === cameraLastStaticKey && vfCanvas.width === targetW && vfCanvas.height === targetH) {
         return;
       }
-      if (hasLiveVideo && ts - last < 55) return;
+
+      const gpu = getGpuCameraRenderer();
+      const gpuReady = !!(gpu && gpu.isSupported());
+      if (hasLiveVideo && ts - last < (gpuReady ? 16 : 55)) return;
+      if (!gpuReady && cameraJobInFlight) return;
       last = ts;
 
       if (vfCanvas.width !== targetW || vfCanvas.height !== targetH) {
@@ -5360,20 +6011,41 @@
         vfCanvas.height = targetH;
       }
 
-      if (tmp.width !== targetW || tmp.height !== targetH) { tmp.width = targetW; tmp.height = targetH; }
       const vfRatio = stageDim.ratio;
       const vfZoom = body.id === 'rangefinder' ? 1.0 : (lens.cropZoom || 1.0);
+      const vfConfig = {
+        phone, body, lens, film, strength: 100, exposureEV: cameraExposureEV(), warmth: state.warmth,
+        grainAmt: Math.round(film.grainBase * 0.65), halationAmt: Math.round(film.halationBase * 0.6),
+        bloomAmt: lens.bloomBase, vignetteAmt: lens.vignetteBase, leakType: 'none', leakAmt: 0, frameType: 'none',
+        dateStampText, frameNumberStr: '', flashBurst: body.id === 'disposable' && state.camFlashOn
+      };
+
+      if (gpuReady) {
+        const rendered = gpu.render(src, hasLiveVideo, hasLiveVideo ? -1 : previewSourceVersion, targetW, targetH, vfRatio, vfZoom, vfConfig);
+        if (rendered) {
+          vfCtx.drawImage(rendered, 0, 0);
+          if (dateStampText) {
+            vfCtx.save();
+            const fs = Math.max(14, Math.round(targetH * 0.036));
+            vfCtx.font = `700 ${fs}px "Courier New", monospace`;
+            vfCtx.textAlign = 'right'; vfCtx.textBaseline = 'bottom';
+            vfCtx.shadowColor = 'rgba(255,45,0,0.9)'; vfCtx.shadowBlur = Math.max(4, Math.round(fs * 0.4));
+            vfCtx.fillStyle = '#ff6a1a';
+            vfCtx.fillText(dateStampText, targetW - Math.round(targetW * 0.04), targetH - Math.round(targetH * 0.045));
+            vfCtx.restore();
+          }
+          if (!hasLiveVideo) cameraLastStaticKey = staticKey;
+          return;
+        }
+      }
+
+      if (tmp.width !== targetW || tmp.height !== targetH) { tmp.width = targetW; tmp.height = targetH; }
       drawCroppedSource(tCtx, src, targetW, targetH, vfRatio, vfZoom);
 
       cameraJobInFlight = true;
       if (!hasLiveVideo) cameraLastStaticKey = staticKey;
       const version = ++cameraPreviewFrameVersion;
-      processFilmImage(tCtx.getImageData(0, 0, targetW, targetH), targetW, targetH, {
-        phone, body, lens, film, strength: 100, exposureEV: cameraExposureEV(), warmth: state.warmth,
-        grainAmt: Math.round(film.grainBase * 0.65), halationAmt: Math.round(film.halationBase * 0.6),
-        bloomAmt: lens.bloomBase, vignetteAmt: lens.vignetteBase, leakType: 'none', leakAmt: 0, frameType: 'none', dateStampText: formatDateStamp(), frameNumberStr: '',
-        flashBurst: body.id === 'disposable' && state.camFlashOn
-      }, { output: 'bitmap', coalesceKey: 'camera-preview' }).then(output => {
+      processFilmImage(tCtx.getImageData(0, 0, targetW, targetH), targetW, targetH, vfConfig, { output: 'bitmap', coalesceKey: 'camera-preview' }).then(output => {
         if (!output || version !== cameraPreviewFrameVersion) { output?.bitmap?.close(); return; }
         vfCtx.drawImage(output.bitmap || output.canvas, 0, 0);
         output.bitmap?.close();
@@ -5453,8 +6125,6 @@
     } else {
       state.camShotCount = shotNumber;
     }
-    state.camIsCocked = true;
-    state.camRollRewound = false;
     saveCameraRollMeta();
 
     state.camRollShots.unshift(persisted
@@ -5484,13 +6154,57 @@
     fl.classList.add('active'); setTimeout(() => fl.classList.remove('active'), 110);
     playShutterSound();
 
+    let highResBitmap = null;
     try {
-      const { phone, body, lens, film } = getSelectedGear();
+      const { body, lens } = getSelectedGear();
       const hasLiveVideo = !!(state.camStream && camVideo.readyState >= 2);
-      const src = hasLiveVideo ? camVideo : (state.fullSourceCanvas || SAMPLES[0].canvas);
-      const capZoom = lens.cropZoom || 1.0;
+      let src = hasLiveVideo ? camVideo : (state.fullSourceCanvas || SAMPLES[0].canvas);
+      if (hasLiveVideo && typeof ImageCapture !== 'undefined') {
+        const track = cameraTrack();
+        if (track && track.readyState === 'live') {
+          try {
+            const ic = new ImageCapture(track);
+            const photoBlob = await Promise.race([
+              ic.takePhoto(),
+              new Promise((_, rej) => setTimeout(() => rej(new Error('ImageCapture timeout')), 950))
+            ]);
+            highResBitmap = await createImageBitmap(photoBlob);
+            src = highResBitmap;
+          } catch (ignored) {}
+        }
+      }
 
+      const capZoom = lens.cropZoom || 1.0;
       const shotNumber = (state.camShotCount % state.camMaxShots) + 1;
+
+      if (body.id === 'half-frame' && state.hfDiptychMode) {
+        const halfC = document.createElement('canvas');
+        halfC.width = 600; halfC.height = 800;
+        drawCroppedSource(halfC.getContext('2d'), src, 600, 800, 3 / 4, capZoom);
+
+        if (!state.halfFrameFirstCanvas) {
+          state.halfFrameFirstCanvas = halfC;
+          const ghost = document.getElementById('vfHfGhostImg');
+          if (ghost) ghost.src = halfC.toDataURL('image/jpeg', 0.72);
+          syncCameraHudUI();
+          showToast('🎞️ 1/2 captured — shoot second frame');
+          return;
+        }
+
+        const firstHalf = state.halfFrameFirstCanvas;
+        const dipC = document.createElement('canvas');
+        dipC.width = 1260; dipC.height = 840;
+        const dCtx = dipC.getContext('2d');
+        dCtx.fillStyle = '#090a0d';
+        dCtx.fillRect(0, 0, dipC.width, dipC.height);
+        dCtx.drawImage(firstHalf, 20, 20, 600, 800);
+        dCtx.drawImage(halfC, 640, 20, 600, 800);
+        clearPendingHalfFrame();
+        const rawBlob = await canvasToJpegBlob(dipC, 0.92);
+        await saveCameraExposure(rawBlob, shotNumber, { isDiptych: true });
+        return;
+      }
+
       const capDim = getCameraCaptureDimensions(body, lens);
       const capC = document.createElement('canvas');
       capC.width = capDim.w; capC.height = capDim.h;
@@ -5500,6 +6214,7 @@
     } catch (error) {
       showToast('Could not process this shot');
     } finally {
+      if (highResBitmap) highResBitmap.close();
       shutterBusy = false;
       shutterButton.disabled = false;
     }
@@ -5589,6 +6304,7 @@
 
   function switchMainTab(tabId) {
     if (!tabId) return;
+    document.querySelector('.app-shell')?.setAttribute('data-active-tab', tabId);
     document.querySelectorAll('.bnav-btn[data-tab]').forEach(b => b.classList.toggle('active', b.dataset.tab === tabId));
     document.querySelectorAll('.view-section').forEach(s => s.classList.toggle('active', s.id === `view-${tabId}`));
     if (tabId === 'camera') {
@@ -5684,7 +6400,15 @@
   fileInput.addEventListener('change', e => { if (e.target.files[0]) handleImageFile(e.target.files[0]); e.target.value = ''; });
   document.getElementById('btnExport').addEventListener('click', exportFullResolution);
 
-  // Split & Hold Original
+  // Split, Lab 1×/2× Zoom, Pinch, Pan & Hold Original
+  document.getElementById('btnToggleLabZoom')?.addEventListener('click', () => {
+    if (labZoom > 1.05) {
+      resetLabZoom();
+    } else {
+      labZoom = 2;
+      applyLabZoomTransform(false);
+    }
+  });
   document.getElementById('btnToggleSplit').addEventListener('click', (e) => {
     state.splitMode = !state.splitMode;
     if (state.splitMode) ensureOriginalOverlay();
@@ -5714,15 +6438,60 @@
     originalOverlayCanvas.style.opacity = on ? '1' : '';
     originalOverlayCanvas.style.clipPath = on ? 'inset(0 0 0 0)' : (state.splitMode ? `inset(0 ${100 - state.splitPos}% 0 0)` : 'inset(0 50% 0 0)');
   };
+
+  const activeLabPointers = new Map();
+  let labPinchStartDist = 0, labPinchStartZoom = 1, labPanDrag = null;
   canvasStack.addEventListener('pointerdown', e => {
     if (e.target.closest('#splitDivider') || (e.button && e.button !== 0)) return;
     try { canvasStack.setPointerCapture(e.pointerId); } catch {}
-    setHold(true);
+    activeLabPointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (activeLabPointers.size === 2) {
+      setHold(false);
+      labPanDrag = null;
+      const pts = Array.from(activeLabPointers.values());
+      labPinchStartDist = Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y);
+      labPinchStartZoom = labZoom;
+    } else if (activeLabPointers.size === 1) {
+      if (labZoom > 1.05) {
+        labPanDrag = { pointerId: e.pointerId, startX: e.clientX, startY: e.clientY, origPanX: labPanX, origPanY: labPanY };
+      } else {
+        setHold(true);
+      }
+    }
+  });
+  canvasStack.addEventListener('pointermove', e => {
+    if (!activeLabPointers.has(e.pointerId)) return;
+    activeLabPointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (activeLabPointers.size === 2 && labPinchStartDist > 0) {
+      const pts = Array.from(activeLabPointers.values());
+      const dist = Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y);
+      labZoom = Math.max(1, Math.min(3, labPinchStartZoom * (dist / labPinchStartDist)));
+      applyLabZoomTransform(true);
+    } else if (labPanDrag && labPanDrag.pointerId === e.pointerId && labZoom > 1.05) {
+      labPanX = labPanDrag.origPanX + (e.clientX - labPanDrag.startX);
+      labPanY = labPanDrag.origPanY + (e.clientY - labPanDrag.startY);
+      applyLabZoomTransform(true);
+    }
+  });
+  const endLabPointer = e => {
+    if (e?.pointerId !== undefined) activeLabPointers.delete(e.pointerId);
+    else activeLabPointers.clear();
+    if (activeLabPointers.size < 2) labPinchStartDist = 0;
+    if (labPanDrag && (e?.pointerId === undefined || labPanDrag.pointerId === e.pointerId)) {
+      labPanDrag = null;
+      applyLabZoomTransform(false);
+    }
+    if (activeLabPointers.size === 0) setHold(false);
+  };
+  canvasStack.addEventListener('dblclick', e => {
+    if (e.target.closest('#splitDivider')) return;
+    if (labZoom > 1.05) resetLabZoom();
+    else { labZoom = 2; applyLabZoomTransform(false); }
   });
   canvasStack.addEventListener('contextmenu', e => e.preventDefault());
-  window.addEventListener('pointerup', () => setHold(false));
-  window.addEventListener('pointercancel', () => setHold(false));
-  window.addEventListener('blur', () => setHold(false));
+  window.addEventListener('pointerup', endLabPointer);
+  window.addEventListener('pointercancel', endLabPointer);
+  window.addEventListener('blur', () => endLabPointer());
 
   // Docked Clapperboard Combo Picker (Preview / Viewfinder stays unobstructed above)
   const appShell = document.querySelector('.app-shell');
@@ -5780,6 +6549,7 @@
     const rawLens = pick(getModeFocals(mode.id));
     const film = pick(FILM_STOCKS);
     state.bodyId = mode.id;
+    if (mode.id !== 'half-frame') clearPendingHalfFrame();
     state.lensId = rawLens.id;
     mfFormatDragX = null;
     if (rawLens.isZoom) {
@@ -5804,6 +6574,109 @@
     scrollActiveTileIntoView(state.pickerTab);
     showToast(`🎲 ${mode.name} · ${shortLensLabel(resolved)} · ${film.name}`);
   });
+
+  function encodeRecipePresetToken() {
+    const payload = {
+      b: state.bodyId,
+      l: state.lensId,
+      mm: Math.round(Number(state.lensFocalMm) * 100) / 100,
+      ap: Math.round(Number(state.lensAperture) * 100) / 100,
+      zm: Math.round(Number(state.zoomFocalMm) * 100) / 100,
+      f: state.filmId,
+      st: state.strength,
+      ev: state.exposure,
+      w: state.warmth,
+      g: state.grain,
+      h: state.halation,
+      bl: state.bloom,
+      v: state.vignette,
+      lt: state.leakType,
+      la: state.leakAmt,
+      fr: state.frameType,
+      ds: state.dateStamp === 'off' ? 'off' : 'on',
+      fl: state.camFlashOn ? 1 : 0,
+      hf: state.hfDiptychMode ? 1 : 0
+    };
+    return btoa(JSON.stringify(payload)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  function applyUrlPresetIfPresent() {
+    const hash = location.hash || '';
+    if (!hash.startsWith('#preset=')) return false;
+    try {
+      let b64 = hash.slice(8).replace(/-/g, '+').replace(/_/g, '/');
+      while (b64.length % 4) b64 += '=';
+      const p = JSON.parse(atob(b64));
+      if (!p || typeof p !== 'object') return false;
+      const clamp = (val, min, max, fallback) => {
+        const n = Number(val);
+        return Number.isFinite(n) ? Math.max(min, Math.min(max, n)) : fallback;
+      };
+      const mId = migrateModeId(p.b);
+      const fId = migrateFocalId(mId, p.l);
+      const focals = getModeFocals(mId);
+      const rawLens = focals.find(x => x.id === fId) || focals[0];
+      const matchedFilm = FILM_STOCKS.find(f => f.id === p.f) || FILM_STOCKS[0];
+      state.bodyId = mId;
+      state.lensId = fId;
+      state.filmId = matchedFilm.id;
+      state.zoomFocalMm = clamp(p.zm, 35, 70, state.zoomFocalMm);
+      const anchors = getPrimeAnchors(mId);
+      if (anchors.length > 0 && !rawLens.isZoom && !rawLens.isFormatLens && !rawLens.isFixedAperture) {
+        state.lensFocalMm = clamp(p.mm, anchors[0].mm, anchors[anchors.length - 1].mm, rawLens.mm || 50);
+      } else {
+        state.lensFocalMm = rawLens.mm || 50;
+      }
+      const minF = rawLens.isZoom ? (3.5 + ((state.zoomFocalMm - 35) / 35) * 1.0) : (rawLens.minF || 2.8);
+      state.lensAperture = rawLens.isFixedAperture ? minF : clamp(p.ap, minF, rawLens.maxF || 16, minF);
+      apPinnedWideOpen = Math.abs(state.lensAperture - minF) < 0.04;
+      state.strength = Math.round(clamp(p.st, 0, 100, state.strength));
+      state.exposure = Math.round(clamp(p.ev, -150, 150, state.exposure));
+      state.warmth = Math.round(clamp(p.w, -40, 40, state.warmth));
+      state.grain = Math.round(clamp(p.g, 0, 100, matchedFilm.grainBase));
+      state.halation = Math.round(clamp(p.h, 0, 100, matchedFilm.halationBase));
+      state.bloom = Math.round(clamp(p.bl, 0, 100, rawLens.bloomBase || 20));
+      state.vignette = Math.round(clamp(p.v, 0, 100, rawLens.vignetteBase || 20));
+      state.leakType = LEAK_TYPES.some(lt => lt.id === p.lt) ? p.lt : 'none';
+      state.leakAmt = Math.round(clamp(p.la, 0, 100, 0));
+      state.frameType = ['none', '35mm-sprocket', 'darkroom-white', 'polaroid'].includes(p.fr) ? p.fr : 'none';
+      state.dateStamp = p.ds === 'on' ? 'exif-or-today' : 'off';
+      if (p.fl !== undefined) state.camFlashOn = !!p.fl;
+      if (p.hf !== undefined) state.hfDiptychMode = !!p.hf;
+      saveLocalAppState();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  document.getElementById('btnShareCombo')?.addEventListener('click', async () => {
+    const token = encodeRecipePresetToken();
+    const nextHash = `#preset=${token}`;
+    const shareUrl = `${location.origin}${location.pathname}${nextHash}`;
+    try { history.replaceState?.(null, '', nextHash); } catch (e) {}
+    let copied = false;
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shareUrl);
+        copied = true;
+      }
+    } catch (e) {}
+    if (!copied) {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = shareUrl;
+        ta.setAttribute('readonly', '');
+        ta.style.cssText = 'position:fixed;left:-9999px;opacity:0;';
+        document.body.appendChild(ta);
+        ta.select();
+        copied = document.execCommand('copy');
+        ta.remove();
+      } catch (e) {}
+    }
+    showToast(copied ? '🔗 Recipe link copied!' : '🔗 Recipe link updated in URL');
+  });
+
   document.getElementById('liveGearBadge').addEventListener('click', () => {
     if (comboSheet.classList.contains('open')) closeComboPicker();
     else openComboPicker('film');
@@ -5877,15 +6750,109 @@
   document.getElementById('btnCloseContactSheet').addEventListener('click', () => contactSheet.classList.remove('open'));
   contactSheet.addEventListener('click', e => { if (e.target === contactSheet) contactSheet.classList.remove('open'); });
 
+  // Tap-to-Focus & Spot AE Metering on #vfStage
+  const vfStageEl = document.getElementById('vfStage');
+  const vfFocusReticle = document.getElementById('vfFocusReticle');
+  let vfReticleTimer = 0;
+  vfStageEl?.addEventListener('click', e => {
+    if (e.target.closest('button, input, .lens-barrel-dock, .vf-hf-diptych-bar')) return;
+    const rect = vfStageEl.getBoundingClientRect();
+    if (rect.width < 20 || rect.height < 20) return;
+    const nx = Math.max(0.06, Math.min(0.94, (e.clientX - rect.left) / rect.width));
+    const ny = Math.max(0.08, Math.min(0.92, (e.clientY - rect.top) / rect.height));
+
+    if (vfFocusReticle) {
+      vfFocusReticle.style.left = `${(nx * 100).toFixed(1)}%`;
+      vfFocusReticle.style.top = `${(ny * 100).toFixed(1)}%`;
+      vfFocusReticle.classList.add('active');
+      clearTimeout(vfReticleTimer);
+      vfReticleTimer = setTimeout(() => {
+        if (!state.camAELocked) vfFocusReticle.classList.remove('active');
+      }, 1600);
+    }
+
+    if (!state.camAELocked) {
+      const hasLiveVideo = !!(state.camStream && camVideo.readyState >= 2);
+      const src = hasLiveVideo ? camVideo : state.previewSourceCanvas;
+      if (src) {
+        try {
+          const { body, lens } = getSelectedGear();
+          const stageDim = getCameraStageDimensions(body, lens);
+          const srcW = src.videoWidth || src.width || stageDim.w;
+          const srcH = src.videoHeight || src.height || stageDim.h;
+          const srcRatio = srcW / Math.max(1, srcH);
+          let sw = srcW, sh = srcH;
+          if (srcRatio > stageDim.ratio) sw = srcH * stageDim.ratio;
+          else sh = srcW / stageDim.ratio;
+          const z = body.id === 'rangefinder' ? 1.0 : (lens.cropZoom || 1.0);
+          sw /= z; sh /= z;
+          const sxCenter = (srcW - sw) * 0.5 + nx * sw;
+          const syCenter = (srcH - sh) * 0.5 + ny * sh;
+          const patchW = Math.max(8, Math.round(sw * 0.14));
+          const patchH = Math.max(8, Math.round(sh * 0.14));
+          const psx = Math.max(0, Math.min(srcW - patchW, Math.round(sxCenter - patchW * 0.5)));
+          const psy = Math.max(0, Math.min(srcH - patchH, Math.round(syCenter - patchH * 0.5)));
+          const mC = document.createElement('canvas');
+          mC.width = 8; mC.height = 8;
+          const mCtx = mC.getContext('2d');
+          mCtx.drawImage(src, psx, psy, patchW, patchH, 0, 0, 8, 8);
+          const md = mCtx.getImageData(0, 0, 8, 8).data;
+          let sum = 0;
+          for (let i = 0; i < md.length; i += 4) sum += (0.299 * md[i] + 0.587 * md[i + 1] + 0.114 * md[i + 2]) / 255;
+          const zoneLum = sum / 64;
+          const targetEV = Math.max(-1.6, Math.min(1.6, Math.round(((0.46 - zoneLum) * 2.2) * 10) / 10));
+          state.camExposureEV = targetEV;
+        } catch (ignored) {}
+      }
+    }
+
+    const track = cameraTrack();
+    if (track?.applyConstraints) {
+      try {
+        const caps = track.getCapabilities?.();
+        if (caps?.focusMode?.includes?.('continuous') || caps?.pointsOfInterest) {
+          track.applyConstraints({ advanced: [{ pointsOfInterest: [{ x: nx, y: ny }] }] }).catch(() => {});
+        }
+      } catch (ignored) {}
+    }
+
+    syncCameraHudUI();
+    scheduleCameraSettingsApply();
+    scheduleSaveLocalAppState();
+  });
+
+  document.getElementById('btnVfAeLock')?.addEventListener('click', () => {
+    state.camAELocked = !state.camAELocked;
+    state.camLockedEV = state.camAELocked ? state.camExposureEV : null;
+    if (state.camAELocked && vfFocusReticle) vfFocusReticle.classList.add('active');
+    syncCameraHudUI();
+    showToast(state.camAELocked ? `🔒 AE Locked (${state.camExposureEV >= 0 ? '+' : ''}${Number(state.camExposureEV).toFixed(1)} EV)` : '🔓 AE Unlocked');
+  });
+
+  document.getElementById('btnVfDiptychToggle')?.addEventListener('click', () => {
+    state.hfDiptychMode = !state.hfDiptychMode;
+    if (!state.hfDiptychMode) clearPendingHalfFrame();
+    syncCameraHudUI();
+    scheduleSaveLocalAppState();
+    showToast(state.hfDiptychMode ? '🎞️ Half Frame 2F Diptych mode' : '🎞️ Half Frame 1F Single mode');
+  });
+  document.getElementById('btnCancelHalfFrame')?.addEventListener('click', () => {
+    clearPendingHalfFrame();
+    syncCameraHudUI();
+    showToast('Half frame #1 discarded');
+  });
+
   // Camera Viewfinder HUD Events (EV Ruler, DATE toggle, FRAME toggle, SLR 35-70mm Zoom Toggle, Disposable Flash)
   const camExposureControl = document.getElementById('camExposureControl');
   camExposureControl.addEventListener('input', e => {
     state.camExposureEV = Number(e.target.value);
+    if (state.camAELocked) state.camLockedEV = state.camExposureEV;
     syncCameraHudUI();
     scheduleCameraSettingsApply();
   });
   document.getElementById('camExposureValue').addEventListener('click', () => {
     state.camExposureEV = 0;
+    if (state.camAELocked) state.camLockedEV = 0;
     syncCameraHudUI();
     scheduleCameraSettingsApply();
     showToast('EV reset to 0.0');
@@ -5961,6 +6928,14 @@
     });
     navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then(reg => reg.update().catch(() => {})).catch(() => {});
   }
+  const hasUrlPreset = applyUrlPresetIfPresent();
+  window.addEventListener('hashchange', () => {
+    if (applyUrlPresetIfPresent()) {
+      syncAllUI();
+      renderPreview();
+      showToast('🔗 Applied shared film recipe');
+    }
+  });
   renderSampleStrip();
   if (window.innerHeight >= 700) document.getElementById('tweakDrawer')?.classList.add('open');
   syncAllUI();
@@ -5969,6 +6944,7 @@
   switchMainTab('camera');
   await loadSampleScenePhotos();
   loadSourceCanvas(SAMPLES[0].canvas, null);
+  if (hasUrlPreset) showToast('🔗 Applied shared film recipe');
 })();
 </script>
 </body>
