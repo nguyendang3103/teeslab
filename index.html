@@ -112,7 +112,7 @@
     }
     /* 1. COMPACT MOBILE TOPBAR */
     .topbar {
-      height: 50px;
+      height: 42px;
       flex-shrink: 0;
       display: flex;
       align-items: center;
@@ -127,12 +127,12 @@
     .brand {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 7px;
       min-width: 0;
     }
     .brand-logo-wrap {
-      width: 34px;
-      height: 34px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
       overflow: hidden;
       border: 1.5px solid rgba(34, 211, 238, 0.85);
@@ -155,7 +155,7 @@
     .brand-title {
       font-family: 'Caveat', cursive;
       font-weight: 700;
-      font-size: 21px;
+      font-size: 19px;
       letter-spacing: 0.2px;
       line-height: 1;
       color: #f3feff;
@@ -212,10 +212,6 @@
       justify-content: center;
       font-size: 13px;
       color: var(--text-secondary);
-    }
-    .app-shell[data-active-tab="camera"] #btnExport,
-    .app-shell[data-active-tab="camera"] #btnOpenSamples {
-      display: none;
     }
 
     /* MAIN VIEWS */
@@ -329,7 +325,7 @@
       display: inline-flex;
       max-width: 100%;
       flex: 0 1 auto;
-      max-height: calc(100% - 34px);
+      max-height: calc(100% - 60px);
       min-width: 0;
       min-height: 0;
       align-items: center;
@@ -420,17 +416,29 @@
     .split-tag.left { left: 6px; }
     .split-tag.right { right: 6px; color: #f5a623; }
 
-    /* Rollie-style bottom caption & subtle floating controls (hugged beneath photo) */
+    /* Lab bottom photo info & action toolbar (hugged beneath photo) */
     .stage-overlay-bottom {
       width: 100%;
       padding: 0 6px;
-      margin-top: 8px;
+      margin-top: 7px;
       flex-shrink: 0;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      flex-direction: column;
+      align-items: stretch;
       gap: 6px;
       z-index: 12;
+    }
+    .stage-actions-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .stage-action-group {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-shrink: 0;
     }
     .rollie-combo-caption {
       pointer-events: auto;
@@ -441,7 +449,7 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      flex: 1;
+      width: 100%;
       min-width: 0;
       text-align: left;
     }
@@ -449,11 +457,11 @@
       color: #f5a623;
       font-weight: 700;
     }
-    .canvas-stack.zoomed + .stage-overlay-bottom .rollie-combo-caption {
-      background: rgba(9, 11, 15, 0.82);
+    .canvas-stack.zoomed + .stage-overlay-bottom {
+      background: rgba(9, 11, 15, 0.84);
       border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 12px;
-      padding: 3px 8px;
+      padding: 6px 8px;
       backdrop-filter: blur(4px);
     }
     .float-pill {
@@ -461,8 +469,9 @@
       background: rgba(18, 21, 27, 0.9);
       border: 1px solid rgba(255, 255, 255, 0.12);
       color: var(--text-secondary);
-      border-radius: 12px;
-      padding: 3px 8px;
+      border-radius: 13px;
+      height: 26px;
+      padding: 0 9px;
       font-size: 10px;
       font-weight: 600;
       display: inline-flex;
@@ -474,6 +483,25 @@
       background: rgba(245, 166, 35, 0.18);
       color: #f5a623;
       border-color: rgba(245, 166, 35, 0.55);
+    }
+    .btn-stage-photo {
+      height: 26px;
+      min-width: 34px;
+      padding: 0 9px;
+      border-radius: 13px;
+      background: rgba(22, 26, 34, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: var(--text-primary);
+    }
+    .btn-stage-save {
+      height: 26px;
+      padding: 0 12px;
+      border-radius: 13px;
+      font-size: 11px;
     }
 
     .hold-badge {
@@ -2118,12 +2146,6 @@
           <div class="brand-title">Tee's Lab</div>
         </div>
       </div>
-
-      <div class="topbar-actions">
-        <input type="file" id="fileInput" accept="image/*" hidden />
-        <button class="btn-icon-top" id="btnOpenSamples" title="Add Photo" aria-label="Add Photo">🖼️</button>
-        <button class="btn-pill btn-brass" id="btnExport" title="Save edited photo" aria-label="Save edited photo">Save</button>
-      </div>
     </header>
 
     <!-- 2A. VIEW: LAB (DARKROOM) -->
@@ -2142,16 +2164,28 @@
 
         <div class="stage-overlay-bottom">
           <button class="rollie-combo-caption" id="liveGearBadge" title="Tap to change combo">SLR (3:2) — 50mm — <strong>Pro 400H</strong></button>
-          <div style="display:flex;gap:5px;flex-shrink:0;">
-            <button class="float-pill" id="btnToggleLabZoom" type="button" title="Toggle 2× zoom">🔍 1×</button>
-            <button class="float-pill" id="btnToggleSplit" type="button">◧ Split</button>
+          <div class="stage-actions-row">
+            <div class="stage-action-group">
+              <button class="float-pill" id="btnToggleLabZoom" type="button" title="Toggle 2× zoom">🔍 1×</button>
+              <button class="float-pill" id="btnToggleSplit" type="button">◧ Split</button>
+            </div>
+            <div class="stage-action-group">
+              <input type="file" id="fileInput" accept="image/*" hidden />
+              <button class="btn-stage-photo" id="btnOpenSamples" type="button" title="Add Photo" aria-label="Add Photo">🖼️</button>
+              <button class="btn-pill btn-brass btn-stage-save" id="btnExport" type="button" title="Save edited photo" aria-label="Save edited photo">Save</button>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- COMPACT LAB CONTROL DOCK -->
       <div class="tool-dock">
-        <!-- Collapsible Adjust Drawer (Opens when Adjust pill is tapped) -->
+        <!-- Quick Frame · Date · Adjust Pills (Above Body · Lens · Film) -->
+        <div class="tweak-strip-row">
+          <div class="tweak-pills-wrap" id="tweakPillsStrip"></div>
+        </div>
+
+        <!-- Collapsible Adjust Drawer (Opens directly under Adjust pill) -->
         <div class="tweak-drawer" id="tweakDrawer">
           <div class="tweak-sub-grid" id="tweakSubStrip"></div>
           <div class="tweak-header-row">
@@ -2185,11 +2219,6 @@
             <span class="combo-card-caret">▾</span>
             <div class="combo-card-art" id="labCardFilmArt"></div>
           </button>
-        </div>
-
-        <!-- Quick Adjust & Frame/Date Pills -->
-        <div class="tweak-strip-row">
-          <div class="tweak-pills-wrap" id="tweakPillsStrip"></div>
         </div>
       </div>
     </main>
