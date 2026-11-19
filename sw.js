@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tees-lab-shell-v27';
+const CACHE_NAME = 'tees-lab-shell-v28';
 const APP_FILES = [
   './index.html', './manifest.json', './logo.jpg', './version.json',
   './assets/samples/golden-hour.jpg',
@@ -11,7 +11,6 @@ const APP_FILES = [
   './assets/gear/bodies/slr.webp',
   './assets/gear/bodies/rangefinder.webp',
   './assets/gear/bodies/half-frame.webp',
-  './assets/gear/bodies/half-frame-single.webp',
   './assets/gear/bodies/pocket-110.webp',
   './assets/gear/bodies/disposable.webp',
   './assets/gear/bodies/medium-format.webp',
