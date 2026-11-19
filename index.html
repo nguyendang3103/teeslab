@@ -2173,45 +2173,112 @@
       fCtx.fillText(`${frameNumberStr || '24A'}`, framed.width - sidePad - 36, Math.round(barH * 0.16));
     } else if (frameType === 'darkroom-white') {
       framed.width = fp.totalW; framed.height = fp.totalH;
-      fCtx.fillStyle = '#f7f4ed'; fCtx.fillRect(0, 0, framed.width, framed.height);
+      fCtx.fillStyle = '#fcfaf4'; fCtx.fillRect(0, 0, framed.width, framed.height);
       fCtx.drawImage(photoCanvas, fp.left, fp.top);
 
-      // Clean, sleek asymmetric analog darkroom easel mask (straight edges, subtle organic drift & soft corner radius)
+      // Authentic analog darkroom easel border with burnt emulsion inner rim & warm tan stepped rebate (like IMG_0510.jpeg)
       const sc = Math.max(0.55, Math.min(width, height) / 450);
       const innerL = fp.left, innerT = fp.top, innerR = fp.left + width, innerB = fp.top + height;
+      const cr = Math.max(2.0, Math.round(3.6 * sc));
+      const stepPx = Math.max(8, Math.round(11 * sc));
+      const stepsT = Math.max(18, Math.round(width / stepPx)), stepsR = Math.max(18, Math.round(height / stepPx));
+
       const edgeOff = (t, amp, phase) => {
-        const tilt = (t - 0.5) * amp * 0.35;
-        const gentleBow = Math.sin(t * Math.PI + phase * 0.4) * amp * 0.45;
-        const microTexture = Math.sin(t * Math.PI * 6.0 + phase) * (0.18 * sc);
-        return Math.max(0, 0.35 * amp + tilt + gentleBow + microTexture);
+        const tilt = (t - 0.5) * amp * 0.25;
+        const bow = Math.sin(t * Math.PI + phase * 0.4) * amp * 0.35;
+        const grain = (Math.sin(t * Math.PI * 10.0 + phase) * 0.6 + Math.cos(t * Math.PI * 23.0 + phase * 1.7) * 0.4) * (0.28 * sc);
+        return Math.max(0, 0.28 * amp + tilt + bow + grain);
       };
-      const stepPx = Math.max(8, Math.round(12 * sc));
-      const stepsT = Math.max(16, Math.round(width / stepPx)), stepsR = Math.max(16, Math.round(height / stepPx));
-      const cTLx = innerL + edgeOff(0, 0.85 * sc, 0.4), cTLy = innerT + edgeOff(0, 0.8 * sc, 1.1);
+
+      const traceEaselRect = (inset, ampScale) => {
+        const L = innerL + inset, T = innerT + inset, R = innerR - inset, B = innerB - inset;
+        const W = Math.max(4, R - L), H = Math.max(4, B - T);
+        const r = Math.min(cr, W * 0.1, H * 0.1);
+        fCtx.moveTo(L + edgeOff(0, 0.7 * sc * ampScale, 0.4), T + r);
+        for (let i = 1; i <= stepsR; i++) {
+          const t = i / stepsR;
+          const y = (T + r) + t * (H - 2 * r);
+          fCtx.lineTo(L + edgeOff(t, 0.85 * sc * ampScale, 0.4), y);
+        }
+        fCtx.quadraticCurveTo(L + edgeOff(1, 0.7 * sc * ampScale, 0.4), B - edgeOff(0, 0.8 * sc * ampScale, 2.3), L + r, B - edgeOff(0, 0.85 * sc * ampScale, 2.3));
+        for (let i = 1; i <= stepsT; i++) {
+          const t = i / stepsT;
+          const x = (L + r) + t * (W - 2 * r);
+          fCtx.lineTo(x, B - edgeOff(t, 0.95 * sc * ampScale, 2.3));
+        }
+        fCtx.quadraticCurveTo(R - edgeOff(0, 0.7 * sc * ampScale, 4.1), B - edgeOff(1, 0.8 * sc * ampScale, 2.3), R - edgeOff(0, 0.75 * sc * ampScale, 4.1), B - r);
+        for (let i = 1; i <= stepsR; i++) {
+          const t = i / stepsR;
+          const y = (B - r) - t * (H - 2 * r);
+          fCtx.lineTo(R - edgeOff(1 - t, 0.75 * sc * ampScale, 4.1), y);
+        }
+        fCtx.quadraticCurveTo(R - edgeOff(1, 0.65 * sc * ampScale, 4.1), T + edgeOff(0, 0.7 * sc * ampScale, 1.1), R - r, T + edgeOff(0, 0.75 * sc * ampScale, 1.1));
+        for (let i = 1; i <= stepsT; i++) {
+          const t = i / stepsT;
+          const x = (R - r) - t * (W - 2 * r);
+          fCtx.lineTo(x, T + edgeOff(1 - t, 0.75 * sc * ampScale, 1.1));
+        }
+        fCtx.quadraticCurveTo(L + edgeOff(0, 0.65 * sc * ampScale, 0.4), T + edgeOff(1, 0.7 * sc * ampScale, 1.1), L + edgeOff(0, 0.7 * sc * ampScale, 0.4), T + r);
+      };
+
+      // 1) Warm edge burn ("màu cháy cháy") bleeding slightly inward around all 4 sides & corners
+      fCtx.save();
+      fCtx.globalCompositeOperation = 'multiply';
+      const burnT = Math.max(8, Math.round(14 * sc));
+      const gTop = fCtx.createLinearGradient(0, innerT, 0, innerT + burnT);
+      gTop.addColorStop(0, 'rgba(130, 88, 48, 0.46)');
+      gTop.addColorStop(0.28, 'rgba(168, 122, 74, 0.22)');
+      gTop.addColorStop(1, 'rgba(255, 255, 255, 0)');
+      fCtx.fillStyle = gTop; fCtx.fillRect(innerL, innerT, width, burnT);
+
+      const gBot = fCtx.createLinearGradient(0, innerB, 0, innerB - burnT * 1.15);
+      gBot.addColorStop(0, 'rgba(124, 82, 44, 0.48)');
+      gBot.addColorStop(0.32, 'rgba(165, 118, 70, 0.24)');
+      gBot.addColorStop(1, 'rgba(255, 255, 255, 0)');
+      fCtx.fillStyle = gBot; fCtx.fillRect(innerL, innerB - burnT * 1.15, width, burnT * 1.15);
+
+      const gLeft = fCtx.createLinearGradient(innerL, 0, innerL + burnT, 0);
+      gLeft.addColorStop(0, 'rgba(128, 86, 46, 0.44)');
+      gLeft.addColorStop(0.3, 'rgba(168, 122, 74, 0.20)');
+      gLeft.addColorStop(1, 'rgba(255, 255, 255, 0)');
+      fCtx.fillStyle = gLeft; fCtx.fillRect(innerL, innerT, burnT, height);
+
+      const gRight = fCtx.createLinearGradient(innerR, 0, innerR - burnT, 0);
+      gRight.addColorStop(0, 'rgba(128, 86, 46, 0.42)');
+      gRight.addColorStop(0.3, 'rgba(168, 122, 74, 0.19)');
+      gRight.addColorStop(1, 'rgba(255, 255, 255, 0)');
+      fCtx.fillStyle = gRight; fCtx.fillRect(innerR - burnT, innerT, burnT, height);
+      fCtx.restore();
+
+      // 2) Charred dark-amber emulsion contact line right along the photo boundary
+      fCtx.save();
+      fCtx.beginPath();
+      traceEaselRect(0.35 * sc, 1.0);
+      fCtx.closePath();
+      fCtx.strokeStyle = 'rgba(78, 52, 28, 0.52)';
+      fCtx.lineWidth = Math.max(1.1, 1.55 * sc);
+      fCtx.stroke();
+      fCtx.restore();
+
+      // 3) Stepped warm toasted-tan inner rebate shelf (visible on bottom & left like IMG_0510.jpeg)
       fCtx.save();
       fCtx.beginPath();
       fCtx.rect(0, 0, framed.width, framed.height);
-      fCtx.moveTo(cTLx, cTLy);
-      for (let i = 1; i <= stepsR; i++) {
-        const t = i / stepsR;
-        fCtx.lineTo(innerL + edgeOff(t, 0.95 * sc, 0.4), innerT + t * height);
-      }
-      for (let i = 1; i <= stepsT; i++) {
-        const t = i / stepsT;
-        fCtx.lineTo(innerL + t * width, innerB - edgeOff(t, 1.05 * sc, 2.3));
-      }
-      for (let i = 1; i <= stepsR; i++) {
-        const t = i / stepsR;
-        fCtx.lineTo(innerR - edgeOff(1 - t, 0.85 * sc, 4.1), innerB - t * height);
-      }
-      for (let i = 1; i < stepsT; i++) {
-        const t = i / stepsT;
-        fCtx.lineTo(innerR - t * width, innerT + edgeOff(1 - t, 0.8 * sc, 1.1));
-      }
+      traceEaselRect(0.0, 1.0);
       fCtx.closePath();
-      fCtx.shadowColor = 'rgba(28, 24, 18, 0.18)';
-      fCtx.shadowBlur = Math.max(0.9, sc * 1.1);
-      fCtx.fillStyle = '#f7f4ed';
+      fCtx.fillStyle = '#dfd1be';
+      fCtx.fill('evenodd');
+      fCtx.restore();
+
+      // 4) Outer warm cream paper mask leaving a subtle 1.5-2.5px toasted rebate lip
+      fCtx.save();
+      fCtx.beginPath();
+      fCtx.rect(0, 0, framed.width, framed.height);
+      traceEaselRect(-Math.max(1.2, 1.85 * sc), 0.75);
+      fCtx.closePath();
+      fCtx.shadowColor = 'rgba(112, 76, 38, 0.34)';
+      fCtx.shadowBlur = Math.max(1.2, 1.8 * sc);
+      fCtx.fillStyle = '#faf7f0';
       fCtx.fill('evenodd');
       fCtx.restore();
     } else if (frameType === 'polaroid') {
@@ -2233,10 +2300,10 @@
     }
     if (frameType === 'darkroom-white') {
       const minDim = Math.min(width, height);
-      const top = Math.max(4, Math.round(minDim * 0.0095));
-      const right = Math.max(5, Math.round(minDim * 0.0125));
-      const left = Math.max(6, Math.round(minDim * 0.0175));
-      const bottom = Math.max(8, Math.round(minDim * 0.022));
+      const top = Math.max(3, Math.round(minDim * 0.0075));
+      const right = Math.max(4, Math.round(minDim * 0.010));
+      const left = Math.max(6, Math.round(minDim * 0.0155));
+      const bottom = Math.max(7, Math.round(minDim * 0.0195));
       return { totalW: width + left + right, totalH: height + top + bottom, left, top, right, bottom };
     }
     if (frameType === 'polaroid') {
