@@ -213,7 +213,8 @@
       font-size: 13px;
       color: var(--text-secondary);
     }
-    .app-shell[data-active-tab="camera"] #btnExport {
+    .app-shell[data-active-tab="camera"] #btnExport,
+    .app-shell[data-active-tab="camera"] #btnBottomPhoto {
       display: none;
     }
 
@@ -1682,7 +1683,7 @@
       padding-bottom: env(safe-area-inset-bottom);
       flex-shrink: 0;
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       background: #090b0e;
       border-top: 1px solid #1b1f27;
       z-index: 30;
@@ -2081,7 +2082,8 @@
 
       <div class="topbar-actions">
         <input type="file" id="fileInput" accept="image/*" hidden />
-        <button class="btn-icon-top" id="btnOpenSamples" title="Sample photos" aria-label="Sample photos">🖼️</button>
+        <button class="btn-icon-top" id="btnOpenSamples" title="Sample & library photos" aria-label="Sample & library photos">🖼️</button>
+        <button class="btn-pill btn-ghost" id="btnBottomPhoto" type="button" title="Add photo from library" aria-label="Add photo from library">➕ Photo</button>
         <button class="btn-pill btn-brass" id="btnExport" title="Save edited photo" aria-label="Save edited photo">Save</button>
       </div>
     </header>
@@ -2310,7 +2312,6 @@
 
     <nav class="bottom-nav" role="tablist">
       <button class="bnav-btn" data-tab="darkroom"><span class="ico">🎞️</span><span>Lab</span></button>
-      <button class="bnav-btn" id="btnBottomPhoto" type="button"><span class="ico">➕</span><span>Open Photo</span></button>
       <button class="bnav-btn active" data-tab="camera"><span class="ico">📷</span><span>Camera</span></button>
     </nav>
 
@@ -2396,8 +2397,11 @@
     <div class="sheet-backdrop" id="sampleSheetBackdrop">
       <div class="sheet-card">
         <div class="sheet-head">
-          <span>🖼️ Sample photos</span>
-          <button class="btn-pill btn-ghost" id="btnCloseSampleSheet" style="height:26px;">✕</button>
+          <span>🖼️ Photos &amp; Samples</span>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <button class="btn-pill btn-brass" id="btnSheetOpenPhoto" type="button" style="height:26px;font-size:11px;">➕ Add Photo</button>
+            <button class="btn-pill btn-ghost" id="btnCloseSampleSheet" style="height:26px;">✕</button>
+          </div>
         </div>
         <div class="sample-grid-3" id="sampleStrip"></div>
       </div>
@@ -3526,7 +3530,7 @@
     recipes: [],
 
     camStream: null,
-    camLiveEnabled: false,
+    camLiveEnabled: true,
     camFacing: 'environment',
     camAnimId: null,
     camSound: true,
@@ -5696,50 +5700,75 @@
     }
   }
 
-  async function startRealCamera() {
-    const srcBtn = document.getElementById('camSourceStatus');
-    if (state.camStream?.getTracks().some(track => track.readyState === 'live')) {
-      if (srcBtn) {
-        srcBtn.textContent = state.camFacing === 'environment' ? 'Rear' : 'Front';
-        srcBtn.classList.add('live');
-      }
-      return;
-    }
-    if (!navigator.mediaDevices?.getUserMedia) {
-      state.camLiveEnabled = false;
-      if (srcBtn) { srcBtn.textContent = 'Simulated'; srcBtn.classList.remove('live'); }
-      showToast('🎞️ Live camera not supported — using simulated viewfinder');
-      return;
-    }
-    state.camLiveEnabled = true;
-    if (srcBtn) { srcBtn.textContent = 'Opening…'; srcBtn.classList.remove('live'); }
-    try {
-      let stream;
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: state.camFacing, width: { ideal: 1920 }, height: { ideal: 1440 } }, audio: false });
-      } catch (hiResErr) {
-        if (hiResErr?.name === 'NotAllowedError' || hiResErr?.name === 'PermissionDeniedError' || hiResErr?.name === 'SecurityError') throw hiResErr;
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: state.camFacing, width: { ideal: 1280 }, height: { ideal: 960 } }, audio: false });
-      }
-      if (!document.getElementById('view-camera').classList.contains('active') || !state.camLiveEnabled) {
-        stream.getTracks().forEach(track => track.stop());
-        if (srcBtn) { srcBtn.textContent = 'Simulated'; srcBtn.classList.remove('live'); }
+  let camStartPromise = null;
+  async function startRealCamera(userInitiated = false) {
+    if (camStartPromise) return camStartPromise;
+    camStartPromise = (async () => {
+      const srcBtn = document.getElementById('camSourceStatus');
+      if (state.camStream?.getTracks().some(track => track.readyState === 'live')) {
+        if (srcBtn) {
+          srcBtn.textContent = state.camFacing === 'environment' ? 'Rear' : 'Front';
+          srcBtn.classList.add('live');
+        }
         return;
       }
-      state.camStream = stream;
-      camVideo.srcObject = stream;
-      await camVideo.play();
-      await applyCameraHardwareSettings();
-      if (srcBtn) {
-        srcBtn.textContent = state.camFacing === 'environment' ? 'Rear' : 'Front';
-        srcBtn.classList.add('live');
+      if (!navigator.mediaDevices?.getUserMedia) {
+        state.camLiveEnabled = false;
+        if (srcBtn) { srcBtn.textContent = 'Simulated'; srcBtn.classList.remove('live'); }
+        if (userInitiated) showToast('🎞️ Live camera not supported — using sample viewfinder');
+        return;
       }
-    } catch (e) {
-      state.camLiveEnabled = false;
-      if (state.camStream) state.camStream.getTracks().forEach(track => track.stop());
-      state.camStream = null;
-      camVideo.srcObject = null;
-      if (srcBtn) { srcBtn.textContent = 'Simulated'; srcBtn.classList.remove('live'); }
+      if (!userInitiated) {
+        try {
+          if (navigator.permissions?.query) {
+            const perm = await navigator.permissions.query({ name: 'camera' });
+            if (perm?.state === 'denied') {
+              state.camLiveEnabled = false;
+              if (srcBtn) { srcBtn.textContent = 'Simulated'; srcBtn.classList.remove('live'); }
+              return;
+            }
+          }
+        } catch (ignored) {}
+      }
+      state.camLiveEnabled = true;
+      if (srcBtn) { srcBtn.textContent = 'Opening…'; srcBtn.classList.remove('live'); }
+      try {
+        let stream;
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: state.camFacing, width: { ideal: 1920 }, height: { ideal: 1440 } }, audio: false });
+        } catch (hiResErr) {
+          const canRetryLoRes = hiResErr?.name === 'OverconstrainedError' || hiResErr?.name === 'ConstraintNotSatisfiedError';
+          if (!canRetryLoRes) throw hiResErr;
+          stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: state.camFacing, width: { ideal: 1280 }, height: { ideal: 960 } }, audio: false });
+        }
+        if (!document.getElementById('view-camera').classList.contains('active') || !state.camLiveEnabled) {
+          stream.getTracks().forEach(track => track.stop());
+          if (srcBtn) { srcBtn.textContent = 'Simulated'; srcBtn.classList.remove('live'); }
+          return;
+        }
+        state.camStream = stream;
+        camVideo.srcObject = stream;
+        await camVideo.play();
+        await applyCameraHardwareSettings();
+        if (srcBtn) {
+          srcBtn.textContent = state.camFacing === 'environment' ? 'Rear' : 'Front';
+          srcBtn.classList.add('live');
+        }
+      } catch (e) {
+        state.camLiveEnabled = false;
+        if (state.camStream) state.camStream.getTracks().forEach(track => track.stop());
+        state.camStream = null;
+        camVideo.srcObject = null;
+        if (srcBtn) { srcBtn.textContent = 'Simulated'; srcBtn.classList.remove('live'); }
+        if (userInitiated && (e?.name === 'NotAllowedError' || e?.name === 'PermissionDeniedError' || e?.name === 'SecurityError')) {
+          showToast('📷 Bật Camera → Allow trong Website Settings để vào thẳng camera');
+        }
+      }
+    })();
+    try {
+      return await camStartPromise;
+    } finally {
+      camStartPromise = null;
     }
   }
 
@@ -7091,6 +7120,10 @@
   // Bottom Sheets (Samples & Contact Sheet)
   const sampleSheet = document.getElementById('sampleSheetBackdrop');
   document.getElementById('btnOpenSamples').addEventListener('click', () => sampleSheet.classList.add('open'));
+  document.getElementById('btnSheetOpenPhoto')?.addEventListener('click', () => {
+    sampleSheet.classList.remove('open');
+    fileInput.click();
+  });
   document.getElementById('btnCloseSampleSheet').addEventListener('click', () => sampleSheet.classList.remove('open'));
   sampleSheet.addEventListener('click', e => { if (e.target === sampleSheet) sampleSheet.classList.remove('open'); });
 
@@ -7249,7 +7282,7 @@
       stopRealCamera();
       showToast('🎞️ Simulated sample viewfinder');
     } else {
-      startRealCamera();
+      startRealCamera(true);
     }
   });
   document.getElementById('btnFlipCam').addEventListener('click', () => {
@@ -7257,7 +7290,7 @@
       state.camFacing = state.camFacing === 'environment' ? 'user' : 'environment';
       stopRealCamera();
     }
-    startRealCamera();
+    startRealCamera(true);
   });
   document.getElementById('btnToggleSound').addEventListener('click', e => {
     state.camSound = !state.camSound;
