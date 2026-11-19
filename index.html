@@ -510,12 +510,51 @@
       background: #14171e;
       border: 1px solid #262b36;
       border-radius: 9px;
-      padding: 6px 10px 8px;
+      padding: 7px 9px 9px;
       flex-direction: column;
-      gap: 5px;
+      gap: 6px;
     }
     .tweak-drawer.open {
       display: flex;
+    }
+    .tweak-sub-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 4px;
+      width: 100%;
+    }
+    .tweak-sub-pill {
+      min-width: 0;
+      padding: 4px 3px;
+      border-radius: 7px;
+      background: #0d0f14;
+      border: 1px solid #232834;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1px;
+      font-size: 8.5px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    .tweak-sub-pill span:first-child {
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .tweak-sub-pill.active {
+      border-color: #f5a623;
+      background: rgba(245, 166, 35, 0.16);
+      color: #fff;
+    }
+    .tweak-sub-val {
+      font-family: var(--mono);
+      font-size: 9px;
+      font-weight: 700;
+      color: #f5a623;
     }
     .tweak-header-row {
       display: flex;
@@ -545,7 +584,7 @@
       box-shadow: 0 1px 5px rgba(0,0,0,0.7);
     }
 
-    /* Tweak Pill Strip */
+    /* Tweak Pill Strip (Frame · Date · Adjust — 3 equal horizontal pills) */
     .tweak-strip-row {
       display: flex;
       align-items: center;
@@ -553,13 +592,13 @@
     }
     .tweak-pills-wrap {
       display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 5px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
       width: 100%;
     }
     .tweak-pill {
       min-width: 0;
-      padding: 5px 4px;
+      padding: 6px 6px;
       border-radius: 9px;
       background: #151820;
       border: 1px solid #252a35;
@@ -568,7 +607,7 @@
       align-items: center;
       justify-content: center;
       gap: 2px;
-      font-size: 9px;
+      font-size: 10px;
       font-weight: 600;
       color: var(--text-secondary);
       white-space: nowrap;
@@ -2111,8 +2150,9 @@
 
       <!-- COMPACT LAB CONTROL DOCK -->
       <div class="tool-dock">
-        <!-- Collapsible Slider Drawer (Opens only when an adjustment pill is tapped) -->
+        <!-- Collapsible Adjust Drawer (Opens when Adjust pill is tapped) -->
         <div class="tweak-drawer" id="tweakDrawer">
+          <div class="tweak-sub-grid" id="tweakSubStrip"></div>
           <div class="tweak-header-row">
             <span id="activeTweakTitle" style="color:#f5a623;">Film strength: 100%</span>
             <div style="display:flex;gap:6px;align-items:center;">
@@ -4505,8 +4545,9 @@
       lsel.style.display = 'none';
     }
 
-    // Reuse single-row horizontal pills in place to avoid GC/reflow churn during mode switches
+    // Build the 3 equal horizontal pills (Frame · Date · Adjust) + 8 sub-controls inside Adjust drawer
     const strip = document.getElementById('tweakPillsStrip');
+    const subStrip = document.getElementById('tweakSubStrip');
     if (!strip.dataset.built) {
       strip.dataset.built = '1';
       strip.innerHTML = '';
@@ -4536,29 +4577,51 @@
       });
       strip.appendChild(datePill);
 
+      const adjustPill = document.createElement('button');
+      adjustPill.type = 'button';
+      adjustPill.dataset.pillId = 'adjust';
+      adjustPill.className = 'tweak-pill';
+      adjustPill.innerHTML = `<span>Adjust</span><span class="tweak-pill-val"></span>`;
+      adjustPill.addEventListener('click', () => {
+        drawer.classList.toggle('open');
+        renderTweaksDock();
+      });
+      strip.appendChild(adjustPill);
+    }
+
+    if (subStrip && !subStrip.dataset.built) {
+      subStrip.dataset.built = '1';
+      subStrip.innerHTML = '';
       TWEAK_DEFS.forEach(t => {
-        const pill = document.createElement('button');
-        pill.type = 'button';
-        pill.dataset.pillId = t.key;
-        pill.className = 'tweak-pill';
-        pill.innerHTML = `<span>${t.short || t.label}</span><span class="tweak-pill-val"></span>`;
-        pill.addEventListener('click', () => {
-          if (drawer.classList.contains('open') && state.activeTweakKey === t.key) {
-            drawer.classList.remove('open');
-          } else {
-            state.activeTweakKey = t.key;
-            if (t.key === 'leakAmt' && state.leakType === 'none') {
-              state.leakType = 'amber-edge';
-              if (state.leakAmt === 0) state.leakAmt = 40;
-              renderPreview();
-            }
-            drawer.classList.add('open');
+        const sub = document.createElement('button');
+        sub.type = 'button';
+        sub.dataset.subId = t.key;
+        sub.className = 'tweak-sub-pill';
+        sub.innerHTML = `<span>${t.short || t.label}</span><span class="tweak-sub-val"></span>`;
+        sub.addEventListener('click', () => {
+          state.activeTweakKey = t.key;
+          if (t.key === 'leakAmt' && state.leakType === 'none') {
+            state.leakType = 'amber-edge';
+            if (state.leakAmt === 0) state.leakAmt = 40;
+            renderPreview();
           }
+          drawer.classList.add('open');
           renderTweaksDock();
         });
-        strip.appendChild(pill);
+        subStrip.appendChild(sub);
       });
     }
+
+    const { lens, film } = getSelectedGear();
+    let adjustedCount = 0;
+    if (state.strength !== 100) adjustedCount++;
+    if (state.exposure !== 0) adjustedCount++;
+    if (state.warmth !== 0) adjustedCount++;
+    if (state.grain !== film.grainBase) adjustedCount++;
+    if (state.halation !== film.halationBase) adjustedCount++;
+    if (state.bloom !== lens.bloomBase) adjustedCount++;
+    if (state.vignette !== lens.vignetteBase) adjustedCount++;
+    if (state.leakType !== 'none' && state.leakAmt > 0) adjustedCount++;
 
     const isDateOn = state.dateStamp !== 'off';
     const frameBtn = strip.querySelector('[data-pill-id="frame"]');
@@ -4571,12 +4634,21 @@
       dateBtn.classList.toggle('active', isDateOn);
       dateBtn.lastElementChild.textContent = isDateOn ? 'Today' : 'Off';
     }
-    TWEAK_DEFS.forEach(t => {
-      const pill = strip.querySelector(`[data-pill-id="${t.key}"]`);
-      if (!pill) return;
-      pill.classList.toggle('active', isDrawerOpen && state.activeTweakKey === t.key);
-      pill.lastElementChild.textContent = t.fmt(state[t.key]);
-    });
+    const adjustBtn = strip.querySelector('[data-pill-id="adjust"]');
+    if (adjustBtn) {
+      adjustBtn.classList.toggle('active', isDrawerOpen || adjustedCount > 0);
+      adjustBtn.lastElementChild.textContent = isDrawerOpen
+        ? `${def.short || def.label} ${def.fmt(state[def.key])}`
+        : (adjustedCount > 0 ? `${adjustedCount} tuned` : 'Tune');
+    }
+    if (subStrip) {
+      TWEAK_DEFS.forEach(t => {
+        const sub = subStrip.querySelector(`[data-sub-id="${t.key}"]`);
+        if (!sub) return;
+        sub.classList.toggle('active', state.activeTweakKey === t.key);
+        sub.lastElementChild.textContent = t.fmt(state[t.key]);
+      });
+    }
   }
 
   function renderSavedRecipesList() {
@@ -7317,7 +7389,6 @@
     }
   });
   renderSampleStrip();
-  if (window.innerHeight >= 700) document.getElementById('tweakDrawer')?.classList.add('open');
   syncAllUI();
   renderContactSheet();
   cameraRollReady = restoreCameraRoll();
