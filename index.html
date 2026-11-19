@@ -1286,10 +1286,27 @@
     .vf-hud-left { flex-shrink: 0; }
     .vf-source-status {
       flex-shrink: 0;
+      pointer-events: auto;
+      cursor: pointer;
       font-family: var(--mono);
-      font-size: 9.5px;
-      color: rgba(255,255,255,0.68);
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(10, 12, 16, 0.72);
+      border: 1px solid rgba(255,255,255,0.16);
+      color: rgba(255,255,255,0.72);
       text-shadow: 0 1px 3px #000;
+      letter-spacing: 0.2px;
+    }
+    .vf-source-status.live {
+      color: #4ade80;
+      border-color: rgba(74, 222, 128, 0.62);
+      background: rgba(22, 101, 52, 0.36);
+    }
+    .vf-stage[data-vf-mode="half-frame"] ~ .vf-bottom-hud .vf-source-status {
+      font-size: 8.5px;
+      padding: 2px 4px;
     }
 
     /* Mechanical Knurled Lens Barrel Controller (ZOOM [zoom lenses only] / FOCUS+AF / APERTURE) */
@@ -2249,7 +2266,7 @@
                 <button class="vf-badge-btn" id="btnVfZoomModeToggle" type="button" title="Switch between primes & 35–70mm zoom" style="display:none;">35–70</button>
                 <button class="vf-badge-btn" id="btnVfDiptychToggle" type="button" title="Switch between 1-frame and paired 2-frame diptych" style="display:none;">1F</button>
               </div>
-              <span id="camSourceStatus" class="vf-source-status">Rear</span>
+              <button id="camSourceStatus" class="vf-source-status" type="button" title="Simulated sample preview — tap to enable live camera">Simulated</button>
             </div>
             <div class="lens-barrel-dock lens-barrel-vf" id="camLensBarrel" aria-label="Lens focal, manual focus and aperture rings"></div>
           </div>
@@ -3509,6 +3526,7 @@
     recipes: [],
 
     camStream: null,
+    camLiveEnabled: false,
     camFacing: 'environment',
     camAnimId: null,
     camSound: true,
@@ -5612,6 +5630,14 @@
       evBadge.classList.toggle('active', Math.abs(val) > 0.04);
     }
 
+    const srcBtn = document.getElementById('camSourceStatus');
+    if (srcBtn) {
+      const isLive = !!state.camStream?.getTracks().some(track => track.readyState === 'live');
+      srcBtn.classList.toggle('live', isLive);
+      if (isLive) srcBtn.textContent = state.camFacing === 'environment' ? 'Rear' : 'Front';
+      else if (srcBtn.textContent !== 'Opening…') srcBtn.textContent = 'Simulated';
+    }
+
     syncViewfinderFocusAid(body, lens);
     syncLensBarrelWidgets();
     layoutViewfinderStage();
@@ -5671,32 +5697,49 @@
   }
 
   async function startRealCamera() {
+    const srcBtn = document.getElementById('camSourceStatus');
     if (state.camStream?.getTracks().some(track => track.readyState === 'live')) {
-      document.getElementById('camSourceStatus').textContent = state.camFacing === 'environment' ? 'Rear' : 'Front';
+      if (srcBtn) {
+        srcBtn.textContent = state.camFacing === 'environment' ? 'Rear' : 'Front';
+        srcBtn.classList.add('live');
+      }
       return;
     }
-    document.getElementById('camSourceStatus').textContent = 'Opening…';
+    if (!navigator.mediaDevices?.getUserMedia) {
+      state.camLiveEnabled = false;
+      if (srcBtn) { srcBtn.textContent = 'Simulated'; srcBtn.classList.remove('live'); }
+      showToast('🎞️ Live camera not supported — using simulated viewfinder');
+      return;
+    }
+    state.camLiveEnabled = true;
+    if (srcBtn) { srcBtn.textContent = 'Opening…'; srcBtn.classList.remove('live'); }
     try {
       let stream;
       try {
         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: state.camFacing, width: { ideal: 1920 }, height: { ideal: 1440 } }, audio: false });
       } catch (hiResErr) {
+        if (hiResErr?.name === 'NotAllowedError' || hiResErr?.name === 'PermissionDeniedError' || hiResErr?.name === 'SecurityError') throw hiResErr;
         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: state.camFacing, width: { ideal: 1280 }, height: { ideal: 960 } }, audio: false });
       }
-      if (!document.getElementById('view-camera').classList.contains('active')) {
+      if (!document.getElementById('view-camera').classList.contains('active') || !state.camLiveEnabled) {
         stream.getTracks().forEach(track => track.stop());
+        if (srcBtn) { srcBtn.textContent = 'Simulated'; srcBtn.classList.remove('live'); }
         return;
       }
       state.camStream = stream;
       camVideo.srcObject = stream;
       await camVideo.play();
       await applyCameraHardwareSettings();
-      document.getElementById('camSourceStatus').textContent = state.camFacing === 'environment' ? 'Rear' : 'Front';
+      if (srcBtn) {
+        srcBtn.textContent = state.camFacing === 'environment' ? 'Rear' : 'Front';
+        srcBtn.classList.add('live');
+      }
     } catch (e) {
+      state.camLiveEnabled = false;
       if (state.camStream) state.camStream.getTracks().forEach(track => track.stop());
       state.camStream = null;
       camVideo.srcObject = null;
-      document.getElementById('camSourceStatus').textContent = 'Simulated';
+      if (srcBtn) { srcBtn.textContent = 'Simulated'; srcBtn.classList.remove('live'); }
     }
   }
 
@@ -6371,6 +6414,8 @@
     state.camTrackCapabilities = null;
     state.camAppliedHardware = {};
     camVideo.srcObject = null;
+    const srcBtn = document.getElementById('camSourceStatus');
+    if (srcBtn) { srcBtn.textContent = 'Simulated'; srcBtn.classList.remove('live'); }
   }
 
   function pauseCameraWhenHidden() {
@@ -6380,7 +6425,11 @@
 
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) pauseCameraWhenHidden();
-    else if (document.getElementById('view-camera').classList.contains('active')) { startCameraLoop(); startRealCamera(); layoutViewfinderStage(); }
+    else if (document.getElementById('view-camera').classList.contains('active')) {
+      startCameraLoop();
+      if (state.camLiveEnabled) startRealCamera();
+      layoutViewfinderStage();
+    }
   });
   window.addEventListener('pagehide', pauseCameraWhenHidden);
   window.addEventListener('beforeunload', pauseCameraWhenHidden);
@@ -6443,10 +6492,7 @@
   let shutterBusy = false;
   async function captureCameraShot() {
     if (shutterBusy) return;
-    if (!state.camStream && !state.fullSourceCanvas) {
-      await startRealCamera();
-      return;
-    }
+    if (!state.camStream && !state.fullSourceCanvas && !SAMPLES[0]?.canvas) return;
     shutterBusy = true;
     const shutterButton = document.getElementById('btnShutter');
     shutterButton.disabled = true;
@@ -6615,7 +6661,7 @@
       else syncLensBarrelWidgets();
       requestAnimationFrame(() => { layoutViewfinderStage(); syncLensBarrelWidgets(); });
       startCameraLoop();
-      startRealCamera();
+      if (state.camLiveEnabled) startRealCamera();
     } else {
       stopCameraLoop();
       if (state.camStream) stopRealCamera();
@@ -7197,10 +7243,21 @@
     showToast(state.camFlashOn ? '⚡ Disposable Flash: ON' : '⚡ Disposable Flash: OFF');
   });
 
+  document.getElementById('camSourceStatus').addEventListener('click', () => {
+    if (state.camLiveEnabled || state.camStream) {
+      state.camLiveEnabled = false;
+      stopRealCamera();
+      showToast('🎞️ Simulated sample viewfinder');
+    } else {
+      startRealCamera();
+    }
+  });
   document.getElementById('btnFlipCam').addEventListener('click', () => {
-    state.camFacing = state.camFacing === 'environment' ? 'user' : 'environment';
-    if (state.camStream) { stopRealCamera(); startRealCamera(); }
-    else { startRealCamera(); }
+    if (state.camStream) {
+      state.camFacing = state.camFacing === 'environment' ? 'user' : 'environment';
+      stopRealCamera();
+    }
+    startRealCamera();
   });
   document.getElementById('btnToggleSound').addEventListener('click', e => {
     state.camSound = !state.camSound;

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tees-lab-shell-v34';
+const CACHE_NAME = 'tees-lab-shell-v35';
 const CORE_FILES = [
   './', './index.html', './manifest.json', './logo.jpg', './version.json',
   './assets/samples/coffee.jpg',
@@ -66,13 +66,19 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
   const request = event.request;
-  if (request.method !== 'GET' || new URL(request.url).origin !== self.location.origin) return;
+  const reqUrl = new URL(request.url);
+  if (request.method !== 'GET' || reqUrl.origin !== self.location.origin) return;
 
   if (request.mode === 'navigate') {
     event.respondWith(fetch(new Request(request, { cache: 'no-cache' })).then(async response => {
       if (response.ok) await caches.open(CACHE_NAME).then(cache => cache.put('./index.html', response.clone()));
       return response;
     }).catch(async () => (await caches.match('./index.html')) || (await caches.match('./')) || Response.error()));
+    return;
+  }
+
+  if (reqUrl.pathname.endsWith('/version.json')) {
+    event.respondWith(fetch(new Request(request, { cache: 'no-cache' })).catch(() => caches.match(request)));
     return;
   }
 
