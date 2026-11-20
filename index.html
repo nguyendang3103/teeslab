@@ -766,24 +766,23 @@
         #0c0d10;
     }
 
-    /* Top Mechanical Camera Plate (Logo+Counter + Optical Window + Lever) */
+    /* Minimal Camera Top Plate (Logo+Counter | Sound Toggle) */
     .cam-top-plate {
-      height: 38px;
+      height: 28px;
       flex-shrink: 0;
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
+      display: flex;
       align-items: center;
-      padding: 0 4px;
+      justify-content: space-between;
+      padding: 0 2px;
     }
     .cam-plate-left {
-      justify-self: start;
       display: flex;
       align-items: center;
       gap: 6px;
     }
     .cam-mini-logo {
-      width: 24px;
-      height: 24px;
+      width: 22px;
+      height: 22px;
       border-radius: 50%;
       overflow: hidden;
       border: 1.5px solid rgba(34, 211, 238, 0.85);
@@ -798,57 +797,52 @@
       display: block;
     }
     .cam-counter-slot {
-      min-width: 44px;
-      height: 24px;
-      padding: 0 7px;
+      min-width: 40px;
+      height: 22px;
+      padding: 0 6px;
       border-radius: 5px;
       background: linear-gradient(180deg, #78746a 0%, #9b968b 50%, #6e6a61 100%);
-      border: 2px solid #26282e;
+      border: 1.5px solid #26282e;
       box-shadow: inset 0 2px 4px rgba(0,0,0,0.65), 0 1px 0 rgba(255,255,255,0.08);
       display: inline-flex;
       align-items: center;
       justify-content: center;
       font-family: var(--mono);
       font-weight: 800;
-      font-size: 12px;
+      font-size: 11px;
       color: #161616;
       letter-spacing: 0.5px;
     }
-    .cam-optical-eye {
-      width: 52px;
-      height: 36px;
-      border-radius: 8px;
-      background: linear-gradient(180deg, #1b1d22, #0d0e11);
-      border: 2px solid #2b2f38;
-      box-shadow: inset 0 2px 6px rgba(0,0,0,0.9), 0 2px 6px rgba(0,0,0,0.6);
+    .cam-top-right {
       display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .cam-sound-btn {
+      width: 26px;
+      height: 24px;
+      border-radius: 7px;
+      background: #14171f;
+      border: 1px solid #262b36;
+      color: #e2e8f0;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      position: relative;
+      transition: opacity 0.14s ease, border-color 0.14s ease, transform 0.1s ease;
     }
-    .cam-optical-eye::after {
-      content: "";
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 35% 35%, rgba(120, 180, 255, 0.45), rgba(15, 23, 42, 0.95) 70%);
-      border: 1.5px solid #333842;
+    .cam-sound-btn svg {
+      width: 15px;
+      height: 15px;
+      display: block;
     }
-    .cam-top-right {
-      justify-self: end;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    .cam-sound-btn .sound-slash { display: none; }
+    .cam-sound-btn.muted {
+      color: #64748b;
+      border-color: #1d212a;
     }
-    .cam-lever-knob {
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      background: conic-gradient(#d1d5db, #6b7280, #e5e7eb, #4b5563, #d1d5db);
-      border: 2px solid #262930;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.7);
-      position: relative;
-    }
+    .cam-sound-btn.muted .sound-wave { opacity: 0.25; }
+    .cam-sound-btn.muted .sound-slash { display: inline; }
+    .cam-sound-btn:active { transform: scale(0.93); }
 
     /* Viewfinder Box & Mode-Specific Stages */
     .cam-vf-box {
@@ -2207,6 +2201,204 @@
         gap: 5px;
       }
     }
+
+    /* Curated Body Recommendation Bar & ★ Best Badges inside Picker */
+    .picker-tile {
+      position: relative;
+    }
+    .picker-tile.is-rec {
+      border-color: rgba(245, 166, 35, 0.34);
+    }
+    .picker-rec-badge {
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      font-family: var(--mono);
+      font-size: 6.5px;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+      color: #fbbf24;
+      background: rgba(245, 166, 35, 0.16);
+      border: 1px solid rgba(245, 166, 35, 0.45);
+      padding: 0 3px;
+      line-height: 1.35;
+      border-radius: 4px;
+      pointer-events: none;
+    }
+    .picker-match-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      padding: 4px 8px;
+      margin-bottom: 6px;
+      border-radius: 8px;
+      background: rgba(245, 166, 35, 0.08);
+      border: 1px solid rgba(245, 166, 35, 0.26);
+    }
+    .picker-match-info {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      min-width: 0;
+      overflow: hidden;
+      font-size: 10px;
+    }
+    .picker-match-lbl {
+      color: #9ca3af;
+      font-weight: 600;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .picker-match-link {
+      color: #f5a623;
+      font-weight: 700;
+      font-size: 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-decoration: underline;
+      text-decoration-color: rgba(245, 166, 35, 0.45);
+      text-underline-offset: 2px;
+    }
+    .picker-match-apply {
+      flex-shrink: 0;
+      font-family: var(--mono);
+      font-size: 9.5px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: #f5a623;
+      color: #111;
+      transition: transform 0.1s ease, background 0.14s ease;
+    }
+    .picker-match-apply:active { transform: scale(0.95); }
+    .picker-match-apply.applied {
+      background: rgba(34, 197, 94, 0.2);
+      color: #4ade80;
+      border: 1px solid rgba(74, 222, 128, 0.55);
+    }
+
+    /* Crisp Shutter Deck SVG Icons */
+    .cam-deck-svg {
+      width: 21px;
+      height: 21px;
+      display: block;
+    }
+
+    /* Pro Wide Landscape Camera Mode when Phone Held Sideways */
+    .app-shell.cam-landscape {
+      max-width: 100%;
+      width: 100%;
+      border-left: none;
+      border-right: none;
+      flex-direction: row;
+      padding-top: 0;
+    }
+    .app-shell.cam-landscape .bottom-nav {
+      order: -1;
+      width: calc(48px + env(safe-area-inset-left));
+      height: 100%;
+      padding: 0 0 0 env(safe-area-inset-left);
+      grid-template-columns: 1fr;
+      grid-template-rows: repeat(2, minmax(0, 1fr));
+      border-top: none;
+      border-right: 1px solid #1b1f27;
+    }
+    .app-shell.cam-landscape .bnav-btn {
+      height: 100%;
+    }
+    .app-shell.cam-landscape .cam-wrap {
+      display: grid;
+      grid-template-columns: 104px minmax(0, 1fr) 74px;
+      grid-template-rows: auto minmax(0, 1fr);
+      grid-template-areas:
+        "plate vf shutter"
+        "combo vf shutter";
+      padding: 6px calc(8px + env(safe-area-inset-right)) 6px 8px;
+      gap: 6px;
+      align-items: stretch;
+    }
+    .app-shell.cam-landscape .cam-top-plate {
+      grid-area: plate;
+      height: 26px;
+      padding: 0;
+    }
+    .app-shell.cam-landscape .cam-mini-logo {
+      width: 20px;
+      height: 20px;
+    }
+    .app-shell.cam-landscape .cam-counter-slot {
+      min-width: 34px;
+      height: 20px;
+      padding: 0 4px;
+      font-size: 10.5px;
+    }
+    .app-shell.cam-landscape .cam-sound-btn {
+      width: 22px;
+      height: 22px;
+    }
+    .app-shell.cam-landscape #camComboTrio {
+      grid-area: combo;
+      grid-template-columns: 1fr;
+      grid-template-rows: repeat(3, minmax(0, 1fr));
+      gap: 5px;
+      height: 100%;
+      min-height: 0;
+    }
+    .app-shell.cam-landscape #camComboTrio .combo-card {
+      padding: 3px 4px;
+      gap: 1px;
+      min-height: 0;
+    }
+    .app-shell.cam-landscape #camComboTrio .combo-card-art {
+      height: 22px;
+      margin-top: 1px;
+    }
+    .app-shell.cam-landscape #camComboTrio .combo-card-art svg,
+    .app-shell.cam-landscape #camComboTrio .combo-card-art img {
+      height: 21px;
+    }
+    .app-shell.cam-landscape .cam-vf-box {
+      grid-area: vf;
+      margin: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .app-shell.cam-landscape .lens-barrel-vf {
+      max-width: 400px;
+    }
+    .app-shell.cam-landscape .cam-shutter-deck {
+      grid-area: shutter;
+      flex-direction: column-reverse;
+      justify-content: space-evenly;
+      align-items: center;
+      padding: 4px 0;
+      height: 100%;
+    }
+    .app-shell.cam-landscape .shutter-btn {
+      width: 60px;
+      height: 60px;
+    }
+    .app-shell.cam-landscape .cam-round-btn {
+      width: 40px;
+      height: 40px;
+    }
+    .app-shell.cam-landscape.picker-open {
+      flex-direction: column;
+    }
+    .app-shell.cam-landscape.picker-open .cam-wrap {
+      display: flex;
+      flex-direction: column;
+      padding: 4px 10px;
+    }
+    .app-shell.cam-landscape.picker-open .cam-top-plate {
+      display: none;
+    }
+    .app-shell.cam-landscape.picker-open .combo-dock-panel {
+      max-height: 58dvh;
+      overflow-y: auto;
+    }
   </style>
 </head>
 <body>
@@ -2307,16 +2499,20 @@
     <!-- 2B. VIEW: CAMERA -->
     <section id="view-camera" class="view-section active">
       <div class="cam-wrap">
-        <!-- Mechanical Top Plate (Mini Logo + Counter + Viewfinder Eye + Lever/Audio) -->
+        <!-- Minimal Camera Top Plate (Mini Logo + Counter | Sound Toggle) -->
         <div class="cam-top-plate">
           <div class="cam-plate-left">
             <div class="cam-mini-logo" title="Tee's Lab"><img src="./logo.jpg" alt="Tee's Lab" /></div>
             <div class="cam-counter-slot" id="camRollCounter" title="Frame counter">01</div>
           </div>
-          <div class="cam-optical-eye" aria-hidden="true"></div>
           <div class="cam-top-right">
-            <button class="btn-icon-top" id="btnToggleSound" title="Shutter sound" style="width:28px;height:28px;font-size:12px;">🔊</button>
-            <div class="cam-lever-knob" title="Auto film advance"></div>
+            <button class="cam-sound-btn" id="btnToggleSound" type="button" title="Shutter sound: ON" aria-pressed="true" aria-label="Toggle shutter sound">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M4.5 9.5h3.8L13 5.5v13l-4.7-4H4.5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                <path class="sound-wave" d="M16.2 8.8a4.6 4.6 0 0 1 0 6.4M18.8 6.5a7.8 7.8 0 0 1 0 11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                <path class="sound-slash" d="M4 4l16 16" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </button>
           </div>
         </div>
 
@@ -2450,14 +2646,27 @@
           </button>
         </div>
 
-        <!-- Minimal 3-Button Shutter Deck (Roll Gallery • Shutter • Flip Camera) -->
+        <!-- Minimal 3-Button Shutter Deck (Film Roll • Shutter • Flip Camera) -->
         <div class="cam-shutter-deck">
-          <button class="cam-round-btn" id="btnOpenContactSheet" type="button" title="Open camera roll">
-            🖼️
+          <button class="cam-round-btn" id="btnOpenContactSheet" type="button" title="Open camera roll" aria-label="Open camera roll">
+            <svg class="cam-deck-svg ico-film-roll" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect x="4.8" y="3" width="4.4" height="2.2" rx="0.9" fill="#9ca3af"/>
+              <rect x="3" y="5.2" width="8" height="14.2" rx="1.8" fill="#1b2029" stroke="#e2e8f0" stroke-width="1.5"/>
+              <rect x="4.4" y="8" width="5.2" height="5" rx="0.8" fill="#f5a623" fill-opacity="0.88"/>
+              <path d="M11 7.2h9.2a1.2 1.2 0 0 1 1.2 1.2v7.6a1.2 1.2 0 0 1-1.2 1.2H15l-1.5 1.8H11V7.2Z" fill="#13161d" stroke="#e2e8f0" stroke-width="1.4" stroke-linejoin="round"/>
+              <rect x="13" y="9.8" width="6.2" height="4.8" rx="0.7" stroke="#94a3b8" stroke-width="1.1"/>
+              <path d="M13 8.4h1.1M15.8 8.4h1.1M18.6 8.4h1.1M13 16h1.1M15.8 16h1.1" stroke="#f5a623" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
             <span class="roll-count-badge" id="contactCount">0</span>
           </button>
-          <button class="shutter-btn" id="btnShutter" type="button" title="Take photo"></button>
-          <button class="cam-round-btn" id="btnFlipCam" type="button" title="Flip camera">🔄</button>
+          <button class="shutter-btn" id="btnShutter" type="button" title="Take photo" aria-label="Take photo"></button>
+          <button class="cam-round-btn" id="btnFlipCam" type="button" title="Flip camera" aria-label="Flip camera">
+            <svg class="cam-deck-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M18.5 9.5A7 7 0 0 0 6.2 7.2M5.5 4.8v2.8h2.8" stroke="#e2e8f0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M5.5 14.5a7 7 0 0 0 12.3 2.3M18.5 19.2v-2.8h-2.8" stroke="#e2e8f0" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="12" cy="12" r="2.2" stroke="#f5a623" stroke-width="1.5"/>
+            </svg>
+          </button>
         </div>
       </div>
     </section>
@@ -2513,6 +2722,15 @@
           <span class="picker-spec-note" id="pickerBodyEffect">Split-prism focus + LED meter</span>
           <span class="picker-spec-stat" id="pickerBodyStat">35mm · 3:2</span>
         </div>
+        <div class="picker-match-bar" id="pickerBodyMatchBar">
+          <div class="picker-match-info">
+            <span class="picker-match-lbl" id="pickerBodyMatchLbl">Best for SLR:</span>
+            <button class="picker-match-link" id="btnJumpRecLens" type="button" title="Jump to Lens options">50mm f/1.4</button>
+            <span style="color:#525a6a;">+</span>
+            <button class="picker-match-link" id="btnJumpRecFilm" type="button" title="Jump to matching Films">Pro 400H</button>
+          </div>
+          <button class="picker-match-apply" id="btnApplyBodyMatch" type="button" title="Apply recommended Lens & Film for this body">✦ Apply</button>
+        </div>
         <div class="h-scroll" id="pickerBodyTrack"></div>
       </div>
 
@@ -2528,6 +2746,7 @@
       <div class="picker-section" id="pickerSecFilm">
         <div class="h-scroll" id="filmBrandPills" style="margin-bottom:6px;">
           <button class="filter-chip active" data-fbrand="all" type="button">All (20)</button>
+          <button class="filter-chip" data-fbrand="match" id="btnFilmMatchFilter" type="button">★ Best (4)</button>
           <button class="filter-chip" data-fbrand="fuji" type="button">Fujifilm</button>
           <button class="filter-chip" data-fbrand="kodak" type="button">Kodak</button>
           <button class="filter-chip" data-fbrand="cinema" type="button">CineStill</button>
@@ -2595,6 +2814,8 @@
       aspect: 3 / 2,
       meta: 'Split-prism focus + LED exposure meter',
       defaultFocalId: '50mm',
+      recLenses: ['50mm', '85mm', '35mm'],
+      recFilms: ['fuji-pro-400h', 'kodak-portra-400', 'kodak-gold-200', 'cinestill-800t'],
       blackLift: 0.024,
       contrast: 1.08,
       highlightRolloff: 0.18,
@@ -2612,6 +2833,8 @@
       aspect: 3 / 2,
       meta: 'Brightline frames + outside-the-frame',
       defaultFocalId: '35mm',
+      recLenses: ['35mm', '50mm', '28mm'],
+      recFilms: ['kodak-trix-400', 'ilford-hp5', 'fuji-classic-chrome', 'kodak-portra-400'],
       blackLift: 0.018,
       contrast: 1.11,
       highlightRolloff: 0.15,
@@ -2629,6 +2852,8 @@
       aspect: 3 / 4,
       meta: 'Vertical 3:4 half-frame portrait composition',
       defaultFocalId: '35mm',
+      recLenses: ['35mm', '28mm'],
+      recFilms: ['fuji-superia-400', 'kodak-ultramax-400', 'kodak-colorplus-200', 'ilford-hp5'],
       blackLift: 0.032,
       contrast: 1.05,
       highlightRolloff: 0.19,
@@ -2646,6 +2871,8 @@
       aspect: 4 / 3,
       meta: 'Heavy grain, soft focus & pocket vignette',
       defaultFocalId: '24mm',
+      recLenses: ['24mm', '48mm'],
+      recFilms: ['kodak-gold-200', 'kodak-colorplus-200', 'kodak-ultramax-400', 'fuji-superia-400'],
       blackLift: 0.055,
       contrast: 1.03,
       highlightRolloff: 0.14,
@@ -2663,6 +2890,8 @@
       aspect: 3 / 2,
       meta: 'Fixed 32mm lens + toggleable direct flash',
       defaultFocalId: '32mm',
+      recLenses: ['32mm'],
+      recFilms: ['kodak-ultramax-400', 'fuji-superia-400', 'cinestill-800t', 'kodak-portra-800'],
       blackLift: 0.032,
       contrast: 1.09,
       highlightRolloff: 0.14,
@@ -2680,6 +2909,8 @@
       aspect: 1,
       meta: 'Ultra-fine grain, wide dynamic range',
       defaultFocalId: '6x6',
+      recLenses: ['6x7', '6x6'],
+      recFilms: ['kodak-portra-160', 'kodak-ektar-100', 'fuji-velvia-50', 'fuji-acros-100'],
       blackLift: 0.012,
       contrast: 1.04,
       highlightRolloff: 0.30,
@@ -4553,6 +4784,24 @@
     document.getElementById('pickerBodyEffect').textContent = body.meta;
     updatePickerLensStatusUI(body, lens);
 
+    const recLensSet = new Set(body.recLenses || []);
+    const recFilmList = body.recFilms || [];
+    const recFilmSet = new Set(recFilmList);
+    const recLensObj = focals.find(f => f.id === (body.recLenses?.[0] || body.defaultFocalId)) || focals[0];
+    const recFilmObj = FILM_STOCKS.find(f => f.id === (recFilmList[0] || FILM_STOCKS[0].id)) || FILM_STOCKS[0];
+    const matchLbl = document.getElementById('pickerBodyMatchLbl');
+    const jumpLensBtn = document.getElementById('btnJumpRecLens');
+    const jumpFilmBtn = document.getElementById('btnJumpRecFilm');
+    const applyMatchBtn = document.getElementById('btnApplyBodyMatch');
+    if (matchLbl) matchLbl.textContent = `Best for ${body.name}:`;
+    if (jumpLensBtn && recLensObj) jumpLensBtn.textContent = recLensObj.label;
+    if (jumpFilmBtn && recFilmObj) jumpFilmBtn.textContent = recFilmObj.name;
+    if (applyMatchBtn && recLensObj && recFilmObj) {
+      const matchedNow = lens.id === recLensObj.id && state.filmId === recFilmObj.id;
+      applyMatchBtn.classList.toggle('applied', matchedNow);
+      applyMatchBtn.textContent = matchedNow ? '✓ Applied' : '✦ Apply';
+    }
+
     // 1. Film Camera Body Track
     const bodyTrack = document.getElementById('pickerBodyTrack');
     if (bodyTrack.childElementCount !== VIEWFINDER_MODES.length) {
@@ -4581,11 +4830,13 @@
       lensTrack.dataset.mode = body.id;
       lensTrack.innerHTML = '';
       focals.forEach(f => {
+        const isRec = recLensSet.has(f.id);
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.dataset.id = f.id;
-        btn.className = 'picker-tile';
+        btn.className = `picker-tile${isRec ? ' is-rec' : ''}`;
         btn.innerHTML = `
+          ${isRec ? '<span class="picker-rec-badge" title="Recommended for this body">★ Best</span>' : ''}
           <div class="combo-card-art">${svgFocalBadge(f)}</div>
           <span class="picker-tile-name">${escapeHtml(f.label)}</span>
           <span class="picker-tile-sub">${escapeHtml(f.tileSub || f.meta)}</span>
@@ -4598,27 +4849,35 @@
       btn.classList.toggle('active', btn.dataset.id === lens.id);
     });
 
-    // 3. Film Stocks Track (preserve scrollLeft across selection; rebuild only when brand filter changes)
+    // 3. Film Stocks Track (preserve scrollLeft across selection; rebuild when filter OR body changes)
     const filteredFilms = state.filmBrandFilter === 'all'
       ? FILM_STOCKS
-      : FILM_STOCKS.filter(f => f.brand === state.filmBrandFilter);
+      : (state.filmBrandFilter === 'match'
+        ? recFilmList.map(id => FILM_STOCKS.find(f => f.id === id)).filter(Boolean)
+        : FILM_STOCKS.filter(f => f.brand === state.filmBrandFilter));
     const filmIdx = Math.max(0, filteredFilms.findIndex(f => f.id === state.filmId)) + 1;
     document.getElementById('pickerFilmCount').innerHTML = `<strong>${String(filmIdx).padStart(2, '0')}</strong>/${filteredFilms.length}`;
+
+    const matchChip = document.getElementById('btnFilmMatchFilter');
+    if (matchChip) matchChip.textContent = `★ Best (${recFilmList.length})`;
 
     document.querySelectorAll('#filmBrandPills .filter-chip').forEach(chip => {
       chip.classList.toggle('active', chip.dataset.fbrand === state.filmBrandFilter);
     });
 
     const filmTrack = document.getElementById('pickerFilmTrack');
-    if (filmTrack.dataset.filter !== state.filmBrandFilter) {
-      filmTrack.dataset.filter = state.filmBrandFilter;
+    const filterKey = `${state.filmBrandFilter}|${body.id}`;
+    if (filmTrack.dataset.filterKey !== filterKey) {
+      filmTrack.dataset.filterKey = filterKey;
       filmTrack.innerHTML = '';
       filteredFilms.forEach(f => {
+        const isRec = recFilmSet.has(f.id);
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.dataset.id = f.id;
-        btn.className = 'picker-tile';
+        btn.className = `picker-tile${isRec ? ' is-rec' : ''}`;
         btn.innerHTML = `
+          ${isRec ? '<span class="picker-rec-badge" title="Recommended for this body">★ Best</span>' : ''}
           <div class="combo-card-art">${renderFilmArt(f.id, f.name)}</div>
           <span class="picker-tile-name">${escapeHtml(f.name)}</span>
           <span class="picker-tile-sub">${escapeHtml(f.subtitle)}</span>
@@ -5670,18 +5929,26 @@
   }
 
   function getCameraStageDimensions(body, lens) {
-    if (body.id === 'half-frame') return { w: 240, h: 320, ratio: 3 / 4 };
-    if (body.id === 'pocket-110') return { w: 400, h: 300, ratio: 4 / 3 };
-    if (body.id === 'medium-format') {
-      if (lens.id === '6x45') return { w: 400, h: 300, ratio: 4 / 3 };
-      if (lens.id === '6x7') return { w: 350, h: 300, ratio: 7 / 6 };
-      return { w: 320, h: 320, ratio: 1 };
+    const ls = isCameraLandscape();
+    if (body.id === 'half-frame') {
+      return ls ? { w: 480, h: 360, ratio: 4 / 3 } : { w: 240, h: 320, ratio: 3 / 4 };
     }
-    return { w: 420, h: 280, ratio: 3 / 2 };
+    if (body.id === 'pocket-110') {
+      return ls ? { w: 480, h: 360, ratio: 4 / 3 } : { w: 400, h: 300, ratio: 4 / 3 };
+    }
+    if (body.id === 'medium-format') {
+      if (lens.id === '6x45') return ls ? { w: 480, h: 360, ratio: 4 / 3 } : { w: 400, h: 300, ratio: 4 / 3 };
+      if (lens.id === '6x7') return ls ? { w: 490, h: 420, ratio: 7 / 6 } : { w: 350, h: 300, ratio: 7 / 6 };
+      return ls ? { w: 380, h: 380, ratio: 1 } : { w: 320, h: 320, ratio: 1 };
+    }
+    return ls ? { w: 600, h: 400, ratio: 3 / 2 } : { w: 420, h: 280, ratio: 3 / 2 };
   }
 
   function getCameraCaptureDimensions(body, lens) {
-    if (body.id === 'half-frame') return { w: 960, h: 1280, ratio: 3 / 4 };
+    const ls = isCameraLandscape();
+    if (body.id === 'half-frame') {
+      return ls ? { w: 1280, h: 960, ratio: 4 / 3 } : { w: 960, h: 1280, ratio: 3 / 4 };
+    }
     if (body.id === 'pocket-110') return { w: 1280, h: 960, ratio: 4 / 3 };
     if (body.id === 'medium-format') {
       if (lens.id === '6x45') return { w: 1280, h: 960, ratio: 4 / 3 };
@@ -6633,9 +6900,32 @@
     if (state.camStream) stopRealCamera();
   }
 
+  function isCameraLandscape() {
+    return window.innerWidth > window.innerHeight && window.innerHeight <= 580;
+  }
+  function syncOrientationLayout() {
+    const shell = document.querySelector('.app-shell');
+    if (!shell) return;
+    const isCamTab = shell.getAttribute('data-active-tab') === 'camera';
+    const nextLandscape = !!(isCamTab && isCameraLandscape());
+    const changed = shell.classList.contains('cam-landscape') !== nextLandscape;
+    shell.classList.toggle('cam-landscape', nextLandscape);
+    if (changed) cameraLastStaticKey = '';
+  }
+  function handleViewportResizeOrOrientation() {
+    syncOrientationLayout();
+    layoutViewfinderStage();
+    syncLensBarrelWidgets();
+    requestAnimationFrame(() => {
+      syncOrientationLayout();
+      layoutViewfinderStage();
+      syncLensBarrelWidgets();
+    });
+  }
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) pauseCameraWhenHidden();
     else if (document.getElementById('view-camera').classList.contains('active')) {
+      syncOrientationLayout();
       startCameraLoop();
       if (state.camLiveEnabled) startRealCamera();
       layoutViewfinderStage();
@@ -6643,7 +6933,11 @@
   });
   window.addEventListener('pagehide', pauseCameraWhenHidden);
   window.addEventListener('beforeunload', pauseCameraWhenHidden);
-  window.addEventListener('resize', layoutViewfinderStage);
+  window.addEventListener('resize', handleViewportResizeOrOrientation);
+  window.addEventListener('orientationchange', handleViewportResizeOrOrientation);
+  if (screen.orientation?.addEventListener) {
+    screen.orientation.addEventListener('change', handleViewportResizeOrOrientation);
+  }
 
   async function createShotThumbnail(blob) {
     const bitmap = await createImageBitmap(blob);
@@ -6736,9 +7030,13 @@
       const shotNumber = (state.camShotCount % state.camMaxShots) + 1;
 
       if (body.id === 'half-frame' && state.hfDiptychMode) {
+        const ls = isCameraLandscape();
+        const hw = ls ? 800 : 600;
+        const hh = ls ? 600 : 800;
+        const hr = ls ? (4 / 3) : (3 / 4);
         const halfC = document.createElement('canvas');
-        halfC.width = 600; halfC.height = 800;
-        drawCroppedSource(halfC.getContext('2d'), src, 600, 800, 3 / 4, capZoom);
+        halfC.width = hw; halfC.height = hh;
+        drawCroppedSource(halfC.getContext('2d'), src, hw, hh, hr, capZoom);
 
         if (!state.halfFrameFirstCanvas) {
           state.halfFrameFirstCanvas = halfC;
@@ -6750,13 +7048,22 @@
         }
 
         const firstHalf = state.halfFrameFirstCanvas;
+        const isFirstHoriz = firstHalf.width > firstHalf.height;
         const dipC = document.createElement('canvas');
-        dipC.width = 1260; dipC.height = 840;
         const dCtx = dipC.getContext('2d');
-        dCtx.fillStyle = '#090a0d';
-        dCtx.fillRect(0, 0, dipC.width, dipC.height);
-        dCtx.drawImage(firstHalf, 20, 20, 600, 800);
-        dCtx.drawImage(halfC, 640, 20, 600, 800);
+        if (isFirstHoriz) {
+          dipC.width = hw + 40; dipC.height = hh * 2 + 60;
+          dCtx.fillStyle = '#090a0d';
+          dCtx.fillRect(0, 0, dipC.width, dipC.height);
+          dCtx.drawImage(firstHalf, 20, 20, hw, hh);
+          dCtx.drawImage(halfC, 20, hh + 40, hw, hh);
+        } else {
+          dipC.width = 1260; dipC.height = 840;
+          dCtx.fillStyle = '#090a0d';
+          dCtx.fillRect(0, 0, dipC.width, dipC.height);
+          dCtx.drawImage(firstHalf, 20, 20, 600, 800);
+          dCtx.drawImage(halfC, 640, 20, 600, 800);
+        }
         clearPendingHalfFrame();
         const rawBlob = await canvasToJpegBlob(dipC, 0.92);
         await saveCameraExposure(rawBlob, shotNumber, { isDiptych: true });
@@ -6863,13 +7170,14 @@
   function switchMainTab(tabId) {
     if (!tabId) return;
     document.querySelector('.app-shell')?.setAttribute('data-active-tab', tabId);
+    syncOrientationLayout();
     document.querySelectorAll('.bnav-btn[data-tab]').forEach(b => b.classList.toggle('active', b.dataset.tab === tabId));
     document.querySelectorAll('.view-section').forEach(s => s.classList.toggle('active', s.id === `view-${tabId}`));
     if (tabId === 'camera') {
       cameraLastStaticKey = '';
       if (camHudDirty) { camHudDirty = false; syncCameraHudUI(); }
       else syncLensBarrelWidgets();
-      requestAnimationFrame(() => { layoutViewfinderStage(); syncLensBarrelWidgets(); });
+      requestAnimationFrame(() => { syncOrientationLayout(); layoutViewfinderStage(); syncLensBarrelWidgets(); });
       startCameraLoop();
       if (state.camLiveEnabled) startRealCamera();
     } else {
@@ -7097,6 +7405,42 @@
     const nextIdx = (Math.max(0, curIdx) + delta + FILM_STOCKS.length) % FILM_STOCKS.length;
     selectFilmStock(FILM_STOCKS[nextIdx].id);
   }
+  function applyRecommendedPairForBody() {
+    const mode = VIEWFINDER_MODES.find(m => m.id === state.bodyId) || VIEWFINDER_MODES[0];
+    const focals = getModeFocals(mode.id);
+    const recLensId = mode.recLenses?.[0] || mode.defaultFocalId;
+    const recLens = focals.find(f => f.id === recLensId) || focals[0];
+    const recFilmId = mode.recFilms?.[0] || FILM_STOCKS[0].id;
+    const recFilm = FILM_STOCKS.find(f => f.id === recFilmId) || FILM_STOCKS[0];
+    if (recLens) {
+      state.lensId = recLens.id;
+      if (recLens.isZoom) {
+        state.zoomFocalMm = 50;
+        state.lensAperture = Number((3.5 + ((50 - 35) / 35) * 1.0).toFixed(2));
+      } else {
+        state.lensFocalMm = recLens.mm || 50;
+        state.lensAperture = recLens.minF || 2.8;
+      }
+      apPinnedWideOpen = true;
+    }
+    state.filmId = recFilm.id;
+    const resolved = getSelectedGear().lens;
+    state.bloom = resolved.bloomBase;
+    state.vignette = resolved.vignetteBase;
+    state.grain = recFilm.grainBase;
+    state.halation = recFilm.halationBase;
+    syncAllUI();
+    scheduleCameraSettingsApply();
+    renderPreview();
+    showToast(`✦ ${mode.name}: ${shortLensLabel(resolved)} · ${recFilm.name}`);
+  }
+  document.getElementById('btnApplyBodyMatch')?.addEventListener('click', applyRecommendedPairForBody);
+  document.getElementById('btnJumpRecLens')?.addEventListener('click', () => setPickerTab('lens'));
+  document.getElementById('btnJumpRecFilm')?.addEventListener('click', () => {
+    state.filmBrandFilter = 'match';
+    renderComboPickerSheet();
+    setPickerTab('film');
+  });
   document.getElementById('btnPrevFilm')?.addEventListener('click', e => { e.stopPropagation(); stepFilmStock(-1); });
   document.getElementById('btnNextFilm')?.addEventListener('click', e => { e.stopPropagation(); stepFilmStock(1); });
   document.querySelectorAll('[data-open-combo]').forEach(btn => {
@@ -7489,9 +7833,12 @@
     }
     startRealCamera(true);
   });
-  document.getElementById('btnToggleSound').addEventListener('click', e => {
+  const soundBtnEl = document.getElementById('btnToggleSound');
+  soundBtnEl.addEventListener('click', () => {
     state.camSound = !state.camSound;
-    e.currentTarget.textContent = state.camSound ? '🔊' : '🔇';
+    soundBtnEl.classList.toggle('muted', !state.camSound);
+    soundBtnEl.setAttribute('aria-pressed', state.camSound ? 'true' : 'false');
+    soundBtnEl.setAttribute('title', state.camSound ? 'Shutter sound: ON' : 'Shutter sound: Muted');
   });
   document.getElementById('btnClearRollShots').addEventListener('click', async () => {
     try { await clearCameraRollStorage(); } catch (error) { showToast('Could not clear saved roll photos'); return; }
@@ -7529,6 +7876,7 @@
   renderContactSheet();
   cameraRollReady = restoreCameraRoll();
   switchMainTab('camera');
+  syncOrientationLayout();
   await loadSampleScenePhotos();
   loadSourceCanvas(SAMPLES[0].canvas, null);
   if (hasUrlPreset) showToast('🔗 Applied shared film recipe');
