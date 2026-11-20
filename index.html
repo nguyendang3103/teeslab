@@ -2348,136 +2348,23 @@
       display: block;
     }
 
-    /* Pro Wide Landscape Camera Mode when Phone Held Sideways */
-    .app-shell.cam-landscape {
-      max-width: 100%;
-      width: 100%;
-      border-left: none;
-      border-right: none;
-      flex-direction: row;
-      padding-top: 0;
-    }
-    .app-shell.cam-landscape .bottom-nav {
-      order: 2;
-      width: calc(74px + env(safe-area-inset-right));
-      height: 100%;
-      padding: 8px calc(6px + env(safe-area-inset-right)) 8px 6px;
-      grid-template-columns: 1fr;
-      grid-template-rows: auto minmax(0, 1fr) auto;
-      justify-items: center;
-      align-items: center;
-      gap: 6px;
-      border-top: none;
-      border-left: 1px solid #1b1f27;
-      border-right: none;
-    }
-    .app-shell.cam-landscape .bnav-group-cam {
-      order: 1;
-      width: 100%;
-      height: auto;
-      min-height: 54px;
-    }
-    .app-shell.cam-landscape .bnav-shutter {
-      order: 2;
-      width: 56px;
-      height: 56px;
-    }
-    .app-shell.cam-landscape .bnav-group-lab {
-      order: 3;
-      width: 100%;
-      height: auto;
-      flex-direction: column;
-    }
-    .app-shell.cam-landscape .bnav-roll-btn {
-      width: 100%;
-      height: 32px;
-      border-right: none;
-      border-bottom: 1px solid #202530;
-    }
-    .app-shell.cam-landscape .bnav-btn {
-      width: 100%;
-      height: auto;
-      min-height: 28px;
-      padding: 4px 2px;
-    }
-    .app-shell.cam-landscape .bnav-cam-lbl {
-      flex-direction: column;
-      gap: 1px;
-    }
-    .app-shell.cam-landscape .cam-wrap {
-      display: grid;
-      grid-template-columns: 104px minmax(0, 1fr);
-      grid-template-rows: auto minmax(0, 1fr);
-      grid-template-areas:
-        "plate vf"
-        "combo vf";
-      padding: 6px 6px 6px calc(8px + env(safe-area-inset-left));
-      gap: 6px;
-      align-items: stretch;
-    }
-    .app-shell.cam-landscape .cam-top-plate {
-      grid-area: plate;
-      height: 26px;
-      padding: 0;
-    }
-    .app-shell.cam-landscape .cam-mini-logo {
-      width: 20px;
-      height: 20px;
-    }
-    .app-shell.cam-landscape .cam-counter-slot {
-      min-width: 34px;
-      height: 20px;
-      padding: 0 4px;
-      font-size: 10.5px;
-    }
-    .app-shell.cam-landscape .cam-sound-btn {
-      width: 22px;
-      height: 22px;
-    }
-    .app-shell.cam-landscape #camComboTrio {
-      grid-area: combo;
-      grid-template-columns: 1fr;
-      grid-template-rows: repeat(3, minmax(0, 1fr));
-      gap: 5px;
-      height: 100%;
-      min-height: 0;
-    }
-    .app-shell.cam-landscape #camComboTrio .combo-card {
-      padding: 3px 4px;
-      gap: 1px;
-      min-height: 0;
-    }
-    .app-shell.cam-landscape #camComboTrio .combo-card-art {
-      height: 22px;
-      margin-top: 1px;
-    }
-    .app-shell.cam-landscape #camComboTrio .combo-card-art svg,
-    .app-shell.cam-landscape #camComboTrio .combo-card-art img {
-      height: 21px;
-    }
-    .app-shell.cam-landscape .cam-vf-box {
-      grid-area: vf;
-      margin: 0;
-      width: 100%;
-      height: 100%;
-    }
-    .app-shell.cam-landscape .lens-barrel-vf {
-      max-width: 410px;
-    }
-    .app-shell.cam-landscape.picker-open {
-      flex-direction: column;
-    }
-    .app-shell.cam-landscape.picker-open .cam-wrap {
-      display: flex;
-      flex-direction: column;
-      padding: 4px 10px;
-    }
-    .app-shell.cam-landscape.picker-open .cam-top-plate {
-      display: none;
-    }
-    .app-shell.cam-landscape.picker-open .combo-dock-panel {
-      max-height: 58dvh;
-      overflow-y: auto;
+    /* Compact HUD badges on narrow 375px SE viewports across all vertical frames */
+    @media (max-width: 385px) {
+      .vf-top-hud {
+        left: 6px;
+        right: 6px;
+        top: 6px;
+      }
+      .vf-bottom-hud {
+        left: 6px;
+        right: 6px;
+      }
+      .vf-top-hud .vf-badge-btn,
+      .vf-bottom-hud .vf-badge-btn,
+      .vf-bottom-hud .vf-source-status {
+        font-size: 8.5px;
+        padding: 2px 4px;
+      }
     }
   </style>
 </head>
@@ -6018,33 +5905,25 @@
   }
 
   function getCameraStageDimensions(body, lens) {
-    const ls = isCameraLandscape();
-    if (body.id === 'half-frame') {
-      return ls ? { w: 480, h: 360, ratio: 4 / 3 } : { w: 240, h: 320, ratio: 3 / 4 };
-    }
-    if (body.id === 'pocket-110') {
-      return ls ? { w: 480, h: 360, ratio: 4 / 3 } : { w: 400, h: 300, ratio: 4 / 3 };
-    }
+    if (body.id === 'half-frame') return { w: 360, h: 480, ratio: 3 / 4 };
+    if (body.id === 'pocket-110') return { w: 360, h: 480, ratio: 3 / 4 };
     if (body.id === 'medium-format') {
-      if (lens.id === '6x45') return ls ? { w: 480, h: 360, ratio: 4 / 3 } : { w: 400, h: 300, ratio: 4 / 3 };
-      if (lens.id === '6x7') return ls ? { w: 490, h: 420, ratio: 7 / 6 } : { w: 350, h: 300, ratio: 7 / 6 };
-      return ls ? { w: 380, h: 380, ratio: 1 } : { w: 320, h: 320, ratio: 1 };
+      if (lens.id === '6x45') return { w: 360, h: 480, ratio: 3 / 4 };
+      if (lens.id === '6x7') return { w: 360, h: 420, ratio: 6 / 7 };
+      return { w: 360, h: 360, ratio: 1 };
     }
-    return ls ? { w: 600, h: 400, ratio: 3 / 2 } : { w: 420, h: 280, ratio: 3 / 2 };
+    return { w: 400, h: 600, ratio: 2 / 3 };
   }
 
   function getCameraCaptureDimensions(body, lens) {
-    const ls = isCameraLandscape();
-    if (body.id === 'half-frame') {
-      return ls ? { w: 1280, h: 960, ratio: 4 / 3 } : { w: 960, h: 1280, ratio: 3 / 4 };
-    }
-    if (body.id === 'pocket-110') return { w: 1280, h: 960, ratio: 4 / 3 };
+    if (body.id === 'half-frame') return { w: 960, h: 1280, ratio: 3 / 4 };
+    if (body.id === 'pocket-110') return { w: 960, h: 1280, ratio: 3 / 4 };
     if (body.id === 'medium-format') {
-      if (lens.id === '6x45') return { w: 1280, h: 960, ratio: 4 / 3 };
-      if (lens.id === '6x7') return { w: 1260, h: 1080, ratio: 7 / 6 };
+      if (lens.id === '6x45') return { w: 960, h: 1280, ratio: 3 / 4 };
+      if (lens.id === '6x7') return { w: 1080, h: 1260, ratio: 6 / 7 };
       return { w: 1200, h: 1200, ratio: 1 };
     }
-    return { w: 1280, h: 853, ratio: 3 / 2 };
+    return { w: 853, h: 1280, ratio: 2 / 3 };
   }
 
   function layoutViewfinderStage() {
@@ -6275,11 +6154,11 @@
       try {
         let stream;
         try {
-          stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: state.camFacing, width: { ideal: 1920 }, height: { ideal: 1440 } }, audio: false });
+          stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: state.camFacing, width: { ideal: 1440 }, height: { ideal: 1920 } }, audio: false });
         } catch (hiResErr) {
           const canRetryLoRes = hiResErr?.name === 'OverconstrainedError' || hiResErr?.name === 'ConstraintNotSatisfiedError';
           if (!canRetryLoRes) throw hiResErr;
-          stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: state.camFacing, width: { ideal: 1280 }, height: { ideal: 960 } }, audio: false });
+          stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: state.camFacing, width: { ideal: 960 }, height: { ideal: 1280 } }, audio: false });
         }
         if (!document.getElementById('view-camera').classList.contains('active') || !state.camLiveEnabled) {
           stream.getTracks().forEach(track => track.stop());
@@ -6993,16 +6872,14 @@
   }
 
   function isCameraLandscape() {
-    return window.innerWidth > window.innerHeight && window.innerHeight <= 580;
+    return false;
   }
   function syncOrientationLayout() {
     const shell = document.querySelector('.app-shell');
-    if (!shell) return;
-    const isCamTab = shell.getAttribute('data-active-tab') === 'camera';
-    const nextLandscape = !!(isCamTab && isCameraLandscape());
-    const changed = shell.classList.contains('cam-landscape') !== nextLandscape;
-    shell.classList.toggle('cam-landscape', nextLandscape);
-    if (changed) cameraLastStaticKey = '';
+    if (shell?.classList.contains('cam-landscape')) {
+      shell.classList.remove('cam-landscape');
+      cameraLastStaticKey = '';
+    }
   }
   function handleViewportResizeOrOrientation() {
     syncOrientationLayout();
@@ -7122,13 +6999,9 @@
       const shotNumber = (state.camShotCount % state.camMaxShots) + 1;
 
       if (body.id === 'half-frame' && state.hfDiptychMode) {
-        const ls = isCameraLandscape();
-        const hw = ls ? 800 : 600;
-        const hh = ls ? 600 : 800;
-        const hr = ls ? (4 / 3) : (3 / 4);
         const halfC = document.createElement('canvas');
-        halfC.width = hw; halfC.height = hh;
-        drawCroppedSource(halfC.getContext('2d'), src, hw, hh, hr, capZoom);
+        halfC.width = 600; halfC.height = 800;
+        drawCroppedSource(halfC.getContext('2d'), src, 600, 800, 3 / 4, capZoom);
 
         if (!state.halfFrameFirstCanvas) {
           state.halfFrameFirstCanvas = halfC;
@@ -7140,22 +7013,13 @@
         }
 
         const firstHalf = state.halfFrameFirstCanvas;
-        const isFirstHoriz = firstHalf.width > firstHalf.height;
         const dipC = document.createElement('canvas');
+        dipC.width = 1260; dipC.height = 840;
         const dCtx = dipC.getContext('2d');
-        if (isFirstHoriz) {
-          dipC.width = hw + 40; dipC.height = hh * 2 + 60;
-          dCtx.fillStyle = '#090a0d';
-          dCtx.fillRect(0, 0, dipC.width, dipC.height);
-          dCtx.drawImage(firstHalf, 20, 20, hw, hh);
-          dCtx.drawImage(halfC, 20, hh + 40, hw, hh);
-        } else {
-          dipC.width = 1260; dipC.height = 840;
-          dCtx.fillStyle = '#090a0d';
-          dCtx.fillRect(0, 0, dipC.width, dipC.height);
-          dCtx.drawImage(firstHalf, 20, 20, 600, 800);
-          dCtx.drawImage(halfC, 640, 20, 600, 800);
-        }
+        dCtx.fillStyle = '#090a0d';
+        dCtx.fillRect(0, 0, dipC.width, dipC.height);
+        dCtx.drawImage(firstHalf, 20, 20, 600, 800);
+        dCtx.drawImage(halfC, 640, 20, 600, 800);
         clearPendingHalfFrame();
         const rawBlob = await canvasToJpegBlob(dipC, 0.92);
         await saveCameraExposure(rawBlob, shotNumber, { isDiptych: true });
