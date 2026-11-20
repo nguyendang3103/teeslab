@@ -480,11 +480,11 @@
     .split-tag.left { left: 6px; }
     .split-tag.right { right: 6px; color: #f5a623; }
 
-    /* Floating Rotate, Zoom & Split overlay inside bottom-right photo corner */
+    /* Floating Rotate, Zoom & Split overlay inside bottom-left photo corner (keeps bottom-right date stamp clear) */
     .canvas-float-tools {
       position: absolute;
-      bottom: 5px;
-      right: 5px;
+      bottom: 6px;
+      left: 6px;
       display: flex;
       align-items: center;
       gap: 4px;
@@ -2392,6 +2392,137 @@
         padding: 2px 4px;
       }
     }
+    /* Pro Wide Landscape Camera Mode when Phone Held Sideways */
+    .app-shell.cam-landscape {
+      max-width: 100%;
+      width: 100%;
+      border-left: none;
+      border-right: none;
+      flex-direction: row;
+      padding-top: 0;
+    }
+    .app-shell.cam-landscape .bottom-nav {
+      order: 2;
+      width: calc(74px + env(safe-area-inset-right));
+      height: 100%;
+      padding: 8px calc(6px + env(safe-area-inset-right)) 8px 6px;
+      grid-template-columns: 1fr;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      justify-items: center;
+      align-items: center;
+      gap: 6px;
+      border-top: none;
+      border-left: 1px solid #1b1f27;
+      border-right: none;
+    }
+    .app-shell.cam-landscape .bnav-group-cam {
+      order: 1;
+      width: 100%;
+      height: auto;
+      min-height: 54px;
+    }
+    .app-shell.cam-landscape .bnav-shutter {
+      order: 2;
+      width: 56px;
+      height: 56px;
+    }
+    .app-shell.cam-landscape .bnav-group-lab {
+      order: 3;
+      width: 100%;
+      height: auto;
+      flex-direction: column;
+    }
+    .app-shell.cam-landscape .bnav-roll-btn {
+      width: 100%;
+      height: 32px;
+      border-right: none;
+      border-bottom: 1px solid #202530;
+    }
+    .app-shell.cam-landscape .bnav-btn {
+      width: 100%;
+      height: auto;
+      min-height: 28px;
+      padding: 4px 2px;
+    }
+    .app-shell.cam-landscape .bnav-cam-lbl {
+      flex-direction: column;
+      gap: 1px;
+    }
+    .app-shell.cam-landscape .cam-wrap {
+      display: grid;
+      grid-template-columns: 104px minmax(0, 1fr);
+      grid-template-rows: auto minmax(0, 1fr);
+      grid-template-areas:
+        "plate vf"
+        "combo vf";
+      padding: 6px 6px 6px calc(8px + env(safe-area-inset-left));
+      gap: 6px;
+      align-items: stretch;
+    }
+    .app-shell.cam-landscape .cam-top-plate {
+      grid-area: plate;
+      height: 26px;
+      padding: 0;
+    }
+    .app-shell.cam-landscape .cam-mini-logo {
+      width: 20px;
+      height: 20px;
+    }
+    .app-shell.cam-landscape .cam-counter-slot {
+      min-width: 34px;
+      height: 20px;
+      padding: 0 4px;
+      font-size: 10.5px;
+    }
+    .app-shell.cam-landscape .cam-sound-btn {
+      width: 22px;
+      height: 22px;
+    }
+    .app-shell.cam-landscape #camComboTrio {
+      grid-area: combo;
+      grid-template-columns: 1fr;
+      grid-template-rows: repeat(3, minmax(0, 1fr));
+      gap: 5px;
+      height: 100%;
+      min-height: 0;
+    }
+    .app-shell.cam-landscape #camComboTrio .combo-card {
+      padding: 3px 4px;
+      gap: 1px;
+      min-height: 0;
+    }
+    .app-shell.cam-landscape #camComboTrio .combo-card-art {
+      height: 22px;
+      margin-top: 1px;
+    }
+    .app-shell.cam-landscape #camComboTrio .combo-card-art svg,
+    .app-shell.cam-landscape #camComboTrio .combo-card-art img {
+      height: 21px;
+    }
+    .app-shell.cam-landscape .cam-vf-box {
+      grid-area: vf;
+      margin: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .app-shell.cam-landscape .lens-barrel-vf {
+      max-width: 410px;
+    }
+    .app-shell.cam-landscape.picker-open {
+      flex-direction: column;
+    }
+    .app-shell.cam-landscape.picker-open .cam-wrap {
+      display: flex;
+      flex-direction: column;
+      padding: 4px 10px;
+    }
+    .app-shell.cam-landscape.picker-open .cam-top-plate {
+      display: none;
+    }
+    .app-shell.cam-landscape.picker-open .combo-dock-panel {
+      max-height: 58dvh;
+      overflow-y: auto;
+    }
   </style>
 </head>
 <body>
@@ -3945,6 +4076,7 @@
     dateStamp: 'off',
     hfDiptychMode: false,
     camFrameLandscape: false,
+    camFrameOrientation: null,
     labRotation: 0,
 
     splitMode: false,
@@ -4093,6 +4225,7 @@
     state.dateStamp = state.dateStamp && state.dateStamp !== 'off' ? 'exif-or-today' : 'off';
     state.hfDiptychMode = !!state.hfDiptychMode;
     state.camFrameLandscape = !!state.camFrameLandscape;
+    state.camFrameOrientation = state.camFrameLandscape ? 'landscape' : null;
     state.bodyId = migrateModeId(state.bodyId);
     state.lensId = migrateFocalId(state.bodyId, state.lensId);
     const zVal = Number(state.zoomFocalMm);
@@ -6000,9 +6133,14 @@
     return state.exposure / 100 + (state.camAppliedHardware?.exposureCompensation ? 0 : state.camExposureEV);
   }
 
-  let vfDateBottomLiftPct = 0;
+  function isViewfinderLandscape() {
+    if (state.camFrameOrientation === 'landscape') return true;
+    if (state.camFrameOrientation === 'portrait') return false;
+    return isCameraLandscape() || !!state.camFrameLandscape;
+  }
+
   function getCameraStageDimensions(body, lens) {
-    const ls = !!state.camFrameLandscape;
+    const ls = isViewfinderLandscape();
     if (body.id === 'half-frame') return ls ? { w: 480, h: 360, ratio: 4 / 3 } : { w: 360, h: 480, ratio: 3 / 4 };
     if (body.id === 'pocket-110') return ls ? { w: 480, h: 360, ratio: 4 / 3 } : { w: 360, h: 480, ratio: 3 / 4 };
     if (body.id === 'medium-format') {
@@ -6014,7 +6152,7 @@
   }
 
   function getCameraCaptureDimensions(body, lens) {
-    const ls = !!state.camFrameLandscape;
+    const ls = isViewfinderLandscape();
     if (body.id === 'half-frame') return ls ? { w: 1280, h: 960, ratio: 4 / 3 } : { w: 960, h: 1280, ratio: 3 / 4 };
     if (body.id === 'pocket-110') return ls ? { w: 1280, h: 960, ratio: 4 / 3 } : { w: 960, h: 1280, ratio: 3 / 4 };
     if (body.id === 'medium-format') {
@@ -6045,19 +6183,6 @@
       stage.style.width = `${Math.round(w)}px`;
       stage.style.height = `${Math.round(h)}px`;
     }
-
-    const hudBot = document.querySelector('.vf-bottom-hud');
-    const prevLift = vfDateBottomLiftPct;
-    if (hudBot) {
-      const sRect = stage.getBoundingClientRect();
-      const bRect = hudBot.getBoundingClientRect();
-      if (sRect.height > 80 && bRect.height > 0 && sRect.bottom > bRect.top + 4) {
-        vfDateBottomLiftPct = Math.min(0.28, (sRect.bottom - bRect.top + 8) / sRect.height);
-      } else {
-        vfDateBottomLiftPct = 0;
-      }
-    }
-    if (Math.abs(vfDateBottomLiftPct - prevLift) > 0.002) cameraLastStaticKey = '';
 
     if (body.id === 'rangefinder') {
       const bl = document.getElementById('vfRfBrightline');
@@ -6109,7 +6234,7 @@
     const rotBtn = document.getElementById('btnVfRotateToggle');
     const rotLbl = document.getElementById('vfRotateLabel');
     if (rotBtn && rotLbl) {
-      const ls = !!state.camFrameLandscape;
+      const ls = isViewfinderLandscape();
       const isSq = body.id === 'medium-format' && lens.id === '6x6';
       let ratioTag = ls ? '3:2' : '2:3';
       if (isSq) ratioTag = '1:1';
@@ -6961,9 +7086,8 @@
             vfCtx.textAlign = 'right'; vfCtx.textBaseline = 'bottom';
             vfCtx.shadowColor = 'rgba(255,45,0,0.9)'; vfCtx.shadowBlur = Math.max(4, Math.round(fs * 0.4));
             vfCtx.fillStyle = '#ff6a1a';
-            const padX = Math.max(10, Math.round(minDim * 0.045));
-            const padY = Math.max(padX, Math.round(targetH * (vfDateBottomLiftPct || 0)));
-            vfCtx.fillText(dateStampText, targetW - padX, targetH - padY);
+            const pad = Math.max(10, Math.round(minDim * 0.045));
+            vfCtx.fillText(dateStampText, targetW - pad, targetH - pad);
             vfCtx.restore();
           }
           if (!hasLiveVideo) cameraLastStaticKey = staticKey;
@@ -7011,13 +7135,16 @@
   }
 
   function isCameraLandscape() {
-    return false;
+    return window.innerWidth > window.innerHeight && window.innerHeight <= 580;
   }
   function syncOrientationLayout() {
     const shell = document.querySelector('.app-shell');
-    if (shell?.classList.contains('cam-landscape')) {
-      shell.classList.remove('cam-landscape');
-      cameraLastStaticKey = '';
+    const isCamActive = document.getElementById('view-camera')?.classList.contains('active');
+    const shouldLandscape = !!(isCamActive && isCameraLandscape());
+    if (shell) {
+      const wasLandscape = shell.classList.contains('cam-landscape');
+      shell.classList.toggle('cam-landscape', shouldLandscape);
+      if (wasLandscape !== shouldLandscape) cameraLastStaticKey = '';
     }
   }
   function handleViewportResizeOrOrientation() {
@@ -7138,7 +7265,7 @@
       const shotNumber = (state.camShotCount % state.camMaxShots) + 1;
 
       if (body.id === 'half-frame' && state.hfDiptychMode) {
-        const ls = !!state.camFrameLandscape;
+        const ls = isViewfinderLandscape();
         const hw = ls ? 800 : 600, hh = ls ? 600 : 800, hr = ls ? (4 / 3) : (3 / 4);
         const halfC = document.createElement('canvas');
         halfC.width = hw; halfC.height = hh;
@@ -7907,12 +8034,14 @@
   document.getElementById('btnVfRotateToggle')?.addEventListener('click', () => {
     const { body, lens } = getSelectedGear();
     if (body.id === 'medium-format' && lens.id === '6x6') return;
-    state.camFrameLandscape = !state.camFrameLandscape;
+    const nextLs = !isViewfinderLandscape();
+    state.camFrameOrientation = nextLs ? 'landscape' : 'portrait';
+    state.camFrameLandscape = nextLs;
     cameraLastStaticKey = '';
     syncAllUI();
     layoutViewfinderStage();
     const tag = document.getElementById('vfRotateLabel')?.textContent || '';
-    showToast(state.camFrameLandscape ? `↔ Khung ngang (${tag})` : `↕ Khung dọc (${tag})`);
+    showToast(nextLs ? `↔ Khung ngang (${tag})` : `↕ Khung dọc (${tag})`);
   });
   document.getElementById('btnVfFrameToggle').addEventListener('click', () => {
     const order = ['none', '35mm-sprocket', 'darkroom-white', 'polaroid'];
