@@ -255,8 +255,9 @@
       transform: scale(0.98);
       border-color: #f5a623;
     }
-    #labComboTrio .combo-card {
-      padding: 4px 5px 4px;
+    #labComboTrio .combo-card,
+    #camComboTrio .combo-card {
+      padding: 4px 4px 4px;
       gap: 1px;
       cursor: pointer;
     }
@@ -309,14 +310,14 @@
       min-width: 0;
     }
     .card-step-btn {
-      width: 24px;
-      height: 25px;
+      width: 21px;
+      height: 24px;
       flex-shrink: 0;
-      border-radius: 6px;
+      border-radius: 5px;
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid #262b36;
       color: #f5a623;
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 700;
       line-height: 1;
       display: inline-flex;
@@ -2463,26 +2464,34 @@
 
         <!-- 3-Card Combo Selector (BODY • LENS • FILM) -->
         <div class="combo-trio-grid" id="labComboTrio">
-          <button class="combo-card" data-open-combo="camera" type="button">
+          <div class="combo-card" role="button" tabindex="0" data-open-combo="camera">
             <span class="combo-card-tag">BODY</span>
             <span class="combo-card-val" id="labCardBodyName">SLR</span>
             <span class="combo-card-caret">▾</span>
-            <div class="combo-card-art" id="labCardBodyArt"></div>
-          </button>
-          <button class="combo-card" data-open-combo="lens" type="button">
+            <div class="combo-card-nav-row">
+              <button class="card-step-btn" data-step-gear="body" data-step-dir="-1" type="button" title="Previous body" aria-label="Previous body">‹</button>
+              <div class="combo-card-art" id="labCardBodyArt"></div>
+              <button class="card-step-btn" data-step-gear="body" data-step-dir="1" type="button" title="Next body" aria-label="Next body">›</button>
+            </div>
+          </div>
+          <div class="combo-card" role="button" tabindex="0" data-open-combo="lens">
             <span class="combo-card-tag">LENS</span>
             <span class="combo-card-val" id="labCardLensName">50mm f/1.4</span>
             <span class="combo-card-caret">▾</span>
-            <div class="combo-card-art" id="labCardLensArt"></div>
-          </button>
+            <div class="combo-card-nav-row">
+              <button class="card-step-btn" data-step-gear="lens" data-step-dir="-1" type="button" title="Previous lens" aria-label="Previous lens">‹</button>
+              <div class="combo-card-art" id="labCardLensArt"></div>
+              <button class="card-step-btn" data-step-gear="lens" data-step-dir="1" type="button" title="Next lens" aria-label="Next lens">›</button>
+            </div>
+          </div>
           <div class="combo-card" role="button" tabindex="0" data-open-combo="film">
             <span class="combo-card-tag">FILM</span>
             <span class="combo-card-val" id="labCardFilmName">Pro 400H</span>
             <span class="combo-card-caret">▾</span>
             <div class="combo-card-nav-row">
-              <button class="card-step-btn" id="btnPrevFilm" type="button" title="Previous film" aria-label="Previous film">‹</button>
+              <button class="card-step-btn" id="btnPrevFilm" data-step-gear="film" data-step-dir="-1" type="button" title="Previous film" aria-label="Previous film">‹</button>
               <div class="combo-card-art" id="labCardFilmArt"></div>
-              <button class="card-step-btn" id="btnNextFilm" type="button" title="Next film" aria-label="Next film">›</button>
+              <button class="card-step-btn" id="btnNextFilm" data-step-gear="film" data-step-dir="1" type="button" title="Next film" aria-label="Next film">›</button>
             </div>
           </div>
         </div>
@@ -2621,24 +2630,37 @@
 
         <!-- 3-Card Combo Selector in Camera -->
         <div class="combo-trio-grid" id="camComboTrio">
-          <button class="combo-card" data-open-combo="camera" type="button">
+          <div class="combo-card" role="button" tabindex="0" data-open-combo="camera">
             <span class="combo-card-tag">BODY</span>
             <span class="combo-card-val" id="camCardBodyName">SLR</span>
             <span class="combo-card-caret">▾</span>
-            <div class="combo-card-art" id="camCardBodyArt"></div>
-          </button>
-          <button class="combo-card" data-open-combo="lens" type="button">
+            <div class="combo-card-nav-row">
+              <button class="card-step-btn" data-step-gear="body" data-step-dir="-1" type="button" title="Previous body" aria-label="Previous body">‹</button>
+              <div class="combo-card-art" id="camCardBodyArt"></div>
+              <button class="card-step-btn" data-step-gear="body" data-step-dir="1" type="button" title="Next body" aria-label="Next body">›</button>
+            </div>
+          </div>
+          <div class="combo-card" role="button" tabindex="0" data-open-combo="lens">
             <span class="combo-card-tag">LENS</span>
             <span class="combo-card-val" id="camCardLensName">50mm f/1.4</span>
             <span class="combo-card-caret">▾</span>
-            <div class="combo-card-art" id="camCardLensArt"></div>
-          </button>
-          <button class="combo-card" data-open-combo="film" type="button">
+            <div class="combo-card-nav-row">
+              <button class="card-step-btn" data-step-gear="lens" data-step-dir="-1" type="button" title="Previous lens" aria-label="Previous lens">‹</button>
+              <div class="combo-card-art" id="camCardLensArt"></div>
+              <button class="card-step-btn" data-step-gear="lens" data-step-dir="1" type="button" title="Next lens" aria-label="Next lens">›</button>
+            </div>
+          </div>
+          <div class="combo-card" role="button" tabindex="0" data-open-combo="film">
             <span class="combo-card-tag">FILM</span>
             <span class="combo-card-val" id="camCardFilmName">Pro 400H</span>
             <span class="combo-card-caret">▾</span>
-            <div class="combo-card-art" id="camCardFilmArt"></div>
-          </button>
+            <div class="combo-card-nav-row">
+              <button class="card-step-btn" data-step-gear="film" data-step-dir="-1" type="button" title="Previous film" aria-label="Previous film">‹</button>
+              <div class="combo-card-art" id="camCardFilmArt"></div>
+              <button class="card-step-btn" data-step-gear="film" data-step-dir="1" type="button" title="Next film" aria-label="Next film">›</button>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -2965,29 +2987,29 @@
 
 
   const FILM_STOCKS = [
-    { id: 'fuji-pro-400h', brand: 'fuji', brandLabel: 'FUJI', name: 'Pro 400H', subtitle: 'Pastel, xanh ngọc', iso: 400, canisterColor: 'linear-gradient(180deg,#10b981,#e5e7eb,#059669)', edgeCode: 'FUJI PRO 400H   24A', matrix: [0.96,0.03,0.01,-0.02,1.03,0.02,-0.01,0.04,1.01], shadowTint: [-10,14,12], midTint: [-3,6,3], highlightTint: [6,5,0], foliageShift: {gBoost:10,bShift:12,rShift:-12,satScale:0.94}, skyShift: {cyanBoost:14,bDepth:-4}, skinProtect: 0.72, saturation: 0.92, contrast: 0.96, blackLift: 0.04, grainBase: 28, grainSize: 1.15, halationBase: 12, isBW: false },
-    { id: 'fuji-superia-400', brand: 'fuji', brandLabel: 'FUJI', name: 'Superia 400', subtitle: 'Xanh Nhật đặc trưng', iso: 400, canisterColor: 'linear-gradient(180deg,#059669,#10b981,#dc2626)', edgeCode: 'FUJI SUPERIA 400   12', matrix: [0.97,0.02,0.02,-0.02,1.05,0.01,0.02,0.03,0.99], shadowTint: [-12,16,8], midTint: [4,2,6], highlightTint: [8,4,-2], foliageShift: {gBoost:16,bShift:10,rShift:-14,satScale:1.04}, skyShift: {cyanBoost:12,bDepth:4}, skinProtect: 0.65, saturation: 1.06, contrast: 1.05, blackLift: 0.025, grainBase: 36, grainSize: 1.2, halationBase: 16, isBW: false },
-    { id: 'fuji-classic-chrome', brand: 'fuji', brandLabel: 'FUJI', name: 'Classic Chrome', subtitle: 'Tạp chí trầm cổ', iso: 200, canisterColor: 'linear-gradient(180deg,#374151,#6b7280,#065f46)', edgeCode: 'FUJICHROME CC   08A', matrix: [0.95,0.06,-0.01,0.01,0.99,0.01,-0.02,0.05,0.96], shadowTint: [-8,4,8], midTint: [-2,2,-2], highlightTint: [10,6,-4], foliageShift: {gBoost:-6,bShift:6,rShift:6,satScale:0.78}, skyShift: {cyanBoost:16,bDepth:-10}, skinProtect: 0.60, saturation: 0.80, contrast: 1.14, blackLift: 0.02, grainBase: 26, grainSize: 1.05, halationBase: 10, isBW: false },
-    { id: 'fuji-classic-neg', brand: 'fuji', brandLabel: 'FUJI', name: 'Classic Neg.', subtitle: 'Tương phản nghệ thuật', iso: 100, canisterColor: 'linear-gradient(180deg,#047857,#d97706,#111827)', edgeCode: 'FUJI SUPERIA 100 CN', matrix: [1.03,-0.02,-0.01,-0.03,1.04,0.01,-0.03,0.05,0.96], shadowTint: [-16,12,10], midTint: [8,-2,-6], highlightTint: [16,6,-12], foliageShift: {gBoost:4,bShift:12,rShift:-12,satScale:0.88}, skyShift: {cyanBoost:18,bDepth:-6}, skinProtect: 0.58, saturation: 0.94, contrast: 1.18, blackLift: 0.015, grainBase: 32, grainSize: 1.1, halationBase: 18, isBW: false },
-    { id: 'fuji-velvia-50', brand: 'fuji', brandLabel: 'FUJI', name: 'Velvia 50', subtitle: 'Phong cảnh rực sâu', iso: 50, canisterColor: 'linear-gradient(180deg,#7c3aed,#10b981,#064e3b)', edgeCode: 'FUJICHROME RVP 50', matrix: [1.07,-0.04,-0.02,-0.03,1.06,-0.02,0.01,-0.02,1.05], shadowTint: [6,-6,10], midTint: [4,2,4], highlightTint: [6,2,0], foliageShift: {gBoost:18,bShift:-4,rShift:-8,satScale:1.20}, skyShift: {cyanBoost:4,bDepth:16}, skinProtect: 0.45, saturation: 1.24, contrast: 1.20, blackLift: 0.005, grainBase: 14, grainSize: 0.9, halationBase: 10, isBW: false },
-    { id: 'fuji-astia-100f', brand: 'fuji', brandLabel: 'FUJI', name: 'Astia 100F', subtitle: 'Da hồng phấn dịu', iso: 100, canisterColor: 'linear-gradient(180deg,#ec4899,#f3f4f6,#10b981)', edgeCode: 'FUJICHROME RAP 100F', matrix: [1.01,0.01,0.0,0.0,1.0,0.01,0.01,0.01,0.99], shadowTint: [-4,6,8], midTint: [6,1,4], highlightTint: [10,6,4], foliageShift: {gBoost:6,bShift:6,rShift:-4,satScale:0.95}, skyShift: {cyanBoost:8,bDepth:0}, skinProtect: 0.85, saturation: 0.96, contrast: 0.92, blackLift: 0.035, grainBase: 16, grainSize: 0.95, halationBase: 14, isBW: false },
-    { id: 'fuji-natura-1600', brand: 'fuji', brandLabel: 'FUJI', name: 'Natura 1600', subtitle: 'Phố đêm ấm hạt', iso: 1600, canisterColor: 'linear-gradient(180deg,#0f172a,#10b981,#f59e0b)', edgeCode: 'FUJI NATURA 1600  33', matrix: [1.02,0.03,-0.02,-0.01,1.03,0.01,-0.02,0.03,0.96], shadowTint: [-6,10,12], midTint: [8,4,-4], highlightTint: [16,10,-4], foliageShift: {gBoost:8,bShift:8,rShift:-6,satScale:0.96}, skyShift: {cyanBoost:10,bDepth:-2}, skinProtect: 0.70, saturation: 0.98, contrast: 1.04, blackLift: 0.055, grainBase: 62, grainSize: 1.45, halationBase: 26, isBW: false },
+    { id: 'fuji-pro-400h', brand: 'fuji', brandLabel: 'FUJI', name: 'Pro 400H', subtitle: 'Pastel, xanh ngọc', iso: 400, canisterColor: 'linear-gradient(180deg,#10b981,#e5e7eb,#059669)', edgeCode: 'FUJI PRO 400H   24A', matrix: [0.95,0.03,0.02,-0.02,1.03,0.03,-0.01,0.05,1.01], shadowTint: [-11,15,13], midTint: [-4,6,5], highlightTint: [7,7,4], foliageShift: {gBoost:8,bShift:18,rShift:-16,satScale:0.86}, skyShift: {cyanBoost:18,bDepth:-6}, redHueShift: 6, skinWarmth: 2, vibrance: -0.08, skinProtect: 0.78, saturation: 0.89, contrast: 0.94, blackLift: 0.044, grainBase: 26, grainSize: 1.12, halationBase: 12, isBW: false },
+    { id: 'fuji-superia-400', brand: 'fuji', brandLabel: 'FUJI', name: 'Superia 400', subtitle: 'Xanh Nhật đặc trưng', iso: 400, canisterColor: 'linear-gradient(180deg,#059669,#10b981,#dc2626)', edgeCode: 'FUJI SUPERIA 400   12', matrix: [0.96,0.02,0.02,-0.03,1.06,0.01,0.02,0.04,0.99], shadowTint: [-14,17,9], midTint: [5,1,8], highlightTint: [9,5,-2], foliageShift: {gBoost:18,bShift:14,rShift:-18,satScale:1.05}, skyShift: {cyanBoost:14,bDepth:6}, redHueShift: 10, skinWarmth: 1, vibrance: 0.04, skinProtect: 0.66, saturation: 1.04, contrast: 1.06, blackLift: 0.026, grainBase: 36, grainSize: 1.2, halationBase: 16, isBW: false },
+    { id: 'fuji-classic-chrome', brand: 'fuji', brandLabel: 'FUJI', name: 'Classic Chrome', subtitle: 'Tạp chí trầm cổ', iso: 200, canisterColor: 'linear-gradient(180deg,#374151,#6b7280,#065f46)', edgeCode: 'FUJICHROME CC   08A', matrix: [0.94,0.07,-0.01,0.01,0.98,0.02,-0.02,0.07,0.95], shadowTint: [-11,5,10], midTint: [-3,2,-2], highlightTint: [11,7,-5], foliageShift: {gBoost:-10,bShift:10,rShift:8,satScale:0.70}, skyShift: {cyanBoost:22,bDepth:-14}, redHueShift: -8, skinWarmth: 2, vibrance: -0.14, skinProtect: 0.62, saturation: 0.78, contrast: 1.15, blackLift: 0.022, grainBase: 26, grainSize: 1.05, halationBase: 10, isBW: false },
+    { id: 'fuji-classic-neg', brand: 'fuji', brandLabel: 'FUJI', name: 'Classic Neg.', subtitle: 'Tương phản nghệ thuật', iso: 100, canisterColor: 'linear-gradient(180deg,#047857,#d97706,#111827)', edgeCode: 'FUJI SUPERIA 100 CN', matrix: [1.04,-0.03,-0.01,-0.04,1.04,0.02,-0.04,0.06,0.95], shadowTint: [-19,14,12], midTint: [10,-3,-8], highlightTint: [18,8,-14], foliageShift: {gBoost:2,bShift:15,rShift:-15,satScale:0.82}, skyShift: {cyanBoost:20,bDepth:-8}, redHueShift: -12, skinWarmth: 5, vibrance: -0.06, skinProtect: 0.60, saturation: 0.92, contrast: 1.19, blackLift: 0.018, grainBase: 32, grainSize: 1.1, halationBase: 18, isBW: false },
+    { id: 'fuji-velvia-50', brand: 'fuji', brandLabel: 'FUJI', name: 'Velvia 50', subtitle: 'Phong cảnh rực sâu', iso: 50, canisterColor: 'linear-gradient(180deg,#7c3aed,#10b981,#064e3b)', edgeCode: 'FUJICHROME RVP 50', matrix: [1.08,-0.04,-0.02,-0.03,1.07,-0.02,0.02,-0.03,1.07], shadowTint: [7,-7,12], midTint: [5,2,5], highlightTint: [7,3,1], foliageShift: {gBoost:20,bShift:-4,rShift:-10,satScale:1.22}, skyShift: {cyanBoost:4,bDepth:20}, redHueShift: 6, skinWarmth: 2, vibrance: 0.16, skinProtect: 0.48, saturation: 1.22, contrast: 1.22, blackLift: 0.005, grainBase: 14, grainSize: 0.9, halationBase: 10, isBW: false },
+    { id: 'fuji-astia-100f', brand: 'fuji', brandLabel: 'FUJI', name: 'Astia 100F', subtitle: 'Da hồng phấn dịu', iso: 100, canisterColor: 'linear-gradient(180deg,#ec4899,#f3f4f6,#10b981)', edgeCode: 'FUJICHROME RAP 100F', matrix: [1.01,0.01,0.0,0.0,1.01,0.01,0.01,0.02,1.0], shadowTint: [-4,6,8], midTint: [7,1,5], highlightTint: [11,7,5], foliageShift: {gBoost:6,bShift:8,rShift:-6,satScale:0.93}, skyShift: {cyanBoost:10,bDepth:2}, redHueShift: 5, skinWarmth: 3, vibrance: -0.04, skinProtect: 0.86, saturation: 0.95, contrast: 0.93, blackLift: 0.036, grainBase: 16, grainSize: 0.95, halationBase: 14, isBW: false },
+    { id: 'fuji-natura-1600', brand: 'fuji', brandLabel: 'FUJI', name: 'Natura 1600', subtitle: 'Phố đêm ấm hạt', iso: 1600, canisterColor: 'linear-gradient(180deg,#0f172a,#10b981,#f59e0b)', edgeCode: 'FUJI NATURA 1600  33', matrix: [1.02,0.03,-0.02,-0.01,1.03,0.01,-0.02,0.04,0.96], shadowTint: [-8,12,13], midTint: [9,5,-5], highlightTint: [17,11,-5], foliageShift: {gBoost:8,bShift:10,rShift:-8,satScale:0.93}, skyShift: {cyanBoost:12,bDepth:-3}, redHueShift: -4, skinWarmth: 5, vibrance: -0.05, skinProtect: 0.72, saturation: 0.96, contrast: 1.03, blackLift: 0.058, grainBase: 62, grainSize: 1.45, halationBase: 26, isBW: false },
 
-    { id: 'kodak-portra-400', brand: 'kodak', brandLabel: 'KODAK', name: 'Portra 400', subtitle: 'Da kem ấm mịn', iso: 400, canisterColor: 'linear-gradient(180deg,#f59e0b,#fef3c7,#d97706)', edgeCode: 'KODAK PORTRA 400  29A', matrix: [1.04,0.02,-0.02,0.01,1.01,-0.01,-0.02,0.01,0.95], shadowTint: [6,4,-4], midTint: [10,4,-6], highlightTint: [14,9,-6], foliageShift: {gBoost:-4,bShift:-6,rShift:8,satScale:0.88}, skyShift: {cyanBoost:6,bDepth:-4}, skinProtect: 0.88, saturation: 0.95, contrast: 0.96, blackLift: 0.038, grainBase: 26, grainSize: 1.05, halationBase: 18, isBW: false },
-    { id: 'kodak-portra-160', brand: 'kodak', brandLabel: 'KODAK', name: 'Portra 160', subtitle: 'Kem sữa êm dịu', iso: 160, canisterColor: 'linear-gradient(180deg,#fde68a,#f59e0b,#b45309)', edgeCode: 'KODAK PORTRA 160  14', matrix: [1.02,0.02,-0.01,0.01,1.0,0.0,-0.01,0.01,0.97], shadowTint: [4,3,2], midTint: [6,4,-2], highlightTint: [10,8,0], foliageShift: {gBoost:-2,bShift:-4,rShift:6,satScale:0.86}, skyShift: {cyanBoost:4,bDepth:-4}, skinProtect: 0.90, saturation: 0.88, contrast: 0.90, blackLift: 0.045, grainBase: 18, grainSize: 0.95, halationBase: 14, isBW: false },
-    { id: 'kodak-portra-800', brand: 'kodak', brandLabel: 'KODAK', name: 'Portra 800', subtitle: 'Hoàng hôn rực ấm', iso: 800, canisterColor: 'linear-gradient(180deg,#ea580c,#fbbf24,#78350f)', edgeCode: 'KODAK PORTRA 800  31', matrix: [1.06,0.02,-0.03,0.01,1.01,-0.02,-0.03,0.0,0.92], shadowTint: [10,2,-6], midTint: [14,5,-10], highlightTint: [18,10,-10], foliageShift: {gBoost:-4,bShift:-6,rShift:12,satScale:1.02}, skyShift: {cyanBoost:2,bDepth:4}, skinProtect: 0.84, saturation: 1.08, contrast: 1.06, blackLift: 0.03, grainBase: 40, grainSize: 1.25, halationBase: 28, isBW: false },
-    { id: 'kodak-gold-200', brand: 'kodak', brandLabel: 'KODAK', name: 'Gold 200', subtitle: 'Nắng vàng 90s', iso: 200, canisterColor: 'linear-gradient(180deg,#fbbf24,#f59e0b,#dc2626)', edgeCode: 'KODAK GB 200-6    22A', matrix: [1.07,0.04,-0.05,0.02,1.02,-0.03,-0.05,0.02,0.88], shadowTint: [12,5,-10], midTint: [16,8,-14], highlightTint: [22,14,-14], foliageShift: {gBoost:2,bShift:-10,rShift:14,satScale:1.02}, skyShift: {cyanBoost:8,bDepth:-2}, skinProtect: 0.78, saturation: 1.06, contrast: 1.07, blackLift: 0.03, grainBase: 32, grainSize: 1.15, halationBase: 20, isBW: false },
-    { id: 'kodak-ultramax-400', brand: 'kodak', brandLabel: 'KODAK', name: 'UltraMax 400', subtitle: 'Trời xanh nắng gắt', iso: 400, canisterColor: 'linear-gradient(180deg,#f59e0b,#2563eb,#dc2626)', edgeCode: 'KODAK GC 400-8    17', matrix: [1.05,0.01,-0.02,0.0,1.02,-0.01,-0.01,-0.02,1.03], shadowTint: [-4,0,12], midTint: [8,4,-6], highlightTint: [16,10,-8], foliageShift: {gBoost:6,bShift:-4,rShift:6,satScale:1.08}, skyShift: {cyanBoost:-2,bDepth:14}, skinProtect: 0.70, saturation: 1.14, contrast: 1.12, blackLift: 0.02, grainBase: 42, grainSize: 1.25, halationBase: 22, isBW: false },
-    { id: 'kodak-colorplus-200', brand: 'kodak', brandLabel: 'KODAK', name: 'ColorPlus 200', subtitle: 'Vàng cát vintage', iso: 200, canisterColor: 'linear-gradient(180deg,#eab308,#ca8a04,#7c2d12)', edgeCode: 'KODAK 200 VR PLUS  09', matrix: [1.06,0.05,-0.06,0.02,1.01,-0.03,-0.06,0.03,0.85], shadowTint: [14,6,-12], midTint: [12,8,-14], highlightTint: [18,12,-16], foliageShift: {gBoost:-4,bShift:-12,rShift:16,satScale:0.96}, skyShift: {cyanBoost:6,bDepth:-10}, skinProtect: 0.76, saturation: 0.98, contrast: 1.04, blackLift: 0.035, grainBase: 38, grainSize: 1.2, halationBase: 16, isBW: false },
-    { id: 'kodak-ektar-100', brand: 'kodak', brandLabel: 'KODAK', name: 'Ektar 100', subtitle: 'Đậm sâu siêu mịn', iso: 100, canisterColor: 'linear-gradient(180deg,#dc2626,#f59e0b,#111827)', edgeCode: 'KODAK EKTAR 100   04A', matrix: [1.08,-0.03,-0.02,-0.02,1.04,-0.01,-0.02,-0.02,1.05], shadowTint: [4,-4,8], midTint: [8,0,-4], highlightTint: [10,4,-4], foliageShift: {gBoost:12,bShift:-6,rShift:4,satScale:1.15}, skyShift: {cyanBoost:0,bDepth:16}, skinProtect: 0.55, saturation: 1.20, contrast: 1.16, blackLift: 0.01, grainBase: 14, grainSize: 0.85, halationBase: 14, isBW: false },
-    { id: 'kodak-e100', brand: 'kodak', brandLabel: 'KODAK', name: 'Ektachrome E100', subtitle: 'Slide lạnh trong vắt', iso: 100, canisterColor: 'linear-gradient(180deg,#3b82f6,#e5e7eb,#f59e0b)', edgeCode: 'KODAK E100 EPP   11', matrix: [0.98,0.0,0.02,0.0,1.01,0.01,0.01,0.02,1.06], shadowTint: [-8,-2,14], midTint: [-2,0,6], highlightTint: [4,4,8], foliageShift: {gBoost:6,bShift:8,rShift:-10,satScale:1.04}, skyShift: {cyanBoost:6,bDepth:14}, skinProtect: 0.65, saturation: 1.05, contrast: 1.12, blackLift: 0.01, grainBase: 16, grainSize: 0.9, halationBase: 10, isBW: false },
+    { id: 'kodak-portra-400', brand: 'kodak', brandLabel: 'KODAK', name: 'Portra 400', subtitle: 'Da kem ấm mịn', iso: 400, canisterColor: 'linear-gradient(180deg,#f59e0b,#fef3c7,#d97706)', edgeCode: 'KODAK PORTRA 400  29A', matrix: [1.04,0.03,-0.03,0.01,1.01,-0.01,-0.02,0.02,0.95], shadowTint: [5,3,-3], midTint: [11,6,-7], highlightTint: [16,11,-6], foliageShift: {gBoost:-6,bShift:-6,rShift:12,satScale:0.84}, skyShift: {cyanBoost:10,bDepth:-6}, redHueShift: -7, skinWarmth: 7, vibrance: -0.06, skinProtect: 0.88, saturation: 0.93, contrast: 0.95, blackLift: 0.040, grainBase: 25, grainSize: 1.05, halationBase: 18, isBW: false },
+    { id: 'kodak-portra-160', brand: 'kodak', brandLabel: 'KODAK', name: 'Portra 160', subtitle: 'Kem sữa êm dịu', iso: 160, canisterColor: 'linear-gradient(180deg,#fde68a,#f59e0b,#b45309)', edgeCode: 'KODAK PORTRA 160  14', matrix: [1.02,0.02,-0.01,0.01,1.01,0.0,-0.01,0.02,0.97], shadowTint: [4,3,2], midTint: [7,5,-3], highlightTint: [12,10,1], foliageShift: {gBoost:-5,bShift:-4,rShift:9,satScale:0.82}, skyShift: {cyanBoost:8,bDepth:-5}, redHueShift: -5, skinWarmth: 5, vibrance: -0.10, skinProtect: 0.92, saturation: 0.86, contrast: 0.89, blackLift: 0.048, grainBase: 18, grainSize: 0.95, halationBase: 14, isBW: false },
+    { id: 'kodak-portra-800', brand: 'kodak', brandLabel: 'KODAK', name: 'Portra 800', subtitle: 'Hoàng hôn rực ấm', iso: 800, canisterColor: 'linear-gradient(180deg,#ea580c,#fbbf24,#78350f)', edgeCode: 'KODAK PORTRA 800  31', matrix: [1.06,0.03,-0.04,0.02,1.01,-0.02,-0.03,0.01,0.92], shadowTint: [9,2,-6], midTint: [15,7,-11], highlightTint: [20,12,-11], foliageShift: {gBoost:-4,bShift:-6,rShift:14,satScale:0.98}, skyShift: {cyanBoost:4,bDepth:6}, redHueShift: -9, skinWarmth: 9, vibrance: 0.04, skinProtect: 0.84, saturation: 1.06, contrast: 1.07, blackLift: 0.032, grainBase: 40, grainSize: 1.25, halationBase: 28, isBW: false },
+    { id: 'kodak-gold-200', brand: 'kodak', brandLabel: 'KODAK', name: 'Gold 200', subtitle: 'Nắng vàng 90s', iso: 200, canisterColor: 'linear-gradient(180deg,#fbbf24,#f59e0b,#dc2626)', edgeCode: 'KODAK GB 200-6    22A', matrix: [1.07,0.05,-0.06,0.03,1.02,-0.03,-0.05,0.03,0.88], shadowTint: [13,6,-11], midTint: [18,10,-16], highlightTint: [24,16,-16], foliageShift: {gBoost:0,bShift:-12,rShift:16,satScale:0.98}, skyShift: {cyanBoost:10,bDepth:-4}, redHueShift: -10, skinWarmth: 8, vibrance: 0.02, skinProtect: 0.78, saturation: 1.05, contrast: 1.08, blackLift: 0.032, grainBase: 32, grainSize: 1.15, halationBase: 20, isBW: false },
+    { id: 'kodak-ultramax-400', brand: 'kodak', brandLabel: 'KODAK', name: 'UltraMax 400', subtitle: 'Trời xanh nắng gắt', iso: 400, canisterColor: 'linear-gradient(180deg,#f59e0b,#2563eb,#dc2626)', edgeCode: 'KODAK GC 400-8    17', matrix: [1.06,0.01,-0.02,0.0,1.02,-0.01,-0.01,-0.02,1.05], shadowTint: [-6,-1,15], midTint: [10,5,-7], highlightTint: [18,12,-9], foliageShift: {gBoost:6,bShift:-4,rShift:8,satScale:1.06}, skyShift: {cyanBoost:-2,bDepth:18}, redHueShift: -6, skinWarmth: 6, vibrance: 0.08, skinProtect: 0.72, saturation: 1.12, contrast: 1.13, blackLift: 0.022, grainBase: 42, grainSize: 1.25, halationBase: 22, isBW: false },
+    { id: 'kodak-colorplus-200', brand: 'kodak', brandLabel: 'KODAK', name: 'ColorPlus 200', subtitle: 'Vàng cát vintage', iso: 200, canisterColor: 'linear-gradient(180deg,#eab308,#ca8a04,#7c2d12)', edgeCode: 'KODAK 200 VR PLUS  09', matrix: [1.06,0.06,-0.07,0.03,1.01,-0.03,-0.06,0.04,0.84], shadowTint: [15,8,-13], midTint: [14,10,-16], highlightTint: [20,14,-18], foliageShift: {gBoost:-6,bShift:-14,rShift:18,satScale:0.90}, skyShift: {cyanBoost:8,bDepth:-12}, redHueShift: -12, skinWarmth: 7, vibrance: -0.06, skinProtect: 0.76, saturation: 0.94, contrast: 1.03, blackLift: 0.038, grainBase: 38, grainSize: 1.2, halationBase: 16, isBW: false },
+    { id: 'kodak-ektar-100', brand: 'kodak', brandLabel: 'KODAK', name: 'Ektar 100', subtitle: 'Đậm sâu siêu mịn', iso: 100, canisterColor: 'linear-gradient(180deg,#dc2626,#f59e0b,#111827)', edgeCode: 'KODAK EKTAR 100   04A', matrix: [1.09,-0.03,-0.02,-0.02,1.04,-0.01,-0.02,-0.02,1.06], shadowTint: [4,-5,10], midTint: [10,1,-5], highlightTint: [12,5,-5], foliageShift: {gBoost:10,bShift:-6,rShift:6,satScale:1.14}, skyShift: {cyanBoost:6,bDepth:18}, redHueShift: -6, skinWarmth: 6, vibrance: 0.14, skinProtect: 0.56, saturation: 1.18, contrast: 1.17, blackLift: 0.010, grainBase: 14, grainSize: 0.85, halationBase: 14, isBW: false },
+    { id: 'kodak-e100', brand: 'kodak', brandLabel: 'KODAK', name: 'Ektachrome E100', subtitle: 'Slide lạnh trong vắt', iso: 100, canisterColor: 'linear-gradient(180deg,#3b82f6,#e5e7eb,#f59e0b)', edgeCode: 'KODAK E100 EPP   11', matrix: [0.98,0.0,0.02,0.0,1.01,0.01,0.01,0.02,1.07], shadowTint: [-9,-2,15], midTint: [-2,0,7], highlightTint: [5,5,9], foliageShift: {gBoost:6,bShift:8,rShift:-10,satScale:1.03}, skyShift: {cyanBoost:8,bDepth:16}, redHueShift: 2, skinWarmth: 1, vibrance: 0.04, skinProtect: 0.68, saturation: 1.04, contrast: 1.14, blackLift: 0.010, grainBase: 16, grainSize: 0.9, halationBase: 10, isBW: false },
 
-    { id: 'cinestill-800t', brand: 'cinema', brandLabel: 'CINE', name: 'CineStill 800T', subtitle: 'Đêm Teal & Quầng đỏ', iso: 800, canisterColor: 'linear-gradient(180deg,#dc2626,#0e7490,#090a0c)', edgeCode: 'CINESTILL 800T   35A', matrix: [0.95,0.01,0.02,0.0,1.02,0.03,0.02,0.06,1.08], shadowTint: [-18,8,22], midTint: [-10,4,14], highlightTint: [14,2,-6], foliageShift: {gBoost:2,bShift:18,rShift:-14,satScale:0.96}, skyShift: {cyanBoost:22,bDepth:10}, skinProtect: 0.62, saturation: 1.02, contrast: 1.08, blackLift: 0.03, grainBase: 38, grainSize: 1.2, halationBase: 68, isBW: false },
-    { id: 'cinestill-50d', brand: 'cinema', brandLabel: 'CINE', name: 'CineStill 50D', subtitle: 'Điện ảnh ban ngày', iso: 50, canisterColor: 'linear-gradient(180deg,#f59e0b,#ef4444,#1f2937)', edgeCode: 'CINESTILL 50D    06', matrix: [1.04,0.02,-0.02,0.0,1.01,0.01,-0.02,0.03,0.98], shadowTint: [-4,6,8], midTint: [8,4,-4], highlightTint: [16,8,-4], foliageShift: {gBoost:4,bShift:4,rShift:-2,satScale:0.98}, skyShift: {cyanBoost:12,bDepth:4}, skinProtect: 0.80, saturation: 1.02, contrast: 1.04, blackLift: 0.025, grainBase: 16, grainSize: 0.9, halationBase: 44, isBW: false },
+    { id: 'cinestill-800t', brand: 'cinema', brandLabel: 'CINE', name: 'CineStill 800T', subtitle: 'Đêm Teal & Quầng đỏ', iso: 800, canisterColor: 'linear-gradient(180deg,#dc2626,#0e7490,#090a0c)', edgeCode: 'CINESTILL 800T   35A', matrix: [0.94,0.01,0.03,-0.01,1.03,0.04,0.02,0.07,1.09], shadowTint: [-20,10,24], midTint: [-11,5,16], highlightTint: [16,4,-8], foliageShift: {gBoost:2,bShift:20,rShift:-16,satScale:0.94}, skyShift: {cyanBoost:24,bDepth:12}, redHueShift: -8, skinWarmth: 4, vibrance: 0.02, skinProtect: 0.64, saturation: 1.01, contrast: 1.09, blackLift: 0.032, grainBase: 38, grainSize: 1.2, halationBase: 72, isBW: false },
+    { id: 'cinestill-50d', brand: 'cinema', brandLabel: 'CINE', name: 'CineStill 50D', subtitle: 'Điện ảnh ban ngày', iso: 50, canisterColor: 'linear-gradient(180deg,#f59e0b,#ef4444,#1f2937)', edgeCode: 'CINESTILL 50D    06', matrix: [1.04,0.02,-0.02,0.0,1.01,0.01,-0.02,0.04,0.98], shadowTint: [-5,7,10], midTint: [9,5,-5], highlightTint: [18,10,-5], foliageShift: {gBoost:4,bShift:6,rShift:-4,satScale:0.96}, skyShift: {cyanBoost:14,bDepth:5}, redHueShift: -5, skinWarmth: 6, vibrance: 0.02, skinProtect: 0.82, saturation: 1.01, contrast: 1.05, blackLift: 0.028, grainBase: 16, grainSize: 0.9, halationBase: 46, isBW: false },
 
-    { id: 'ilford-hp5', brand: 'bw', brandLabel: 'B&W', name: 'Ilford HP5', subtitle: 'Đen trắng phóng sự', iso: 400, canisterColor: 'linear-gradient(180deg,#111827,#10b981,#e5e7eb)', edgeCode: 'ILFORD HP5 PLUS 400', matrix: [1,0,0,0,1,0,0,0,1], shadowTint: [2,2,0], midTint: [3,2,-2], highlightTint: [4,2,-2], foliageShift: null, skyShift: null, skinProtect: 0, saturation: 0, contrast: 1.12, blackLift: 0.04, grainBase: 44, grainSize: 1.25, halationBase: 8, isBW: true, bwWeights: [0.34,0.52,0.14] },
-    { id: 'kodak-trix-400', brand: 'bw', brandLabel: 'B&W', name: 'Tri-X 400', subtitle: 'Đen trắng gai góc', iso: 400, canisterColor: 'linear-gradient(180deg,#f59e0b,#111827,#374151)', edgeCode: 'KODAK 400TX     19', matrix: [1,0,0,0,1,0,0,0,1], shadowTint: [0,0,2], midTint: [0,0,0], highlightTint: [6,4,-2], foliageShift: null, skyShift: null, skinProtect: 0, saturation: 0, contrast: 1.28, blackLift: 0.015, grainBase: 54, grainSize: 1.38, halationBase: 10, isBW: true, bwWeights: [0.42,0.46,0.12] },
-    { id: 'fuji-acros-100', brand: 'bw', brandLabel: 'B&W', name: 'Acros 100 II', subtitle: 'Đen trắng siêu nét', iso: 100, canisterColor: 'linear-gradient(180deg,#047857,#111827,#9ca3af)', edgeCode: 'FUJI ACROS 100II  05', matrix: [1,0,0,0,1,0,0,0,1], shadowTint: [-2,2,4], midTint: [0,1,2], highlightTint: [2,2,4], foliageShift: null, skyShift: null, skinProtect: 0, saturation: 0, contrast: 1.18, blackLift: 0.01, grainBase: 16, grainSize: 0.9, halationBase: 6, isBW: true, bwWeights: [0.28,0.56,0.16] }
+    { id: 'ilford-hp5', brand: 'bw', brandLabel: 'B&W', name: 'Ilford HP5', subtitle: 'Đen trắng phóng sự', iso: 400, canisterColor: 'linear-gradient(180deg,#111827,#10b981,#e5e7eb)', edgeCode: 'ILFORD HP5 PLUS 400', matrix: [1,0,0,0,1,0,0,0,1], shadowTint: [2,2,0], midTint: [3,2,-2], highlightTint: [5,3,-2], foliageShift: null, skyShift: null, skinProtect: 0, saturation: 0, contrast: 1.14, blackLift: 0.042, grainBase: 44, grainSize: 1.25, halationBase: 8, isBW: true, bwWeights: [0.34,0.52,0.14] },
+    { id: 'kodak-trix-400', brand: 'bw', brandLabel: 'B&W', name: 'Tri-X 400', subtitle: 'Đen trắng gai góc', iso: 400, canisterColor: 'linear-gradient(180deg,#f59e0b,#111827,#374151)', edgeCode: 'KODAK 400TX     19', matrix: [1,0,0,0,1,0,0,0,1], shadowTint: [0,0,2], midTint: [1,0,0], highlightTint: [6,4,-2], foliageShift: null, skyShift: null, skinProtect: 0, saturation: 0, contrast: 1.30, blackLift: 0.015, grainBase: 54, grainSize: 1.38, halationBase: 10, isBW: true, bwWeights: [0.43,0.45,0.12] },
+    { id: 'fuji-acros-100', brand: 'bw', brandLabel: 'B&W', name: 'Acros 100 II', subtitle: 'Đen trắng siêu nét', iso: 100, canisterColor: 'linear-gradient(180deg,#047857,#111827,#9ca3af)', edgeCode: 'FUJI ACROS 100II  05', matrix: [1,0,0,0,1,0,0,0,1], shadowTint: [-2,2,4], midTint: [0,1,2], highlightTint: [2,2,4], foliageShift: null, skyShift: null, skinProtect: 0, saturation: 0, contrast: 1.20, blackLift: 0.010, grainBase: 16, grainSize: 0.9, halationBase: 6, isBW: true, bwWeights: [0.28,0.56,0.16] }
   ];
 
   const FILM_SUBTITLES_EN = {
@@ -3210,14 +3232,27 @@
   function buildToneLUT(exposureEV, contrast, blackLift, highlightRolloff, warmthShift, tintShift) {
     const lutR = new Uint8ClampedArray(256), lutG = new Uint8ClampedArray(256), lutB = new Uint8ClampedArray(256);
     const expMul = Math.pow(2, exposureEV);
+    const gamma = Math.max(0.68, Math.min(1.65, Math.pow(contrast, 1.08)));
     for (let i = 0; i < 256; i++) {
       let x = (i / 255) * expMul;
-      if (highlightRolloff > 0 && x > 0.65) {
-        const ex = x - 0.65;
-        x = 0.65 + ex / (1 + ex * highlightRolloff * 2.4);
+      // Smooth analog highlight shoulder compression (H&D characteristic curve)
+      if (highlightRolloff > 0 && x > 0.56) {
+        const ex = x - 0.56;
+        x = 0.56 + ex / (1 + ex * (0.95 + highlightRolloff * 2.65));
       }
-      if (x > 1) x = 1;
-      let y = blackLift + (0.5 + (x - 0.5) * contrast) * (1 - blackLift * 1.15);
+      x = Math.max(0, Math.min(1, x));
+      // Symmetric Hurter-Driffield film S-curve (soft toe + crisp midtones + creamy shoulder)
+      let s;
+      if (x <= 0.0001) s = 0;
+      else if (x >= 0.9999) s = 1;
+      else {
+        const xp = Math.pow(x, gamma);
+        const omp = Math.pow(1 - x, gamma);
+        s = xp / (xp + omp);
+      }
+      // Subtle emulsion toe smoothing so deep shadows retain analog density without harsh digital clipping
+      const toe = s * (1 - 0.08 * (1 - s) * (1 - s));
+      const y = blackLift + toe * (0.992 - blackLift * 1.08);
       const base = Math.max(0, Math.min(1, y)) * 255;
       lutR[i] = clamp255(base + warmthShift * 1.15 + tintShift * 0.3);
       lutG[i] = clamp255(base - tintShift * 0.8);
@@ -3240,6 +3275,9 @@
     const { lutR, lutG, lutB } = buildToneLUT(effectiveEV, totalContrast, totalLift, totalRolloff, totalWarmth, totalTint);
 
     const m = film.matrix, sT = film.shadowTint, mT = film.midTint, hT = film.highlightTint;
+    const redShift = film.redHueShift || 0;
+    const skinWarm = film.skinWarmth || 0;
+    const vib = film.vibrance || 0;
     const softFocus = body.softFocus || 0;
     const deSharp = Math.min(0.85, phone.deSharpen + lens.edgeSoft * 0.45 + softFocus * 0.65);
     const hasCA = lens.chromaticAb > 0.2, caStr = lens.chromaticAb * (width / 900);
@@ -3364,7 +3402,7 @@
           }
 
           if (film.foliageShift && mg > mr && mg > mb) {
-            const gDom = Math.min(1, (mg - Math.max(mr, mb)) / 70);
+            const gDom = Math.min(1, (mg - Math.max(mr, mb)) / 62);
             const fs = film.foliageShift;
             mr += fs.rShift * gDom; mg += fs.gBoost * gDom; mb += fs.bShift * gDom;
             if (fs.satScale !== 1) {
@@ -3372,22 +3410,35 @@
               mr = gg + (mr - gg) * mix; mg = gg + (mg - gg) * mix; mb = gg + (mb - gg) * mix;
             }
           }
-          if (film.skyShift && mb > mr * 1.08 && mb > mg) {
-            const bDom = Math.min(1, (mb - Math.max(mr, mg)) / 75);
+          if (film.skyShift && mb > mr * 1.05 && mb > mg) {
+            const bDom = Math.min(1, (mb - Math.max(mr, mg)) / 68);
             mg += film.skyShift.cyanBoost * bDom; mb += film.skyShift.bDepth * bDom;
           }
-          if ((film.skinProtect > 0 || skinFlatter > 0) && r > g && g > b && (r - b) > 16 && lum > 0.2 && lum < 0.86) {
-            const sw = Math.max(0, 1 - Math.abs((r - g) - 30) / 48) * film.skinProtect * 0.45;
-            mr += (r * 1.03 - mr) * sw; mg += (g * 0.99 - mg) * sw; mb += (b * 0.95 - mb) * sw;
+          if (redShift !== 0 && mr > mg * 1.12 && mr > mb * 1.15) {
+            const rDom = Math.min(1, (mr - Math.max(mg, mb)) / 72);
+            mg -= redShift * 0.65 * rDom;
+            mb += redShift * 0.85 * rDom;
+          }
+          if ((film.skinProtect > 0 || skinFlatter > 0) && r > g && g > b && (r - b) > 14 && lum > 0.18 && lum < 0.88) {
+            const sw = Math.max(0, 1 - Math.abs((r - g) - 28) / 48) * film.skinProtect * 0.48;
+            mr += ((r * 1.03 + skinWarm * 0.85) - mr) * sw;
+            mg += ((g * 0.99 + skinWarm * 0.38) - mg) * sw;
+            mb += ((b * 0.94 - skinWarm * 0.35) - mb) * sw;
             if (skinFlatter > 0) {
               mr += skinFlatter * 22 * wM;
               mg += skinFlatter * 12 * wM;
               mb += skinFlatter * 6 * wM;
             }
           }
-          if (film.saturation !== 1) {
+          if (film.saturation !== 1 || vib !== 0) {
             const gray = 0.299*mr + 0.587*mg + 0.114*mb;
-            mr = gray + (mr - gray) * film.saturation; mg = gray + (mg - gray) * film.saturation; mb = gray + (mb - gray) * film.saturation;
+            const maxC = Math.max(mr, mg, mb), minC = Math.min(mr, mg, mb);
+            const curSat = Math.min(1, (maxC - minC) / 210);
+            const hiDesat = lum > 0.72 ? (lum - 0.72) * 0.42 : 0;
+            const effSat = Math.max(0, (film.saturation + vib * (1 - curSat * 0.85)) * (1 - hiDesat));
+            mr = gray + (mr - gray) * effSat;
+            mg = gray + (mg - gray) * effSat;
+            mb = gray + (mb - gray) * effSat;
           }
           r = mr; g = mg; b = mb;
         }
@@ -6316,6 +6367,9 @@
       uniform vec4 uFoliageShift;
       uniform float uHasSky;
       uniform vec2 uSkyShift;
+      uniform float uRedHueShift;
+      uniform float uSkinWarmth;
+      uniform float uVibrance;
       uniform float uSkinProtect;
       uniform float uSkinFlatter;
       uniform float uFilmSat;
@@ -6399,7 +6453,7 @@
             mrgb.b += 5.0 * wS - 2.0 * wH;
           }
           if (uHasFoliage > 0.5 && mrgb.g > mrgb.r && mrgb.g > mrgb.b) {
-            float gDom = min(1.0, (mrgb.g - max(mrgb.r, mrgb.b)) / 70.0);
+            float gDom = min(1.0, (mrgb.g - max(mrgb.r, mrgb.b)) / 62.0);
             mrgb += uFoliageShift.xyz * gDom;
             if (abs(uFoliageShift.w - 1.0) > 0.001) {
               float gg = dot(mrgb, vec3(0.299, 0.587, 0.114));
@@ -6407,19 +6461,30 @@
               mrgb = gg + (mrgb - gg) * mixF;
             }
           }
-          if (uHasSky > 0.5 && mrgb.b > mrgb.r * 1.08 && mrgb.b > mrgb.g) {
-            float bDom = min(1.0, (mrgb.b - max(mrgb.r, mrgb.g)) / 75.0);
+          if (uHasSky > 0.5 && mrgb.b > mrgb.r * 1.05 && mrgb.b > mrgb.g) {
+            float bDom = min(1.0, (mrgb.b - max(mrgb.r, mrgb.g)) / 68.0);
             mrgb.g += uSkyShift.x * bDom;
             mrgb.b += uSkyShift.y * bDom;
           }
-          if ((uSkinProtect > 0.0 || uSkinFlatter > 0.0) && r > g && g > b && (r - b) > 16.0 && lum > 0.2 && lum < 0.86) {
-            float sw = max(0.0, 1.0 - abs((r - g) - 30.0) / 48.0) * uSkinProtect * 0.45;
-            mrgb += (vec3(r * 1.03, g * 0.99, b * 0.95) - mrgb) * sw;
+          if (abs(uRedHueShift) > 0.01 && mrgb.r > mrgb.g * 1.12 && mrgb.r > mrgb.b * 1.15) {
+            float rDom = min(1.0, (mrgb.r - max(mrgb.g, mrgb.b)) / 72.0);
+            mrgb.g -= uRedHueShift * 0.65 * rDom;
+            mrgb.b += uRedHueShift * 0.85 * rDom;
+          }
+          if ((uSkinProtect > 0.0 || uSkinFlatter > 0.0) && r > g && g > b && (r - b) > 14.0 && lum > 0.18 && lum < 0.88) {
+            float sw = max(0.0, 1.0 - abs((r - g) - 28.0) / 48.0) * uSkinProtect * 0.48;
+            vec3 skinTarget = vec3(r * 1.03 + uSkinWarmth * 0.85, g * 0.99 + uSkinWarmth * 0.38, b * 0.94 - uSkinWarmth * 0.35);
+            mrgb += (skinTarget - mrgb) * sw;
             if (uSkinFlatter > 0.0) mrgb += vec3(22.0, 12.0, 6.0) * (uSkinFlatter * wM);
           }
-          if (abs(uFilmSat - 1.0) > 0.001) {
+          if (abs(uFilmSat - 1.0) > 0.001 || abs(uVibrance) > 0.001) {
             float gray = dot(mrgb, vec3(0.299, 0.587, 0.114));
-            mrgb = gray + (mrgb - gray) * uFilmSat;
+            float maxC = max(mrgb.r, max(mrgb.g, mrgb.b));
+            float minC = min(mrgb.r, min(mrgb.g, mrgb.b));
+            float curSat = min(1.0, (maxC - minC) / 210.0);
+            float hiDesat = lum > 0.72 ? (lum - 0.72) * 0.42 : 0.0;
+            float effSat = max(0.0, (uFilmSat + uVibrance * (1.0 - curSat * 0.85)) * (1.0 - hiDesat));
+            mrgb = gray + (mrgb - gray) * effSat;
           }
           outC = mrgb;
         }
@@ -6761,6 +6826,9 @@
         gl.uniform1f(ug.uHasSky, film.skyShift ? 1 : 0);
         const ss = film.skyShift || { cyanBoost: 0, bDepth: 0 };
         gl.uniform2f(ug.uSkyShift, ss.cyanBoost, ss.bDepth);
+        gl.uniform1f(ug.uRedHueShift, film.redHueShift || 0);
+        gl.uniform1f(ug.uSkinWarmth, film.skinWarmth || 0);
+        gl.uniform1f(ug.uVibrance, film.vibrance || 0);
         gl.uniform1f(ug.uSkinProtect, film.skinProtect || 0);
         gl.uniform1f(ug.uSkinFlatter, lens.skinFlatter || 0);
         gl.uniform1f(ug.uFilmSat, film.saturation ?? 1);
@@ -7436,6 +7504,19 @@
     }
     scrollActiveTileIntoView(tab);
   }
+  function stepBodyMode(delta) {
+    if (!VIEWFINDER_MODES.length) return;
+    const curIdx = VIEWFINDER_MODES.findIndex(m => m.id === state.bodyId);
+    const nextIdx = (Math.max(0, curIdx) + delta + VIEWFINDER_MODES.length) % VIEWFINDER_MODES.length;
+    selectViewfinderMode(VIEWFINDER_MODES[nextIdx].id);
+  }
+  function stepFocalOption(delta) {
+    const focals = getModeFocals(state.bodyId);
+    if (!focals.length) return;
+    const curIdx = focals.findIndex(f => f.id === state.lensId);
+    const nextIdx = (Math.max(0, curIdx) + delta + focals.length) % focals.length;
+    selectFocalOption(focals[nextIdx].id);
+  }
   function stepFilmStock(delta) {
     if (!FILM_STOCKS.length) return;
     const curIdx = FILM_STOCKS.findIndex(f => f.id === state.filmId);
@@ -7478,8 +7559,16 @@
     renderComboPickerSheet();
     setPickerTab('film');
   });
-  document.getElementById('btnPrevFilm')?.addEventListener('click', e => { e.stopPropagation(); stepFilmStock(-1); });
-  document.getElementById('btnNextFilm')?.addEventListener('click', e => { e.stopPropagation(); stepFilmStock(1); });
+  document.querySelectorAll('.card-step-btn[data-step-gear]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const kind = btn.dataset.stepGear;
+      const dir = Number(btn.dataset.stepDir) || 1;
+      if (kind === 'body') stepBodyMode(dir);
+      else if (kind === 'lens') stepFocalOption(dir);
+      else if (kind === 'film') stepFilmStock(dir);
+    });
+  });
   document.querySelectorAll('[data-open-combo]').forEach(btn => {
     btn.addEventListener('click', e => {
       if (e.target.closest('.card-step-btn')) return;
