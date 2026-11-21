@@ -4750,12 +4750,12 @@
   }
 
   // Rotate the sensor image only when needed to match the selected camera format.
-  function drawCameraFrameSource(targetCtx, source, outW, outH, zoomFactor = 1.0) {
+  function drawCameraFrameSource(targetCtx, source, outW, outH, zoomFactor = 1.0, autoRotate = true) {
     const srcW = source.videoWidth || source.width || outW;
     const srcH = source.videoHeight || source.height || outH;
     const sourcePortrait = srcH > srcW;
     const framePortrait = outH > outW;
-    const rotate = sourcePortrait !== framePortrait && Math.abs(srcW - srcH) > 2;
+    const rotate = autoRotate && sourcePortrait !== framePortrait && Math.abs(srcW - srcH) > 2;
     const orientedW = rotate ? srcH : srcW;
     const orientedH = rotate ? srcW : srcH;
     const scale = Math.max(outW / orientedW, outH / orientedH) * Math.max(1, zoomFactor || 1);
@@ -7220,7 +7220,7 @@
       };
 
       if (tmp.width !== targetW || tmp.height !== targetH) { tmp.width = targetW; tmp.height = targetH; }
-      drawCameraFrameSource(tCtx, src, targetW, targetH, vfZoom);
+      drawCameraFrameSource(tCtx, src, targetW, targetH, vfZoom, body.id !== 'half-frame');
 
       if (gpuReady) {
         const rendered = gpu.render(tmp, hasLiveVideo, hasLiveVideo ? -1 : ++landscapeUploadVersion, targetW, targetH, vfRatio, 1, vfConfig);
@@ -7420,7 +7420,7 @@
       if (body.id === 'half-frame' && state.hfDiptychMode) {
         const halfC = document.createElement('canvas');
         halfC.width = 600; halfC.height = 800;
-        drawCameraFrameSource(halfC.getContext('2d'), src, 600, 800, capZoom);
+        drawCameraFrameSource(halfC.getContext('2d'), src, 600, 800, capZoom, false);
 
         if (!state.halfFrameFirstCanvas) {
           state.halfFrameFirstCanvas = halfC;
