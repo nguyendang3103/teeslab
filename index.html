@@ -4735,19 +4735,21 @@
     targetCtx.drawImage(source, sx, sy, sw, sh, 0, 0, outW, outH);
   }
 
-  // Keep camera captures landscape even when the phone is held upright.
-  function drawCameraLandscapeSource(targetCtx, source, outW, outH, zoomFactor = 1.0) {
+  // Rotate the sensor image only when needed to match the selected camera format.
+  function drawCameraFrameSource(targetCtx, source, outW, outH, zoomFactor = 1.0) {
     const srcW = source.videoWidth || source.width || outW;
     const srcH = source.videoHeight || source.height || outH;
-    const portrait = srcW < srcH;
-    const orientedW = portrait ? srcH : srcW;
-    const orientedH = portrait ? srcW : srcH;
+    const sourcePortrait = srcH > srcW;
+    const framePortrait = outH > outW;
+    const rotate = sourcePortrait !== framePortrait && Math.abs(srcW - srcH) > 2;
+    const orientedW = rotate ? srcH : srcW;
+    const orientedH = rotate ? srcW : srcH;
     const scale = Math.max(outW / orientedW, outH / orientedH) * Math.max(1, zoomFactor || 1);
     targetCtx.save();
     targetCtx.setTransform(1, 0, 0, 1, 0, 0);
     targetCtx.clearRect(0, 0, outW, outH);
     targetCtx.translate(outW / 2, outH / 2);
-    if (portrait) targetCtx.rotate(Math.PI / 2);
+    if (rotate) targetCtx.rotate(Math.PI / 2);
     targetCtx.scale(scale, scale);
     targetCtx.drawImage(source, -srcW / 2, -srcH / 2);
     targetCtx.restore();
@@ -4856,7 +4858,7 @@
 
   function loadSourceCanvas(srcCanvas, exifData = null, opts = {}) {
     state.fullSourceCanvas = srcCanvas;
-    state.sourceIsDiptych = !!opts.isDiptych;
+    state.sourceIsDiptych = !!opts.isDiptych || !!opts.preserveAspect;
     state.exif = exifData;
 
     const maxDim = window.matchMedia('(max-width: 700px)').matches ? 680 : 860;
@@ -6243,11 +6245,25 @@
   }
 
   function getCameraStageDimensions(body, lens) {
-    return { w: 600, h: 400, ratio: 3 / 2 };
+    const ratio = body.id === 'half-frame' && state.hfDiptychMode && state.halfFrameFirstCanvas
+      ? 3 / 2
+      : getBodyAspect(body, lens);
+    if (ratio >= 1) {
+      const w = 600;
+      return { w, h: Math.max(240, Math.round(w / ratio)), ratio };
+    }
+    const h = 400;
+    return { w: Math.max(240, Math.round(h * ratio)), h, ratio };
   }
 
   function getCameraCaptureDimensions(body, lens) {
-    return { w: 1440, h: 960, ratio: 3 / 2 };
+    const ratio = getBodyAspect(body, lens);
+    if (ratio >= 1) {
+      const w = 1440;
+      return { w, h: Math.max(720, Math.round(w / ratio)), ratio };
+    }
+    const h = 1440;
+    return { w: Math.max(720, Math.round(h * ratio)), h, ratio };
   }
 
   function layoutViewfinderStage() {
@@ -7207,10 +7223,10 @@
         tCtx.fillRect(0, 0, targetW, targetH);
         tCtx.drawImage(state.halfFrameFirstCanvas, margin, slotY, slotW, slotH);
         if (halfSlot.width !== slotW || halfSlot.height !== slotH) { halfSlot.width = slotW; halfSlot.height = slotH; }
-        drawCroppedSource(halfSlot.getContext('2d'), src, slotW, slotH, 3 / 4, vfZoom);
+        drawCameraFrameSource(halfSlot.getContext('2d'), src, slotW, slotH, vfZoom);
         tCtx.drawImage(halfSlot, margin + slotW + gap, slotY);
       } else {
-        drawCameraLandscapeSource(tCtx, src, targetW, targetH, vfZoom);
+        drawCameraFrameSource(tCtx, src, targetW, targetH, vfZoom);
       }
 
       if (gpuReady) {
@@ -7411,7 +7427,7 @@
       if (body.id === 'half-frame' && state.hfDiptychMode) {
         const halfC = document.createElement('canvas');
         halfC.width = 600; halfC.height = 800;
-        drawCroppedSource(halfC.getContext('2d'), src, 600, 800, 3 / 4, capZoom);
+        drawCameraFrameSource(halfC.getContext('2d'), src, 600, 800, capZoom);
 
         if (!state.halfFrameFirstCanvas) {
           state.halfFrameFirstCanvas = halfC;
@@ -7444,7 +7460,7 @@
       const capDim = getCameraCaptureDimensions(body, lens);
       const capC = document.createElement('canvas');
       capC.width = capDim.w; capC.height = capDim.h;
-      drawCameraLandscapeSource(capC.getContext('2d'), src, capDim.w, capDim.h, capZoom);
+      drawCameraFrameSource(capC.getContext('2d'), src, capDim.w, capDim.h, capZoom);
       const rawBlob = await canvasToJpegBlob(capC, 0.92);
       await saveCameraExposure(rawBlob, shotNumber, { isDiptych: false });
     } catch (error) {
@@ -7492,7 +7508,7 @@
           source.width = bitmap.width; source.height = bitmap.height;
           source.getContext('2d').drawImage(bitmap, 0, 0);
           bitmap.close();
-          loadSourceCanvas(source, null, { isDiptych: !!s.isDiptych });
+          loadSourceCanvas(source, null, { isDiptych: !!s.isDiptych, preserveAspect: true });
           switchMainTab('darkroom');
           showToast(`Shot #${s.num} opened in Lab`);
         } catch (error) { showToast('Could not open the original photo'); }
