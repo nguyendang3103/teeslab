@@ -966,6 +966,31 @@
       pointer-events: none;
     }
     .vf-stage[data-vf-mode="half-frame"] .vf-hfs-overlay { display: block; }
+    .vf-hfs-overlay.diptych::before {
+      content: "";
+      position: absolute;
+      z-index: 1;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      border-left: 1px dashed rgba(255, 194, 92, 0.74);
+    }
+    .vf-hfs-overlay.diptych::after { content: none; }
+    .vf-hf-slot-label {
+      display: none;
+      position: absolute;
+      z-index: 2;
+      top: 7px;
+      padding: 2px 5px;
+      border-radius: 4px;
+      color: #ffd27a;
+      background: rgba(10, 12, 16, 0.72);
+      border: 1px solid rgba(245, 166, 35, 0.52);
+      font: 800 9px/1.2 var(--mono);
+    }
+    .vf-hfs-overlay.diptych .vf-hf-slot-label { display: block; }
+    .vf-hf-slot-label.left { left: 7px; }
+    .vf-hf-slot-label.right { left: calc(50% + 7px); }
     .vf-hfs-overlay::after {
       content: "+";
       position: absolute;
@@ -2657,6 +2682,8 @@
               <!-- Half Frame: 3:4 Portrait Guide + Optional 2F Diptych Ghost -->
               <div class="vf-hfs-overlay" aria-hidden="true">
                 <img class="vf-hf-ghost" id="vfHfGhostImg" alt="" />
+                <span class="vf-hf-slot-label left">1</span>
+                <span class="vf-hf-slot-label right">2</span>
                 <div class="vf-hf-diptych-bar" id="vfHfDiptychBar">
                   <span id="vfHfHalfLabel">1/2</span>
                   <button type="button" id="btnCancelHalfFrame" title="Discard first half">✕</button>
@@ -4086,7 +4113,7 @@
     leakAmt: 0,
     frameType: 'none',
     dateStamp: 'off',
-    hfDiptychMode: false,
+    hfDiptychMode: true,
 
     splitMode: false,
     splitPos: 50,
@@ -4265,7 +4292,12 @@
     });
     state.phoneId = 'auto-detect';
     state.dateStamp = state.dateStamp && state.dateStamp !== 'off' ? 'exif-or-today' : 'off';
-    state.hfDiptychMode = !!state.hfDiptychMode;
+    if (!localStorage.getItem('teeslab-half-frame-2f-default-v1')) {
+      state.hfDiptychMode = true;
+      localStorage.setItem('teeslab-half-frame-2f-default-v1', '1');
+    } else {
+      state.hfDiptychMode = !!state.hfDiptychMode;
+    }
     state.bodyId = migrateModeId(state.bodyId);
     state.lensId = migrateFocalId(state.bodyId, state.lensId);
     const zVal = Number(state.zoomFocalMm);
@@ -4308,6 +4340,7 @@
       });
     }
     try {
+      snapshot.settings = { ...settings, hfDiptychMode: state.hfDiptychMode };
       localStorage.setItem(APP_STATE_KEY, JSON.stringify(snapshot));
       localStorage.setItem('tees_lab_recipes_v1', JSON.stringify(state.recipes));
     } catch (e) {}
@@ -6314,19 +6347,25 @@
       diptychBtn.style.display = isHalfFrame ? '' : 'none';
       diptychBtn.classList.toggle('active', !!state.hfDiptychMode);
       diptychBtn.textContent = state.hfDiptychMode ? '2F' : '1F';
+      diptychBtn.title = state.hfDiptychMode
+        ? 'Half Frame 2F — pair two exposures into one photo'
+        : 'Half Frame 1F — save each exposure separately';
     }
     const hasFirstHalf = !!(isHalfFrame && state.hfDiptychMode && state.halfFrameFirstCanvas);
     const hfBar = document.getElementById('vfHfDiptychBar');
     const hfLabel = document.getElementById('vfHfHalfLabel');
     const hfGhost = document.getElementById('vfHfGhostImg');
     const hfCancel = document.getElementById('btnCancelHalfFrame');
+    document.querySelector('.vf-hfs-overlay')?.classList.toggle('diptych', isHalfFrame && !!state.hfDiptychMode);
     if (hfBar) {
-      hfBar.classList.toggle('active', isHalfFrame && !!state.hfDiptychMode);
-      hfBar.classList.toggle('has-first', hasFirstHalf);
+      hfBar.classList.toggle('active', isHalfFrame);
+      hfBar.classList.toggle('has-first', hasFirstHalf && !state.hfDiptychMode);
     }
-    if (hfLabel) hfLabel.textContent = hasFirstHalf ? '2/2' : '1/2';
+    if (hfLabel) hfLabel.textContent = isHalfFrame
+      ? (state.hfDiptychMode ? `HALF FRAME · ${hasFirstHalf ? '2/2' : '1/2'}` : 'HALF FRAME · SINGLE')
+      : 'HALF FRAME';
     if (hfGhost) {
-      hfGhost.classList.toggle('visible', hasFirstHalf);
+      hfGhost.classList.toggle('visible', hasFirstHalf && !state.hfDiptychMode);
     }
     if (hfCancel) hfCancel.style.display = hasFirstHalf ? '' : 'none';
 
@@ -7112,6 +7151,7 @@
   function startCameraLoop() {
     if (state.camAnimId) return;
     const tmp = document.createElement('canvas');
+    const halfSlot = document.createElement('canvas');
     const tCtx = tmp.getContext('2d', { willReadFrequently: true }), vfCtx = vfCanvas.getContext('2d');
     let last = 0;
     let landscapeUploadVersion = 0;
@@ -7129,7 +7169,7 @@
       const dateStampText = formatDateStamp();
       const staticKey = hasLiveVideo
         ? ''
-        : `${state.activeSampleId || 'custom'}|${previewSourceVersion}|${body.id}|${lens.id}|${Number(lens.mm || 50).toFixed(1)}|${Number(state.zoomFocalMm || 50).toFixed(1)}|${Number(lens.activeF || 2.8).toFixed(2)}|${state.focusMode}|${Number(lens.mfDefocus || 0).toFixed(3)}|${film.id}|${cameraExposureEV().toFixed(2)}|${state.warmth}|${state.camFlashOn ? 1 : 0}|${dateStampText}|${targetW}x${targetH}`;
+        : `${state.activeSampleId || 'custom'}|${previewSourceVersion}|${body.id}|${lens.id}|${Number(lens.mm || 50).toFixed(1)}|${Number(state.zoomFocalMm || 50).toFixed(1)}|${Number(lens.activeF || 2.8).toFixed(2)}|${state.focusMode}|${Number(lens.mfDefocus || 0).toFixed(3)}|${film.id}|${cameraExposureEV().toFixed(2)}|${state.warmth}|${state.camFlashOn ? 1 : 0}|${dateStampText}|${state.hfDiptychMode ? 1 : 0}|${state.halfFrameFirstCanvas ? 'pending-half' : ''}|${targetW}x${targetH}`;
 
       if (!hasLiveVideo && staticKey === cameraLastStaticKey && vfCanvas.width === targetW && vfCanvas.height === targetH) {
         return;
@@ -7156,7 +7196,22 @@
       };
 
       if (tmp.width !== targetW || tmp.height !== targetH) { tmp.width = targetW; tmp.height = targetH; }
-      drawCameraLandscapeSource(tCtx, src, targetW, targetH, vfZoom);
+      const pendingDiptych = body.id === 'half-frame' && state.hfDiptychMode && state.halfFrameFirstCanvas;
+      if (pendingDiptych) {
+        const margin = Math.round(targetW * 0.025);
+        const gap = margin;
+        const slotW = Math.floor((targetW - margin * 2 - gap) / 2);
+        const slotH = targetH - margin * 2;
+        const slotY = margin;
+        tCtx.fillStyle = '#090a0d';
+        tCtx.fillRect(0, 0, targetW, targetH);
+        tCtx.drawImage(state.halfFrameFirstCanvas, margin, slotY, slotW, slotH);
+        if (halfSlot.width !== slotW || halfSlot.height !== slotH) { halfSlot.width = slotW; halfSlot.height = slotH; }
+        drawCroppedSource(halfSlot.getContext('2d'), src, slotW, slotH, 3 / 4, vfZoom);
+        tCtx.drawImage(halfSlot, margin + slotW + gap, slotY);
+      } else {
+        drawCameraLandscapeSource(tCtx, src, targetW, targetH, vfZoom);
+      }
 
       if (gpuReady) {
         const rendered = gpu.render(tmp, hasLiveVideo, hasLiveVideo ? -1 : ++landscapeUploadVersion, targetW, targetH, vfRatio, 1, vfConfig);
@@ -7302,7 +7357,7 @@
     syncAllUI();
     renderContactSheet();
     showToast(opts.isDiptych
-      ? `🎞️ Diptych #${String(shotNumber).padStart(2, '0')} saved — Gạt cần lên phim để chụp tiếp`
+      ? `🎞️ 2F pair #${String(shotNumber).padStart(2, '0')} saved as one frame — WIND to continue`
       : `🎞️ Shot #${String(shotNumber).padStart(2, '0')} saved — Gạt cần lên phim để chụp tiếp`);
   }
 
@@ -7420,7 +7475,7 @@
       card.innerHTML = `
         <img src="${thumbnailUrl}" alt="Shot ${s.num}" />
         <div class="shot-foot">
-          <span>R${s.rollNumber || 1} · #${String(s.num).padStart(2, '0')}</span>
+          <span>R${s.rollNumber || 1} · #${String(s.num).padStart(2, '0')}${s.isDiptych ? ' · 2F' : ''}</span>
           <div style="display:flex;gap:4px;">
             <button class="btn-pill btn-ghost btn-edit" style="height:24px;padding:0 7px;font-size:10.5px;">Lab</button>
             <button class="btn-pill btn-brass btn-save-shot" type="button" style="height:24px;padding:0 7px;font-size:10.5px;">Save</button>
