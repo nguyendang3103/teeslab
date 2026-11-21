@@ -966,41 +966,6 @@
       pointer-events: none;
     }
     .vf-stage[data-vf-mode="half-frame"] .vf-hfs-overlay { display: block; }
-    .vf-hfs-overlay.diptych::before {
-      content: "";
-      position: absolute;
-      z-index: 1;
-      top: 0;
-      bottom: 0;
-      left: 50%;
-      border-left: 1px dashed rgba(255, 194, 92, 0.74);
-    }
-    .vf-hfs-overlay.diptych::after { content: none; }
-    .vf-hf-slot-label {
-      display: none;
-      position: absolute;
-      z-index: 2;
-      top: 7px;
-      padding: 2px 5px;
-      border-radius: 4px;
-      color: #ffd27a;
-      background: rgba(10, 12, 16, 0.72);
-      border: 1px solid rgba(245, 166, 35, 0.52);
-      font: 800 9px/1.2 var(--mono);
-    }
-    .vf-hfs-overlay.diptych .vf-hf-slot-label { display: block; }
-    .vf-hf-slot-label.left { left: 7px; }
-    .vf-hf-slot-label.right { left: calc(50% + 7px); }
-    .vf-hfs-overlay::after {
-      content: "+";
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-family: var(--mono);
-      font-size: 13px;
-      color: rgba(255,255,255,0.45);
-    }
     .vf-hf-ghost {
       display: none;
       position: absolute;
@@ -2682,8 +2647,6 @@
               <!-- Half Frame: 3:4 Portrait Guide + Optional 2F Diptych Ghost -->
               <div class="vf-hfs-overlay" aria-hidden="true">
                 <img class="vf-hf-ghost" id="vfHfGhostImg" alt="" />
-                <span class="vf-hf-slot-label left">1</span>
-                <span class="vf-hf-slot-label right">2</span>
                 <div class="vf-hf-diptych-bar" id="vfHfDiptychBar">
                   <span id="vfHfHalfLabel">1/2</span>
                   <button type="button" id="btnCancelHalfFrame" title="Discard first half">✕</button>
@@ -6245,9 +6208,7 @@
   }
 
   function getCameraStageDimensions(body, lens) {
-    const ratio = body.id === 'half-frame' && state.hfDiptychMode && state.halfFrameFirstCanvas
-      ? 3 / 2
-      : getBodyAspect(body, lens);
+    const ratio = getBodyAspect(body, lens);
     if (ratio >= 1) {
       const w = 600;
       return { w, h: Math.max(240, Math.round(w / ratio)), ratio };
@@ -6372,7 +6333,6 @@
     const hfLabel = document.getElementById('vfHfHalfLabel');
     const hfGhost = document.getElementById('vfHfGhostImg');
     const hfCancel = document.getElementById('btnCancelHalfFrame');
-    document.querySelector('.vf-hfs-overlay')?.classList.toggle('diptych', isHalfFrame && !!state.hfDiptychMode);
     if (hfBar) {
       hfBar.classList.toggle('active', isHalfFrame);
       hfBar.classList.toggle('has-first', hasFirstHalf && !state.hfDiptychMode);
@@ -7167,7 +7127,6 @@
   function startCameraLoop() {
     if (state.camAnimId) return;
     const tmp = document.createElement('canvas');
-    const halfSlot = document.createElement('canvas');
     const tCtx = tmp.getContext('2d', { willReadFrequently: true }), vfCtx = vfCanvas.getContext('2d');
     let last = 0;
     let landscapeUploadVersion = 0;
@@ -7212,22 +7171,7 @@
       };
 
       if (tmp.width !== targetW || tmp.height !== targetH) { tmp.width = targetW; tmp.height = targetH; }
-      const pendingDiptych = body.id === 'half-frame' && state.hfDiptychMode && state.halfFrameFirstCanvas;
-      if (pendingDiptych) {
-        const margin = Math.round(targetW * 0.025);
-        const gap = margin;
-        const slotW = Math.floor((targetW - margin * 2 - gap) / 2);
-        const slotH = targetH - margin * 2;
-        const slotY = margin;
-        tCtx.fillStyle = '#090a0d';
-        tCtx.fillRect(0, 0, targetW, targetH);
-        tCtx.drawImage(state.halfFrameFirstCanvas, margin, slotY, slotW, slotH);
-        if (halfSlot.width !== slotW || halfSlot.height !== slotH) { halfSlot.width = slotW; halfSlot.height = slotH; }
-        drawCameraFrameSource(halfSlot.getContext('2d'), src, slotW, slotH, vfZoom);
-        tCtx.drawImage(halfSlot, margin + slotW + gap, slotY);
-      } else {
-        drawCameraFrameSource(tCtx, src, targetW, targetH, vfZoom);
-      }
+      drawCameraFrameSource(tCtx, src, targetW, targetH, vfZoom);
 
       if (gpuReady) {
         const rendered = gpu.render(tmp, hasLiveVideo, hasLiveVideo ? -1 : ++landscapeUploadVersion, targetW, targetH, vfRatio, 1, vfConfig);
