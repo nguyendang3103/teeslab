@@ -1414,6 +1414,12 @@
       color: #a1aab8;
       letter-spacing: 0.4px;
     }
+    .vf-control-support {
+      font-size: 7px;
+      letter-spacing: -0.2px;
+      white-space: nowrap;
+      opacity: 0.88;
+    }
     .vf-badge-btn svg {
       width: 10px;
       height: 10px;
@@ -2706,6 +2712,7 @@
                 <button class="vf-badge-btn af-active" id="btnVfAutoFocus" type="button" title="Auto Focus — tap to return to AF">AF</button>
                 <button class="vf-badge-btn" id="btnVfZoomModeToggle" type="button" title="Switch between primes & 35–70mm zoom" style="display:none;">35–70</button>
                 <button class="vf-badge-btn" id="btnVfDiptychToggle" type="button" title="Switch between 1-frame and paired 2-frame diptych" style="display:none;">1F</button>
+                <span class="vf-badge-btn vf-control-support" id="camControlSupport" title="EV and ISO control status">EV APP · ISO FILM</span>
               </div>
               <button id="camSourceStatus" class="vf-source-status" type="button" title="Simulated sample preview — tap to enable live camera">Simulated</button>
             </div>
@@ -3719,9 +3726,7 @@
       pCtx.shadowColor = 'rgba(255,45,0,0.9)'; pCtx.shadowBlur = Math.max(4, Math.round(fs * 0.4));
       pCtx.fillStyle = '#ff6a1a';
       const pad = Math.max(10, Math.round(minDim * 0.045));
-      pCtx.translate(pad, height - pad);
-      pCtx.rotate(Math.PI / 2);
-      pCtx.fillText(dateStampText, 0, 0);
+      pCtx.fillText(dateStampText, width - pad, height - pad);
       pCtx.restore();
     }
 
@@ -4182,6 +4187,7 @@
       const { id, rollId, rollNumber, num, createdAt, filmName, isDiptych, thumbnailBlob, rawBlob, photoBlob } = shot;
       transaction.objectStore('camera-roll').put({ id, rollId, rollNumber, num, createdAt, filmName, isDiptych: !!isDiptych, thumbnailBlob });
       transaction.objectStore('camera-roll-files').put({ id, rawBlob, photoBlob });
+      if (isDiptych && rollId) transaction.objectStore('camera-roll-files').delete(`pending-half-frame:${rollId}`);
       transaction.oncomplete = () => resolve();
       transaction.onerror = () => reject(transaction.error || new Error('Could not save camera roll photo'));
       transaction.onabort = () => reject(transaction.error || new Error('Camera roll save was interrupted'));
@@ -4193,6 +4199,37 @@
       const request = database.transaction('camera-roll-files', 'readonly').objectStore('camera-roll-files').get(id);
       request.onsuccess = () => resolve(request.result || null);
       request.onerror = () => reject(request.error || new Error('Could not read photo data'));
+    });
+  }
+  async function savePendingHalfFrame(canvas) {
+    const rawBlob = await canvasToJpegBlob(canvas, 0.94);
+    const database = await openRollDatabase();
+    return new Promise((resolve, reject) => {
+      const transaction = database.transaction('camera-roll-files', 'readwrite');
+      transaction.objectStore('camera-roll-files').put({ id: `pending-half-frame:${state.camRollId}`, rawBlob, savedAt: Date.now() });
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error || new Error('Could not protect the pending half-frame photo'));
+      transaction.onabort = () => reject(transaction.error || new Error('Pending half-frame save was interrupted'));
+    });
+  }
+  async function loadPendingHalfFrame(rollId) {
+    const record = await loadCameraRollFiles(`pending-half-frame:${rollId}`);
+    if (!record?.rawBlob) return null;
+    const bitmap = await createImageBitmap(record.rawBlob);
+    const canvas = document.createElement('canvas');
+    canvas.width = bitmap.width; canvas.height = bitmap.height;
+    canvas.getContext('2d').drawImage(bitmap, 0, 0);
+    bitmap.close();
+    return canvas;
+  }
+  async function deletePendingHalfFrame(rollId = state.camRollId) {
+    const database = await openRollDatabase();
+    return new Promise((resolve, reject) => {
+      const transaction = database.transaction('camera-roll-files', 'readwrite');
+      transaction.objectStore('camera-roll-files').delete(`pending-half-frame:${rollId}`);
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error || new Error('Could not clear pending half-frame photo'));
+      transaction.onabort = () => reject(transaction.error || new Error('Pending half-frame removal was interrupted'));
     });
   }
   async function clearCameraRollStorage() {
@@ -4663,6 +4700,24 @@
     const sx = (srcW - sw) / 2;
     const sy = (srcH - sh) / 2;
     targetCtx.drawImage(source, sx, sy, sw, sh, 0, 0, outW, outH);
+  }
+
+  // Keep camera captures landscape even when the phone is held upright.
+  function drawCameraLandscapeSource(targetCtx, source, outW, outH, zoomFactor = 1.0) {
+    const srcW = source.videoWidth || source.width || outW;
+    const srcH = source.videoHeight || source.height || outH;
+    const portrait = srcW < srcH;
+    const orientedW = portrait ? srcH : srcW;
+    const orientedH = portrait ? srcW : srcH;
+    const scale = Math.max(outW / orientedW, outH / orientedH) * Math.max(1, zoomFactor || 1);
+    targetCtx.save();
+    targetCtx.setTransform(1, 0, 0, 1, 0, 0);
+    targetCtx.clearRect(0, 0, outW, outH);
+    targetCtx.translate(outW / 2, outH / 2);
+    if (portrait) targetCtx.rotate(Math.PI / 2);
+    targetCtx.scale(scale, scale);
+    targetCtx.drawImage(source, -srcW / 2, -srcH / 2);
+    targetCtx.restore();
   }
 
   function getLabTargetDimensions(srcCanvas, maxDim, maxPixels = 0) {
@@ -6155,25 +6210,11 @@
   }
 
   function getCameraStageDimensions(body, lens) {
-    if (body.id === 'half-frame') return { w: 360, h: 480, ratio: 3 / 4 };
-    if (body.id === 'pocket-110') return { w: 360, h: 480, ratio: 3 / 4 };
-    if (body.id === 'medium-format') {
-      if (lens.id === '6x45') return { w: 360, h: 480, ratio: 3 / 4 };
-      if (lens.id === '6x7') return { w: 360, h: 420, ratio: 6 / 7 };
-      return { w: 360, h: 360, ratio: 1 };
-    }
-    return { w: 400, h: 600, ratio: 2 / 3 };
+    return { w: 600, h: 400, ratio: 3 / 2 };
   }
 
   function getCameraCaptureDimensions(body, lens) {
-    if (body.id === 'half-frame') return { w: 960, h: 1280, ratio: 3 / 4 };
-    if (body.id === 'pocket-110') return { w: 960, h: 1280, ratio: 3 / 4 };
-    if (body.id === 'medium-format') {
-      if (lens.id === '6x45') return { w: 960, h: 1280, ratio: 3 / 4 };
-      if (lens.id === '6x7') return { w: 1080, h: 1260, ratio: 6 / 7 };
-      return { w: 1200, h: 1200, ratio: 1 };
-    }
-    return { w: 853, h: 1280, ratio: 2 / 3 };
+    return { w: 1440, h: 960, ratio: 3 / 2 };
   }
 
   function layoutViewfinderStage() {
@@ -6230,7 +6271,9 @@
   }
 
   function clearPendingHalfFrame() {
+    const pendingRollId = state.camRollId;
     state.halfFrameFirstCanvas = null;
+    deletePendingHalfFrame(pendingRollId).catch(() => {});
     const ghost = document.getElementById('vfHfGhostImg');
     if (ghost) {
       ghost.classList.remove('visible');
@@ -6310,6 +6353,16 @@
     }
 
     const srcBtn = document.getElementById('camSourceStatus');
+    const controlStatus = document.getElementById('camControlSupport');
+    if (controlStatus) {
+      const live = !!state.camStream?.getTracks().some(track => track.readyState === 'live');
+      controlStatus.textContent = live
+        ? `EV ${state.camAppliedHardware.exposureCompensation ? 'CAM' : 'APP'} · ISO ${state.camAppliedHardware.iso ? 'CAM' : 'FILM'}`
+        : 'EV APP · ISO FILM';
+      controlStatus.title = live
+        ? 'CAM means the phone camera accepted the control; APP/FILM means Tee’s Lab simulates the effect.'
+        : 'Simulated preview: exposure and ISO are part of the film look.';
+    }
     if (srcBtn) {
       const isLive = !!state.camStream?.getTracks().some(track => track.readyState === 'live');
       srcBtn.classList.toggle('live', isLive);
@@ -6387,6 +6440,7 @@
         }
       }
     }
+    syncCameraHudUI();
   }
 
   let camStartPromise = null;
@@ -7060,6 +7114,7 @@
     const tmp = document.createElement('canvas');
     const tCtx = tmp.getContext('2d', { willReadFrequently: true }), vfCtx = vfCanvas.getContext('2d');
     let last = 0;
+    let landscapeUploadVersion = 0;
     const loop = (ts) => {
       state.camAnimId = requestAnimationFrame(loop);
 
@@ -7091,7 +7146,7 @@
         vfCanvas.height = targetH;
       }
 
-      const vfRatio = stageDim.ratio;
+      const vfRatio = 3 / 2;
       const vfZoom = body.id === 'rangefinder' ? 1.0 : (lens.cropZoom || 1.0);
       const vfConfig = {
         phone, body, lens, film, strength: 100, exposureEV: cameraExposureEV(), warmth: state.warmth,
@@ -7100,8 +7155,11 @@
         dateStampText, frameNumberStr: '', flashBurst: body.id === 'disposable' && state.camFlashOn
       };
 
+      if (tmp.width !== targetW || tmp.height !== targetH) { tmp.width = targetW; tmp.height = targetH; }
+      drawCameraLandscapeSource(tCtx, src, targetW, targetH, vfZoom);
+
       if (gpuReady) {
-        const rendered = gpu.render(src, hasLiveVideo, hasLiveVideo ? -1 : previewSourceVersion, targetW, targetH, vfRatio, vfZoom, vfConfig);
+        const rendered = gpu.render(tmp, hasLiveVideo, hasLiveVideo ? -1 : ++landscapeUploadVersion, targetW, targetH, vfRatio, 1, vfConfig);
         if (rendered) {
           vfCtx.drawImage(rendered, 0, 0);
           if (dateStampText) {
@@ -7113,18 +7171,13 @@
             vfCtx.shadowColor = 'rgba(255,45,0,0.9)'; vfCtx.shadowBlur = Math.max(4, Math.round(fs * 0.4));
             vfCtx.fillStyle = '#ff6a1a';
             const pad = Math.max(10, Math.round(minDim * 0.045));
-            vfCtx.translate(pad, targetH - pad);
-            vfCtx.rotate(Math.PI / 2);
-            vfCtx.fillText(dateStampText, 0, 0);
+            vfCtx.fillText(dateStampText, targetW - pad, targetH - pad);
             vfCtx.restore();
           }
           if (!hasLiveVideo) cameraLastStaticKey = staticKey;
           return;
         }
       }
-
-      if (tmp.width !== targetW || tmp.height !== targetH) { tmp.width = targetW; tmp.height = targetH; }
-      drawCroppedSource(tCtx, src, targetW, targetH, vfRatio, vfZoom);
 
       cameraJobInFlight = true;
       if (!hasLiveVideo) cameraLastStaticKey = staticKey;
@@ -7307,11 +7360,15 @@
 
         if (!state.halfFrameFirstCanvas) {
           state.halfFrameFirstCanvas = halfC;
+          let safelyStored = false;
+          try { await savePendingHalfFrame(halfC); safelyStored = true; } catch (error) {}
           state.camNeedsWind = true;
           const ghost = document.getElementById('vfHfGhostImg');
           if (ghost) ghost.src = halfC.toDataURL('image/jpeg', 0.72);
           syncCameraHudUI();
-          showToast('🎞️ 1/2 captured — Gạt cần lên phim để chụp khung 2/2');
+          showToast(safelyStored
+            ? '🎞️ 1/2 saved safely — WIND to take frame 2/2'
+            : '🎞️ 1/2 captured — WIND to take frame 2/2 (keep app open until paired)');
           return;
         }
 
@@ -7323,16 +7380,16 @@
         dCtx.fillRect(0, 0, dipC.width, dipC.height);
         dCtx.drawImage(firstHalf, 20, 20, 600, 800);
         dCtx.drawImage(halfC, 640, 20, 600, 800);
-        clearPendingHalfFrame();
         const rawBlob = await canvasToJpegBlob(dipC, 0.92);
         await saveCameraExposure(rawBlob, shotNumber, { isDiptych: true });
+        clearPendingHalfFrame();
         return;
       }
 
       const capDim = getCameraCaptureDimensions(body, lens);
       const capC = document.createElement('canvas');
       capC.width = capDim.w; capC.height = capDim.h;
-      drawCroppedSource(capC.getContext('2d'), src, capDim.w, capDim.h, capDim.ratio, capZoom);
+      drawCameraLandscapeSource(capC.getContext('2d'), src, capDim.w, capDim.h, capZoom);
       const rawBlob = await canvasToJpegBlob(capC, 0.92);
       await saveCameraExposure(rawBlob, shotNumber, { isDiptych: false });
     } catch (error) {
@@ -7394,6 +7451,15 @@
     try {
       const savedShots = await loadCameraRollFromStorage();
       state.camRollShots = savedShots.reverse();
+      const pendingHalf = await loadPendingHalfFrame(state.camRollId).catch(() => null);
+      if (pendingHalf) {
+        state.bodyId = 'half-frame';
+        state.hfDiptychMode = true;
+        state.halfFrameFirstCanvas = pendingHalf;
+        state.camNeedsWind = true;
+        saveCameraRollMeta();
+        syncAllUI();
+      }
       renderContactSheet();
       syncCameraHudUI();
     } catch (error) {}
